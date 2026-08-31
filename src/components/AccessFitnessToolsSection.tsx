@@ -10,13 +10,14 @@ export const AccessFitnessToolsSection: React.FC = () => {
       id="access-fitness-tools-section"
       className="relative bg-[#08080a] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-white/10 overflow-hidden"
     >
+      <div id="features-section" className="absolute -top-12 left-0 pointer-events-none" />
       <div className="max-w-7xl mx-auto">
         
         {/* Section Header Indicator */}
         <div className="flex items-center gap-2 mb-6">
           <span className="h-1.5 w-1.5 bg-[#FFC515]"></span>
           <span className="text-[11px] font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
-            DIGITAL FITNESS SUITE
+            DIGITAL FITNESS SUITE & FEATURES
           </span>
         </div>
 

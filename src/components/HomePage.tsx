@@ -26,11 +26,11 @@ export const HomePage: React.FC = () => {
       {/* 5. RATE CARDS (MAIN FEATURE) */}
       <RateCardsSection />
 
-      {/* 6. REAL CLIENT TRANSFORMATIONS & TESTIMONIALS */}
-      <RealTransformationsSection />
-
-      {/* 7. ACCESS FITNESS TOOLS (SINGLE ACCESS POINT) */}
+      {/* 6. ACCESS FITNESS TOOLS & FEATURES */}
       <AccessFitnessToolsSection />
+
+      {/* 7. REAL CLIENT TRANSFORMATIONS & TESTIMONIALS */}
+      <RealTransformationsSection />
 
       {/* 8. FINAL CTA */}
       <FinalCtaSection />
