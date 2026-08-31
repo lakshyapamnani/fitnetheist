@@ -3,9 +3,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { AdminProvider } from './context/AdminContext';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
-import { CalorieCalculator } from './components/CalorieCalculator';
-import { DietGenerator } from './components/DietGenerator';
-import { WorkoutPlanner } from './components/WorkoutPlanner';
+import { FitnessToolsPage } from './components/FitnessToolsPage';
 import { ChallengesSection } from './components/ChallengesSection';
 import { TransformationsSection } from './components/TransformationsSection';
 import { CoachSection } from './components/CoachSection';
@@ -34,10 +32,12 @@ const AppContent: React.FC = () => {
       <main className="flex-1 w-full pb-20 lg:pb-0">
         {activeTab === 'home' && <HomePage />}
 
-        {/* Individual Focused Tab Views */}
-        {activeTab === 'calculate' && <CalorieCalculator />}
-        {activeTab === 'nutrition' && <DietGenerator />}
-        {activeTab === 'train' && <WorkoutPlanner />}
+        {/* Dedicated Tools Suite */}
+        {(activeTab === 'tools' || activeTab === 'calculate' || activeTab === 'nutrition' || activeTab === 'train') && (
+          <FitnessToolsPage />
+        )}
+
+        {/* Secondary Views */}
         {activeTab === 'challenges' && <ChallengesSection />}
         {activeTab === 'transform' && <TransformationsSection />}
         {activeTab === 'community' && <CommunitySection />}

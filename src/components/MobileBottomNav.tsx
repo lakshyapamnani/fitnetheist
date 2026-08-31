@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   Flame, 
-  Calculator, 
-  Utensils, 
-  Dumbbell, 
+  Wrench, 
+  Sparkles, 
   User, 
   MoreHorizontal, 
   Trophy, 
   Users, 
-  Sparkles, 
   CreditCard, 
   Shield, 
   X,
   Zap,
-  Layers
+  PhoneCall
 } from 'lucide-react';
 
 export const MobileBottomNav: React.FC = () => {
@@ -23,24 +21,37 @@ export const MobileBottomNav: React.FC = () => {
 
   const primaryNavItems = [
     { id: 'home', label: 'HOME', icon: Flame },
-    { id: 'calculate', label: 'CALC', icon: Calculator },
-    { id: 'nutrition', label: 'DIET', icon: Utensils },
-    { id: 'train', label: 'TRAIN', icon: Dumbbell },
+    { id: 'tools', label: 'TOOLS', icon: Wrench },
+    { id: 'transform', label: 'RESULTS', icon: Sparkles },
     { id: 'dashboard', label: user ? 'ME' : 'LOGIN', icon: User },
   ];
 
   const secondaryNavItems = [
+    { id: 'home_pricing', label: 'RATE CARDS', icon: CreditCard, desc: 'Monthly & 90-Day Plans', isSection: true, targetId: 'rate-cards-section' },
+    { id: 'home_connect', label: 'CONNECT', icon: PhoneCall, desc: 'WhatsApp & Direct Desk', isSection: true, targetId: 'connect-with-us-section' },
     { id: 'challenges', label: 'CHALLENGES', icon: Trophy, desc: 'Earn badges & streaks' },
-    { id: 'transform', label: 'TRANSFORM', icon: Sparkles, desc: 'Real client results' },
     { id: 'community', label: 'THE TRIBE', icon: Users, desc: 'Athlete feed & leaderboard' },
-    { id: 'coach', label: 'COACH', icon: Zap, desc: 'Elite trainer guidance' },
-    { id: 'pricing', label: 'PRICING', icon: CreditCard, desc: 'Programs & memberships' },
     { id: 'admin', label: 'ADMIN HUB', icon: Shield, desc: 'Leads & analytics backend' },
   ];
 
   const handleSelectTab = (tabId: string) => {
     setActiveTab(tabId);
     setIsMoreMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSectionJump = (targetId: string) => {
+    setIsMoreMenuOpen(false);
+    if (activeTab !== 'home') {
+      setActiveTab('home');
+      setTimeout(() => {
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.getElementById(targetId);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -61,7 +72,7 @@ export const MobileBottomNav: React.FC = () => {
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 bg-[#FFC515]" />
                 <span className="text-xs font-mono-num font-bold text-white uppercase tracking-widest">
-                  PLATFORM NAVIGATION
+                  FITNETHEIST NAVIGATION
                 </span>
               </div>
               <button 
@@ -77,24 +88,24 @@ export const MobileBottomNav: React.FC = () => {
             <div className="grid grid-cols-2 gap-2.5 pt-1">
               {secondaryNavItems.map(item => {
                 const Icon = item.icon;
-                const isItemActive = activeTab === item.id;
                 return (
                   <button
                     key={item.id}
                     id={`mobile-sheet-${item.id}`}
-                    onClick={() => handleSelectTab(item.id)}
-                    className={`text-left p-3.5 border transition-all mobile-tap-active flex flex-col justify-between ${
-                      isItemActive 
-                        ? 'border-[#FFC515] bg-[#FFC515]/10 text-white' 
-                        : 'border-white/10 bg-[#101014] hover:bg-white/5 text-white/80'
-                    }`}
+                    onClick={() => {
+                      if (item.isSection) {
+                        handleSectionJump(item.targetId!);
+                      } else {
+                        handleSelectTab(item.id);
+                      }
+                    }}
+                    className="text-left p-3.5 border border-white/10 bg-[#101014] hover:bg-white/5 text-white/80 transition-all flex flex-col justify-between"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <Icon size={18} className={isItemActive ? 'text-[#FFC515]' : 'text-white/60'} />
-                      {isItemActive && <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full" />}
+                      <Icon size={18} className="text-[#FFC515]" />
                     </div>
                     <div>
-                      <span className="block font-mono-num font-bold text-xs uppercase tracking-wider">
+                      <span className="block font-mono-num font-bold text-xs uppercase tracking-wider text-white">
                         {item.label}
                       </span>
                       <span className="block text-[10px] text-white/50 font-sans truncate">
@@ -160,7 +171,7 @@ export const MobileBottomNav: React.FC = () => {
                   handleSelectTab(item.id);
                 }
               }}
-              className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all mobile-tap-active ${
+              className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all ${
                 isActive 
                   ? 'text-[#FFC515] font-bold' 
                   : 'text-white/60 hover:text-white'
@@ -187,7 +198,7 @@ export const MobileBottomNav: React.FC = () => {
         <button
           id="mobile-bottom-more-btn"
           onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-          className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all mobile-tap-active ${
+          className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all ${
             isMoreMenuOpen ? 'text-[#FFC515]' : 'text-white/60 hover:text-white'
           }`}
           aria-label="More navigation links"

@@ -1,6 +1,6 @@
 {
   "name": "FITNETHEIST",
-  "description": "Premium editorial athletic fitness platform featuring scientific calorie calculators, customized 7-day diet generation, workout planning, consistency tracking, challenges, and athletic performance engineering.",
+  "description": "FITNETHEIST – BE THE ONE By Coach Neetu. Minimal, premium, personal coaching, transparent rate cards, and scientific fitness tools.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

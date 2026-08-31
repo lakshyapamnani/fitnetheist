@@ -1,87 +1,73 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { ArrowRight, Flame } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export const FinalCtaSection: React.FC = () => {
   const { setActiveTab } = useApp();
 
+  const scrollToRateCards = () => {
+    const el = document.getElementById('rate-cards-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section 
       id="final-cta-section"
-      className="relative bg-[#050507] text-white py-28 sm:py-36 px-4 sm:px-6 lg:px-8 border-b border-white/10 overflow-hidden"
+      className="relative bg-[#050507] text-white py-24 sm:py-36 px-4 sm:px-6 lg:px-8 border-b border-white/10 overflow-hidden"
     >
-      {/* Background Athlete Image with Dark Cinematic Vignette */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=2000&q=85"
-          alt="Athletic training discipline environment"
-          className="w-full h-full object-cover filter grayscale contrast-150 brightness-[0.25]"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/80 to-transparent" />
-        <div className="absolute inset-0 bg-radial-vignette opacity-80" />
+      {/* Background ambient lighting */}
+      <div className="absolute inset-0 z-0 select-none pointer-events-none">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#FFC515]/5 rounded-full blur-[140px]" />
       </div>
 
-      {/* Subtle Neon Environmental Accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#FFC515]/5 rounded-full blur-[160px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8">
         
-        <div className="max-w-4xl space-y-8">
-          
-          {/* Section Indicator */}
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 bg-[#FFC515]"></span>
-            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
-              13 // THE DECISION
-            </span>
-          </div>
+        {/* Brand Sub-header */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#101014] border border-white/15 text-[#FFC515] text-[10px] sm:text-[11px] font-mono-num font-bold tracking-[0.25em] uppercase mx-auto">
+          <span className="w-1.5 h-1.5 bg-[#FFC515]"></span>
+          FITNETHEIST COACHING
+        </div>
 
-          {/* Headline */}
-          <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold uppercase tracking-tight leading-[0.9] font-display text-white">
-            YOUR TRANSFORMATION<br />
-            <span className="text-[#FFC515]">STARTS TODAY.</span>
-          </h2>
+        {/* Headline */}
+        <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold uppercase tracking-tight leading-[0.92] font-display text-white">
+          READY TO BECOME<br />
+          <span className="text-[#FFC515]">THE ONE?</span>
+        </h2>
 
-          {/* Supporting Copy (Exact requested text) */}
-          <div className="space-y-2 font-mono-num text-base sm:text-xl text-white/70 border-l-2 border-[#FFC515] pl-6 py-2">
-            <p>Stop guessing.</p>
-            <p>Start training.</p>
-            <p>Start eating with purpose.</p>
-            <p className="text-white font-extrabold">Start becoming stronger.</p>
-          </div>
+        {/* Supporting text */}
+        <div className="font-mono-num text-sm sm:text-base text-white/70 space-y-1">
+          <p>Personalized coaching.</p>
+          <p>Real guidance.</p>
+          <p>Real transformation.</p>
+        </div>
 
-          {/* Primary and Secondary Action Buttons */}
-          <div className="pt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            
-            {/* Primary CTA */}
-            <button
-              id="final-cta-start-transformation"
-              onClick={() => setActiveTab('challenges')}
-              className="px-8 py-4 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-mono-num font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors shadow-[0_0_20px_rgba(255,197,21,0.3)]"
-            >
-              <span>START YOUR TRANSFORMATION</span>
-              <ArrowRight size={16} />
-            </button>
+        {/* Dual Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <button
+            id="final-cta-start-transformation"
+            onClick={scrollToRateCards}
+            className="w-full sm:w-auto px-8 py-4 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-mono-num font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors shadow-[0_0_20px_rgba(255,197,21,0.25)]"
+          >
+            <span>START YOUR TRANSFORMATION</span>
+            <ArrowRight size={16} strokeWidth={2.5} />
+          </button>
 
-            {/* Secondary CTA */}
-            <button
-              id="final-cta-calculate-calories"
-              onClick={() => setActiveTab('calculate')}
-              className="px-8 py-4 bg-[#101014] hover:bg-white/10 border border-white/20 hover:border-white/50 text-white font-mono-num font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors backdrop-blur-sm"
-            >
-              <span>CALCULATE MY CALORIES</span>
-              <ArrowRight size={16} />
-            </button>
+          <button
+            id="final-cta-explore-tools"
+            onClick={() => {
+              setActiveTab('tools');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="w-full sm:w-auto px-8 py-4 bg-[#101014] hover:bg-white/10 text-white border border-white/20 hover:border-white/50 font-mono-num font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors text-center"
+          >
+            EXPLORE FITNESS TOOLS →
+          </button>
+        </div>
 
-          </div>
-
-          {/* Guarantee Subtext */}
-          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono-num text-white/40">
-            <span>FITNETHEIST PERFORMANCE ARCHITECTURE</span>
-            <span className="text-white/60">JOIN 4,200+ ATHLETES WORLDWIDE</span>
-          </div>
-
+        <div className="pt-8 text-xs font-mono-num text-white/40">
+          FITNETHEIST – BE THE ONE By Coach Neetu
         </div>
 
       </div>

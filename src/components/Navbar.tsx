@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Menu, X, User, ShieldCheck } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, activeTab, setActiveTab, openAuthModal, logoutUser } = useApp();
@@ -15,16 +15,32 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { id: 'calculate', label: 'CALCULATE' },
-    { id: 'nutrition', label: 'NUTRITION' },
-    { id: 'train', label: 'TRAIN' },
-    { id: 'challenges', label: 'CHALLENGES' },
-    { id: 'transform', label: 'TRANSFORM' },
-    { id: 'community', label: 'THE TRIBE' },
-    { id: 'coach', label: 'COACH' },
-    { id: 'pricing', label: 'PRICING' },
-    { id: 'admin', label: 'ADMIN' },
+  const handleNavClick = (sectionId: string, tabFallback: string = 'home') => {
+    setIsMobileMenuOpen(false);
+    if (activeTab !== 'home') {
+      setActiveTab('home');
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        setActiveTab(tabFallback);
+      }
+    }
+  };
+
+  const navItems = [
+    { id: 'about', label: 'ABOUT', targetSection: 'coach-story-section' },
+    { id: 'coaching', label: 'COACHING', targetSection: 'coaching-philosophy-section' },
+    { id: 'pricing', label: 'PRICING', targetSection: 'rate-cards-section' },
+    { id: 'transformations', label: 'TRANSFORMATIONS', targetSection: 'real-transformations-section' },
+    { id: 'tools', label: 'TOOLS', isDirectTab: true, tabName: 'tools' },
   ];
 
   return (
@@ -32,7 +48,7 @@ export const Navbar: React.FC = () => {
       id="main-navigation-header"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-[#09090b]/95 backdrop-blur-md border-b border-white/10 py-3.5' 
+          ? 'bg-[#08080a]/95 backdrop-blur-md border-b border-white/10 py-3.5' 
           : 'bg-transparent border-b border-white/5 py-5'
       }`}
     >
@@ -41,7 +57,7 @@ export const Navbar: React.FC = () => {
         {/* Brand Logo */}
         <button 
           id="nav-brand-logo"
-          onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}
+          onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           className="group flex items-center gap-2 text-left text-white focus:outline-none"
         >
           <span className="font-display font-extrabold text-xl sm:text-2xl tracking-tighter text-white group-hover:text-[#FFC515] transition-colors">
@@ -51,28 +67,44 @@ export const Navbar: React.FC = () => {
         </button>
 
         {/* Desktop Navigation Links */}
-        <nav id="desktop-navigation-links" className="hidden lg:flex items-center gap-6 xl:gap-8">
-          {navLinks.map((link) => {
-            const isActive = activeTab === link.id;
+        <nav id="desktop-navigation-links" className="hidden lg:flex items-center gap-8">
+          {navItems.map((item) => {
+            const isToolsActive = item.id === 'tools' && activeTab === 'tools';
             return (
               <button
-                key={link.id}
-                id={`nav-link-${link.id}`}
-                onClick={() => setActiveTab(link.id)}
+                key={item.id}
+                id={`nav-link-${item.id}`}
+                onClick={() => {
+                  if (item.isDirectTab) {
+                    setActiveTab(item.tabName);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    handleNavClick(item.targetSection);
+                  }
+                }}
                 className={`text-xs font-mono-num font-semibold tracking-wider transition-all uppercase ${
-                  isActive 
-                    ? 'text-[#FFC515] border-b-2 border-[#FFC515] pb-1' 
-                    : 'text-white/60 hover:text-[#FFC515]'
+                  isToolsActive
+                    ? 'text-[#FFC515] border-b-2 border-[#FFC515] pb-0.5' 
+                    : 'text-white/65 hover:text-[#FFC515]'
                 }`}
               >
-                {link.label}
+                {item.label}
               </button>
             );
           })}
         </nav>
 
-        {/* Right CTA Actions */}
+        {/* Right CTA Actions: CONNECT, LOGIN, START NOW */}
         <div id="nav-right-actions" className="hidden lg:flex items-center gap-4">
+          
+          <button
+            id="nav-connect-button"
+            onClick={() => handleNavClick('connect-with-us-section')}
+            className="text-xs font-mono-num font-semibold tracking-wider text-white/70 hover:text-white px-3 py-1.5 uppercase transition-colors"
+          >
+            CONNECT
+          </button>
+
           {user ? (
             <div className="flex items-center gap-3">
               <button
@@ -84,7 +116,7 @@ export const Navbar: React.FC = () => {
                     : 'text-white border-white/20 hover:border-white/50 bg-[#101014]'
                 }`}
               >
-                DASHBOARD ({user.streakDays}D)
+                PROFILE ({user.streakDays}D)
               </button>
               
               <button
@@ -97,35 +129,33 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <button
-                id="nav-login-button"
-                onClick={() => openAuthModal('login')}
-                className="text-xs font-mono-num font-semibold tracking-wider text-white/70 hover:text-white px-3 py-1.5"
-              >
-                LOGIN
-              </button>
-              <button
-                id="nav-start-now-button"
-                onClick={() => setActiveTab('calculate')}
-                className="px-4 py-2 text-xs font-mono-num font-extrabold tracking-wider text-black bg-[#FFC515] hover:bg-[#E6AF0F] transition-colors uppercase rounded-none glow-accent-subtle shadow-[0_0_15px_rgba(255,197,21,0.25)]"
-              >
-                START NOW
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile menu hamburger */}
-        <div className="flex items-center gap-3 lg:hidden">
-          {user && (
             <button
-              onClick={() => setActiveTab('dashboard')}
-              className="text-xs font-mono-num text-[#FFC515] px-2 py-1 border border-[#FFC515]/40"
+              id="nav-login-button"
+              onClick={() => openAuthModal('login')}
+              className="text-xs font-mono-num font-semibold tracking-wider text-white/70 hover:text-white px-3 py-1.5 uppercase"
             >
-              {user.streakDays}D STREAK
+              LOGIN
             </button>
           )}
+
+          {/* Primary Action: START NOW */}
+          <button
+            id="nav-start-now-button"
+            onClick={() => handleNavClick('rate-cards-section')}
+            className="px-4 py-2 text-xs font-mono-num font-extrabold tracking-wider text-black bg-[#FFC515] hover:bg-[#E6AF0F] transition-colors uppercase shadow-[0_0_15px_rgba(255,197,21,0.25)]"
+          >
+            START NOW
+          </button>
+        </div>
+
+        {/* Mobile menu toggle */}
+        <div className="flex items-center gap-2.5 lg:hidden">
+          <button
+            onClick={() => handleNavClick('rate-cards-section')}
+            className="px-3 py-1.5 text-[11px] font-mono-num font-extrabold text-black bg-[#FFC515] uppercase"
+          >
+            START NOW
+          </button>
           <button
             id="mobile-hamburger-button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -140,66 +170,59 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div id="mobile-navigation-drawer" className="lg:hidden fixed inset-x-0 top-[60px] bg-[#08080a]/98 backdrop-blur-2xl border-b border-white/15 px-5 py-6 space-y-5 max-h-[calc(100vh-60px)] overflow-y-auto animate-in slide-in-from-top-2 duration-200 shadow-2xl">
+        <div id="mobile-navigation-drawer" className="lg:hidden fixed inset-x-0 top-[60px] bg-[#08080a]/98 backdrop-blur-2xl border-b border-white/15 px-5 py-6 space-y-4 max-h-[calc(100vh-60px)] overflow-y-auto shadow-2xl">
           
-          <div className="flex items-center justify-between text-xs font-mono-num text-white/60 border-b border-white/10 pb-3">
-            <span className="text-[#FFC515] font-bold tracking-widest uppercase">DIRECT EXPLORATION</span>
-            <span>{navLinks.length} MODULES</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            {navLinks.map((link) => (
+          <div className="space-y-2 font-mono-num text-xs">
+            {navItems.map((item) => (
               <button
-                key={link.id}
-                id={`mobile-nav-${link.id}`}
+                key={item.id}
                 onClick={() => {
-                  setActiveTab(link.id);
-                  setIsMobileMenuOpen(false);
+                  if (item.isDirectTab) {
+                    setActiveTab(item.tabName);
+                    setIsMobileMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    handleNavClick(item.targetSection);
+                  }
                 }}
-                className={`text-left px-3.5 py-3 text-xs font-mono-num font-bold tracking-wider uppercase border transition-all mobile-tap-active flex items-center justify-between ${
-                  activeTab === link.id
-                    ? 'border-[#FFC515] text-[#FFC515] bg-[#FFC515]/10'
-                    : 'border-white/10 bg-[#101014] text-white/70 hover:text-white hover:border-white/30'
-                }`}
+                className="w-full text-left py-3 px-4 border border-white/10 bg-[#101014] text-white hover:border-[#FFC515] hover:text-[#FFC515] uppercase font-bold tracking-wider flex items-center justify-between"
               >
-                <span>{link.label}</span>
-                {activeTab === link.id && <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full" />}
+                <span>{item.label}</span>
+                <ArrowRight size={14} className="text-[#FFC515]" />
               </button>
             ))}
           </div>
 
-          <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
+          <div className="pt-3 border-t border-white/10 space-y-2">
+            <button
+              onClick={() => handleNavClick('connect-with-us-section')}
+              className="w-full py-3 text-center border border-white/20 text-white font-mono-num text-xs uppercase font-bold"
+            >
+              CONNECT WITH US
+            </button>
+            
             {user ? (
-              <>
-                <button
-                  onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
-                  className="w-full py-3.5 bg-[#FFC515] text-black text-xs font-mono-num font-extrabold tracking-wider uppercase mobile-tap-active shadow-[0_0_15px_rgba(255,197,21,0.2)]"
-                >
-                  VIEW ATHLETE DASHBOARD ({user.streakDays}D STREAK)
-                </button>
-                <button
-                  onClick={() => { logoutUser(); setIsMobileMenuOpen(false); }}
-                  className="w-full py-2.5 border border-white/10 text-white/50 text-xs font-mono-num uppercase hover:text-white"
-                >
-                  LOGOUT ({user.name})
-                </button>
-              </>
+              <button
+                onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
+                className="w-full py-3 bg-white text-black font-mono-num text-xs uppercase font-bold"
+              >
+                DASHBOARD ({user.name})
+              </button>
             ) : (
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  onClick={() => { openAuthModal('login'); setIsMobileMenuOpen(false); }}
-                  className="py-3 border border-white/20 text-white text-xs font-mono-num font-bold uppercase hover:bg-white/10"
-                >
-                  LOGIN
-                </button>
-                <button
-                  onClick={() => { setActiveTab('calculate'); setIsMobileMenuOpen(false); }}
-                  className="py-3 bg-[#FFC515] text-black text-xs font-mono-num font-extrabold uppercase hover:bg-[#E6AF0F]"
-                >
-                  CALCULATE CALORIES
-                </button>
-              </div>
+              <button
+                onClick={() => { openAuthModal('login'); setIsMobileMenuOpen(false); }}
+                className="w-full py-3 border border-white/15 text-white/80 font-mono-num text-xs uppercase"
+              >
+                LOGIN
+              </button>
             )}
+
+            <button
+              onClick={() => handleNavClick('rate-cards-section')}
+              className="w-full py-3.5 bg-[#FFC515] text-black font-mono-num font-extrabold text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(255,197,21,0.25)]"
+            >
+              START YOUR TRANSFORMATION →
+            </button>
           </div>
         </div>
       )}
