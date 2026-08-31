@@ -1,0 +1,7 @@
+{
+  "name": "FITNETHEIST",
+  "description": "Premium editorial athletic fitness platform featuring scientific calorie calculators, customized 7-day diet generation, workout planning, consistency tracking, challenges, and athletic performance engineering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

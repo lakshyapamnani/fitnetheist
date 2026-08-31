@@ -1,0 +1,211 @@
+import React, { useState } from 'react';
+import { useApp } from '../context/AppContext';
+import { Award, CheckCircle2, Shield, Calendar, Send, Check } from 'lucide-react';
+
+export const CoachSection: React.FC = () => {
+  const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
+  const [consultSubmitted, setConsultSubmitted] = useState(false);
+  const [athleteName, setAthleteName] = useState('');
+  const [athleteEmail, setAthleteEmail] = useState('');
+  const [athleteGoal, setAthleteGoal] = useState('Aggressive Body Recomposition');
+
+  const handleConsultSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setConsultSubmitted(true);
+    setTimeout(() => {
+      setConsultSubmitted(false);
+      setIsConsultModalOpen(false);
+    }, 2500);
+  };
+
+  return (
+    <div id="coach-section-page" className="min-h-screen bg-[#08080a] text-white pt-24 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header */}
+        <div className="border-b border-white/10 pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="h-2 w-2 bg-[#d8ff38]"></span>
+              <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
+                HUMAN LEADERSHIP // 10
+              </span>
+            </div>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold uppercase tracking-tight font-display">
+              SOMEONE HAS<br />
+              <span className="text-[#d8ff38]">YOUR BACK.</span>
+            </h1>
+            <p className="text-zinc-400 text-sm max-w-2xl mt-2 font-mono-num">
+              Behind the algorithms and code is a strict, battle-tested coaching methodology developed through over a decade of coaching competitive athletes and busy professionals.
+            </p>
+          </div>
+        </div>
+
+        {/* Coach Profile Card */}
+        <div className="grid lg:grid-cols-12 border border-white/10 bg-zinc-950 mb-16">
+          
+          {/* Coach Photo */}
+          <div className="lg:col-span-5 h-[460px] lg:h-auto bg-zinc-900 border-b lg:border-b-0 lg:border-r border-white/10 relative overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80"
+              alt="Head Coach Marcus Vance"
+              className="w-full h-full object-cover object-top filter grayscale contrast-125"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+            
+            <div className="absolute bottom-6 left-6 right-6">
+              <span className="px-2 py-0.5 bg-[#d8ff38] text-black text-[10px] font-mono-num font-bold uppercase">
+                FOUNDER & HEAD COACH
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold font-display uppercase text-white mt-1">
+                VIKRAMADITYA "VIK" RATHORE
+              </h2>
+              <p className="text-xs font-mono-num text-zinc-400 mt-0.5">
+                CSCS • Precision Nutrition L2 • 12+ Years Competitive Prep
+              </p>
+            </div>
+          </div>
+
+          {/* Coach Details & Philosophy */}
+          <div className="lg:col-span-7 p-8 sm:p-12 space-y-8 flex flex-col justify-between">
+            <div className="space-y-6">
+              <div>
+                <span className="text-xs font-mono-num text-[#d8ff38] uppercase tracking-widest block mb-2">
+                  THE FITNETHEIST MANIFESTO
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-bold uppercase font-display text-white">
+                  "WE DO NOT NEGOTIATE WITH BIOLOGY."
+                </h3>
+                <p className="text-zinc-400 text-sm font-mono-num leading-relaxed mt-3">
+                  Fitness isn't motivation. Motivation evaporates at 6:00 AM on a cold winter morning. Fitness is system architecture: non-negotiable caloric targets, mathematically structured load progression, and uncompromising daily accountability.
+                </p>
+              </div>
+
+              {/* Credentials Grid */}
+              <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-white/10 font-mono-num text-xs">
+                <div className="border border-white/10 p-3 bg-zinc-900/40">
+                  <span className="text-zinc-500 uppercase block text-[10px]">CERTIFICATIONS</span>
+                  <p className="text-white font-bold mt-1">CSCS (NSCA) & ISSN Sports Nutritionist</p>
+                </div>
+                <div className="border border-white/10 p-3 bg-zinc-900/40">
+                  <span className="text-zinc-500 uppercase block text-[10px]">ATHLETES COACHED</span>
+                  <p className="text-white font-bold mt-1">1,400+ 1-on-1 Transformations</p>
+                </div>
+                <div className="border border-white/10 p-3 bg-zinc-900/40">
+                  <span className="text-zinc-500 uppercase block text-[10px]">SPECIALIZATION</span>
+                  <p className="text-white font-bold mt-1">Natural Hypertrophy & Fat Loss Kinetics</p>
+                </div>
+                <div className="border border-white/10 p-3 bg-zinc-900/40">
+                  <span className="text-zinc-500 uppercase block text-[10px]">ADHERENCE RATE</span>
+                  <p className="text-[#d8ff38] font-bold mt-1">91.4% Program Completion</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs font-mono-num text-zinc-400">
+                Direct 1-on-1 Consultation & Program Audits
+              </span>
+
+              <button
+                onClick={() => setIsConsultModalOpen(true)}
+                className="w-full sm:w-auto px-6 py-3.5 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-mono-num font-bold text-xs uppercase tracking-wider transition-colors"
+              >
+                REQUEST COACH AUDIT
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Consultation Modal */}
+        {isConsultModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#0c0c0e] border border-white/20 max-w-lg w-full p-6 sm:p-8 space-y-6">
+              
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#d8ff38] block">
+                    1-ON-1 PROGRAM AUDIT
+                  </span>
+                  <h3 className="text-2xl font-bold uppercase font-display text-white mt-0.5">
+                    REQUEST COACH CONSULTATION
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsConsultModalOpen(false)}
+                  className="text-zinc-400 hover:text-white font-mono-num text-xs uppercase"
+                >
+                  CLOSE
+                </button>
+              </div>
+
+              {consultSubmitted ? (
+                <div className="p-6 bg-[#d8ff38]/10 border border-[#d8ff38] text-[#d8ff38] font-mono-num text-xs text-center space-y-2">
+                  <Check size={24} className="mx-auto" />
+                  <p className="font-bold text-sm">CONSULTATION REQUEST LOGGED</p>
+                  <p className="text-zinc-300">Coach Vik's team will review your target biometrics within 24 hours.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleConsultSubmit} className="space-y-4 font-mono-num text-xs">
+                  <div>
+                    <label className="block text-zinc-400 uppercase mb-1">FULL NAME</label>
+                    <input
+                      type="text"
+                      required
+                      value={athleteName}
+                      onChange={(e) => setAthleteName(e.target.value)}
+                      placeholder="e.g. Alex Morgan"
+                      className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
+                    <input
+                      type="email"
+                      required
+                      value={athleteEmail}
+                      onChange={(e) => setAthleteEmail(e.target.value)}
+                      placeholder="alex@athlete.com"
+                      className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-zinc-400 uppercase mb-1">PRIMARY ROADBLOCK / GOAL</label>
+                    <textarea
+                      rows={3}
+                      value={athleteGoal}
+                      onChange={(e) => setAthleteGoal(e.target.value)}
+                      className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsConsultModalOpen(false)}
+                      className="px-4 py-2 border border-zinc-800 text-zinc-400 hover:text-white uppercase"
+                    >
+                      CANCEL
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-bold uppercase"
+                    >
+                      SUBMIT REQUEST
+                    </button>
+                  </div>
+                </form>
+              )}
+
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
