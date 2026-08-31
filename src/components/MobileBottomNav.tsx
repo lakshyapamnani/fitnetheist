@@ -59,14 +59,14 @@ export const MobileBottomNav: React.FC = () => {
 
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 bg-[#d8ff38]" />
+                <span className="h-2 w-2 bg-[#FFC515]" />
                 <span className="text-xs font-mono-num font-bold text-white uppercase tracking-widest">
                   PLATFORM NAVIGATION
                 </span>
               </div>
               <button 
                 onClick={() => setIsMoreMenuOpen(false)}
-                className="text-zinc-400 hover:text-white p-1 rounded-full hover:bg-zinc-800"
+                className="text-white/60 hover:text-white p-1 rounded-full hover:bg-white/10"
                 aria-label="Close menu"
               >
                 <X size={18} />
@@ -85,19 +85,19 @@ export const MobileBottomNav: React.FC = () => {
                     onClick={() => handleSelectTab(item.id)}
                     className={`text-left p-3.5 border transition-all mobile-tap-active flex flex-col justify-between ${
                       isItemActive 
-                        ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white' 
-                        : 'border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 text-zinc-300'
+                        ? 'border-[#FFC515] bg-[#FFC515]/10 text-white' 
+                        : 'border-white/10 bg-[#101014] hover:bg-white/5 text-white/80'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <Icon size={18} className={isItemActive ? 'text-[#d8ff38]' : 'text-zinc-400'} />
-                      {isItemActive && <span className="h-1.5 w-1.5 bg-[#d8ff38] rounded-full" />}
+                      <Icon size={18} className={isItemActive ? 'text-[#FFC515]' : 'text-white/60'} />
+                      {isItemActive && <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full" />}
                     </div>
                     <div>
                       <span className="block font-mono-num font-bold text-xs uppercase tracking-wider">
                         {item.label}
                       </span>
-                      <span className="block text-[10px] text-zinc-500 font-sans truncate">
+                      <span className="block text-[10px] text-white/50 font-sans truncate">
                         {item.desc}
                       </span>
                     </div>
@@ -109,14 +109,14 @@ export const MobileBottomNav: React.FC = () => {
             {/* User Session Bar */}
             <div className="pt-3 border-t border-white/10">
               {user ? (
-                <div className="flex items-center justify-between bg-zinc-900/80 p-3 border border-white/10">
+                <div className="flex items-center justify-between bg-[#101014] p-3 border border-white/10">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#d8ff38] text-black flex items-center justify-center font-bold text-xs font-mono-num">
+                    <div className="w-8 h-8 rounded-full bg-[#FFC515] text-black flex items-center justify-center font-bold text-xs font-mono-num">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <span className="block font-bold text-xs text-white">{user.name}</span>
-                      <span className="block text-[10px] text-[#d8ff38] font-mono-num">{user.streakDays} DAY STREAK 🔥</span>
+                      <span className="block text-[10px] text-[#FFC515] font-mono-num">{user.streakDays} DAY STREAK 🔥</span>
                     </div>
                   </div>
                   <button
@@ -129,7 +129,7 @@ export const MobileBottomNav: React.FC = () => {
               ) : (
                 <button
                   onClick={() => { setIsMoreMenuOpen(false); openAuthModal('login'); }}
-                  className="w-full py-3 bg-[#d8ff38] text-black font-mono-num font-bold text-xs uppercase tracking-wider text-center"
+                  className="w-full py-3 bg-[#FFC515] text-black font-mono-num font-bold text-xs uppercase tracking-wider text-center shadow-[0_0_15px_rgba(255,197,21,0.25)]"
                 >
                   SIGN IN / CREATE ACCOUNT
                 </button>
@@ -162,19 +162,19 @@ export const MobileBottomNav: React.FC = () => {
               }}
               className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all mobile-tap-active ${
                 isActive 
-                  ? 'text-[#d8ff38] font-bold' 
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'text-[#FFC515] font-bold' 
+                  : 'text-white/60 hover:text-white'
               }`}
             >
               {/* Active Indicator Bar */}
               {isActive && (
-                <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-1 bg-[#d8ff38] rounded-full shadow-[0_0_8px_#d8ff38]" />
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-1 bg-[#FFC515] rounded-full shadow-[0_0_8px_#FFC515]" />
               )}
 
               <Icon 
                 size={20} 
                 strokeWidth={isActive ? 2.4 : 1.8} 
-                className={isActive ? 'stroke-[#d8ff38] drop-shadow-[0_0_6px_rgba(216,255,56,0.4)]' : 'stroke-current'} 
+                className={isActive ? 'stroke-[#FFC515] drop-shadow-[0_0_6px_rgba(255,197,21,0.4)]' : 'stroke-current'} 
               />
               <span className="mt-1 font-mono-num text-[10px] tracking-wider uppercase">
                 {item.label}
@@ -188,7 +188,7 @@ export const MobileBottomNav: React.FC = () => {
           id="mobile-bottom-more-btn"
           onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
           className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all mobile-tap-active ${
-            isMoreMenuOpen ? 'text-[#d8ff38]' : 'text-zinc-400 hover:text-zinc-200'
+            isMoreMenuOpen ? 'text-[#FFC515]' : 'text-white/60 hover:text-white'
           }`}
           aria-label="More navigation links"
         >

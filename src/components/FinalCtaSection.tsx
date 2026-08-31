@@ -23,7 +23,7 @@ export const FinalCtaSection: React.FC = () => {
       </div>
 
       {/* Subtle Neon Environmental Accent */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#d8ff38]/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[#FFC515]/5 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         
@@ -31,8 +31,8 @@ export const FinalCtaSection: React.FC = () => {
           
           {/* Section Indicator */}
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 bg-[#d8ff38]"></span>
-            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
+            <span className="h-2 w-2 bg-[#FFC515]"></span>
+            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
               13 // THE DECISION
             </span>
           </div>
@@ -40,15 +40,15 @@ export const FinalCtaSection: React.FC = () => {
           {/* Headline */}
           <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold uppercase tracking-tight leading-[0.9] font-display text-white">
             YOUR TRANSFORMATION<br />
-            <span className="text-[#d8ff38]">STARTS TODAY.</span>
+            <span className="text-[#FFC515]">STARTS TODAY.</span>
           </h2>
 
           {/* Supporting Copy (Exact requested text) */}
-          <div className="space-y-2 font-mono-num text-base sm:text-xl text-zinc-300 border-l-2 border-[#d8ff38] pl-6 py-2">
+          <div className="space-y-2 font-mono-num text-base sm:text-xl text-white/70 border-l-2 border-[#FFC515] pl-6 py-2">
             <p>Stop guessing.</p>
             <p>Start training.</p>
             <p>Start eating with purpose.</p>
-            <p className="text-white font-bold">Start becoming stronger.</p>
+            <p className="text-white font-extrabold">Start becoming stronger.</p>
           </div>
 
           {/* Primary and Secondary Action Buttons */}
@@ -58,7 +58,7 @@ export const FinalCtaSection: React.FC = () => {
             <button
               id="final-cta-start-transformation"
               onClick={() => setActiveTab('challenges')}
-              className="px-8 py-4 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors glow-accent-subtle shadow-xl"
+              className="px-8 py-4 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-mono-num font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors shadow-[0_0_20px_rgba(255,197,21,0.3)]"
             >
               <span>START YOUR TRANSFORMATION</span>
               <ArrowRight size={16} />
@@ -68,7 +68,7 @@ export const FinalCtaSection: React.FC = () => {
             <button
               id="final-cta-calculate-calories"
               onClick={() => setActiveTab('calculate')}
-              className="px-8 py-4 bg-zinc-950/80 hover:bg-zinc-900 border border-white/20 hover:border-white/50 text-white font-mono-num font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors backdrop-blur-sm"
+              className="px-8 py-4 bg-[#101014] hover:bg-white/10 border border-white/20 hover:border-white/50 text-white font-mono-num font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors backdrop-blur-sm"
             >
               <span>CALCULATE MY CALORIES</span>
               <ArrowRight size={16} />
@@ -77,9 +77,9 @@ export const FinalCtaSection: React.FC = () => {
           </div>
 
           {/* Guarantee Subtext */}
-          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono-num text-zinc-500">
+          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono-num text-white/40">
             <span>FITNETHEIST PERFORMANCE ARCHITECTURE</span>
-            <span className="text-zinc-400">JOIN 4,200+ ATHLETES WORLDWIDE</span>
+            <span className="text-white/60">JOIN 4,200+ ATHLETES WORLDWIDE</span>
           </div>
 
         </div>

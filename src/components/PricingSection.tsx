@@ -102,25 +102,25 @@ export const PricingSection: React.FC = () => {
         <div className="border-b border-white/10 pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="h-2 w-2 bg-[#d8ff38]"></span>
-              <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
+              <span className="h-2 w-2 bg-[#FFC515]"></span>
+              <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
                 MEMBERSHIP ARCHITECTURE // 08
               </span>
             </div>
             <h1 className="text-4xl sm:text-6xl font-extrabold uppercase tracking-tight font-display">
-              TRANSPARENT PRICING
+              TRANSPARENT <span className="text-[#FFC515]">PRICING</span>
             </h1>
-            <p className="text-zinc-400 text-sm max-w-2xl mt-2">
+            <p className="text-white/70 text-sm max-w-2xl mt-2">
               No hidden subscriptions. No deceptive upsells. Invest in your physical performance with transparent pricing.
             </p>
           </div>
 
           {/* Billing Cycle Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 font-mono-num text-xs">
+          <div className="flex items-center gap-1 p-1 bg-[#14141a] border border-white/10 font-mono-num text-xs">
             <button
               onClick={() => setBillingCycle('MONTHLY')}
               className={`px-3 py-1.5 uppercase font-bold transition-colors ${
-                billingCycle === 'MONTHLY' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
+                billingCycle === 'MONTHLY' ? 'bg-[#FFC515] text-black font-extrabold' : 'text-white/60 hover:text-white'
               }`}
             >
               MONTHLY
@@ -128,7 +128,7 @@ export const PricingSection: React.FC = () => {
             <button
               onClick={() => setBillingCycle('ANNUAL')}
               className={`px-3 py-1.5 uppercase font-bold transition-colors ${
-                billingCycle === 'ANNUAL' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
+                billingCycle === 'ANNUAL' ? 'bg-[#FFC515] text-black font-extrabold' : 'text-white/60 hover:text-white'
               }`}
             >
               ANNUAL (SAVE 25%)
@@ -141,26 +141,26 @@ export const PricingSection: React.FC = () => {
           {plans.map(plan => (
             <div
               key={plan.id}
-              className={`bg-zinc-950 border flex flex-col justify-between p-8 transition-all relative ${
+              className={`bg-[#101014] border flex flex-col justify-between p-8 transition-all relative ${
                 plan.isPopular 
-                  ? 'border-[#d8ff38] bg-zinc-950/90 shadow-[0_0_30px_rgba(216,255,56,0.1)]' 
+                  ? 'border-[#FFC515] bg-[#101014]/90 shadow-[0_0_30px_rgba(255,197,21,0.12)]' 
                   : 'border-white/10 hover:border-white/20'
               }`}
             >
               {plan.isPopular && (
-                <span className="absolute -top-3 left-8 px-3 py-0.5 bg-[#d8ff38] text-black text-[10px] font-mono-num font-extrabold uppercase tracking-wider">
+                <span className="absolute -top-3 left-8 px-3 py-0.5 bg-[#FFC515] text-black text-[10px] font-mono-num font-extrabold uppercase tracking-wider shadow-[0_0_10px_rgba(255,197,21,0.3)]">
                   MOST POPULAR CHOICE
                 </span>
               )}
 
               <div>
-                <span className="text-[10px] font-mono-num text-zinc-500 uppercase tracking-widest block">
+                <span className="text-[10px] font-mono-num text-white/40 uppercase tracking-widest block">
                   {plan.tier}
                 </span>
                 <h3 className="text-2xl font-bold uppercase font-display text-white mt-1">
                   {plan.name}
                 </h3>
-                <p className="text-xs text-zinc-400 font-mono-num mt-2">
+                <p className="text-xs text-white/60 font-mono-num mt-2">
                   {plan.description}
                 </p>
 
@@ -169,7 +169,7 @@ export const PricingSection: React.FC = () => {
                   <span className="text-4xl sm:text-5xl font-extrabold text-white">
                     {billingCycle === 'ANNUAL' ? plan.priceAnnual : plan.priceMonthly}
                   </span>
-                  <span className="text-xs text-zinc-500 uppercase">
+                  <span className="text-xs text-white/40 uppercase">
                     / {plan.period}
                   </span>
                 </div>
@@ -177,8 +177,8 @@ export const PricingSection: React.FC = () => {
                 {/* Features List */}
                 <div className="space-y-3 font-mono-num text-xs mb-8">
                   {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-2 text-zinc-300">
-                      <Check size={14} className="text-[#d8ff38] shrink-0 mt-0.5" />
+                    <div key={i} className="flex items-start gap-2 text-white/80">
+                      <Check size={14} className="text-[#FFC515] shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -188,10 +188,10 @@ export const PricingSection: React.FC = () => {
               {/* Action Button */}
               <button
                 onClick={() => handleSelectPlan(plan.id)}
-                className={`w-full py-3.5 text-xs font-mono-num font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                className={`w-full py-3.5 text-xs font-mono-num font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                   plan.isPopular
-                    ? 'bg-[#d8ff38] hover:bg-[#c9f028] text-black'
-                    : 'bg-zinc-900 hover:bg-white hover:text-black border border-white/15 text-white'
+                    ? 'bg-[#FFC515] hover:bg-[#E6AF0F] text-black shadow-[0_0_15px_rgba(255,197,21,0.25)]'
+                    : 'bg-[#14141a] hover:bg-white hover:text-black border border-white/15 text-white'
                 }`}
               >
                 <span>{plan.cta}</span>

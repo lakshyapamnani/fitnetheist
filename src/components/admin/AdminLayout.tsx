@@ -119,7 +119,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div id="fitnetheist-admin-app" className="min-h-screen bg-[#08080a] text-zinc-100 flex flex-col font-sans selection:bg-[#d8ff38] selection:text-black">
+    <div id="fitnetheist-admin-app" className="min-h-screen bg-[#08080a] text-white flex flex-col font-sans selection:bg-[#FFC515] selection:text-black">
       
       {/* Top Admin Status Bar */}
       <header className="h-16 border-b border-white/10 bg-[#0c0c0f] sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between">
@@ -128,7 +128,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-            className="lg:hidden p-2 text-zinc-400 hover:text-white border border-white/10"
+            className="lg:hidden p-2 text-white/60 hover:text-white border border-white/10"
             aria-label="Toggle admin navigation"
           >
             {isMobileNavOpen ? <X size={18} /> : <Menu size={18} />}
@@ -136,7 +136,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
           <div className="flex items-center gap-3">
             <span className="font-display font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">
-              FITNETHEIST <span className="text-[#d8ff38] text-xs font-mono-num font-bold px-1.5 py-0.5 border border-[#d8ff38]/40 bg-[#d8ff38]/10 uppercase">ADMIN OS</span>
+              FITNETHEIST <span className="text-[#FFC515] text-xs font-mono-num font-bold px-1.5 py-0.5 border border-[#FFC515]/40 bg-[#FFC515]/10 uppercase">ADMIN OS</span>
             </span>
           </div>
         </div>
@@ -148,16 +148,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="relative">
             <button
               onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-              className="px-3 py-1.5 bg-zinc-900 border border-white/15 hover:border-[#d8ff38]/50 flex items-center gap-2 text-zinc-300 hover:text-white transition-colors"
+              className="px-3 py-1.5 bg-[#14141a] border border-white/15 hover:border-[#FFC515]/50 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
-              <span className="h-2 w-2 rounded-full bg-[#d8ff38]"></span>
+              <span className="h-2 w-2 rounded-full bg-[#FFC515]"></span>
               <span className="font-bold text-white uppercase">{currentRole.replace('_', ' ')}</span>
-              <ChevronDown size={14} className="text-zinc-500" />
+              <ChevronDown size={14} className="text-white/40" />
             </button>
 
             {isRoleDropdownOpen && (
               <div className="absolute right-0 mt-2 w-72 bg-[#0d0d11] border border-white/15 p-2 shadow-2xl z-50">
-                <div className="px-3 py-2 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-widest font-bold">
+                <div className="px-3 py-2 border-b border-white/10 text-[10px] text-white/50 uppercase tracking-widest font-bold">
                   SWITCH ACTIVE ROLE
                 </div>
                 <div className="space-y-1 mt-1">
@@ -169,11 +169,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         setIsRoleDropdownOpen(false);
                       }}
                       className={`w-full text-left p-2.5 transition-colors flex flex-col ${
-                        currentRole === r.role ? 'bg-zinc-800 text-[#d8ff38] border-l-2 border-[#d8ff38]' : 'hover:bg-zinc-900 text-zinc-300'
+                        currentRole === r.role ? 'bg-white/10 text-[#FFC515] border-l-2 border-[#FFC515]' : 'hover:bg-[#14141a] text-white/70'
                       }`}
                     >
                       <span className="font-bold text-xs uppercase text-white">{r.label}</span>
-                      <span className="text-[10px] text-zinc-400 mt-0.5 leading-snug">{r.desc}</span>
+                      <span className="text-[10px] text-white/50 mt-0.5 leading-snug">{r.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -185,12 +185,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="relative">
             <button
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="p-2 bg-zinc-900 border border-white/10 hover:border-white/30 text-zinc-300 relative"
+              className="p-2 bg-[#14141a] border border-white/10 hover:border-white/30 text-white/80 relative"
               aria-label="View notifications"
             >
               <Bell size={16} />
               {unreadNotifsCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-[#d8ff38] text-black font-extrabold text-[9px] flex items-center justify-center rounded-full">
+                <span className="absolute -top-1 -right-1 h-4 w-4 bg-[#FFC515] text-black font-extrabold text-[9px] flex items-center justify-center rounded-full">
                   {unreadNotifsCount}
                 </span>
               )}
@@ -201,14 +201,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-white uppercase text-xs">NOTIFICATIONS</span>
-                    <span className="text-[10px] bg-zinc-800 text-[#d8ff38] px-1.5 py-0.5 font-bold">
+                    <span className="text-[10px] bg-[#14141a] text-[#FFC515] px-1.5 py-0.5 font-bold">
                       {notifications.length}
                     </span>
                   </div>
                   {notifications.length > 0 && (
                     <button
                       onClick={clearAllNotifications}
-                      className="text-[10px] text-zinc-400 hover:text-white uppercase underline"
+                      className="text-[10px] text-white/50 hover:text-white uppercase underline"
                     >
                       Clear all
                     </button>
@@ -217,7 +217,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                 <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
                   {notifications.length === 0 ? (
-                    <p className="text-zinc-500 text-center py-6 text-xs">No new notifications.</p>
+                    <p className="text-white/40 text-center py-6 text-xs">No new notifications.</p>
                   ) : (
                     notifications.map(n => (
                       <div
@@ -228,14 +228,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                           setIsNotificationsOpen(false);
                         }}
                         className={`p-3 border transition-colors cursor-pointer ${
-                          n.read ? 'bg-zinc-950/40 border-white/5 opacity-70' : 'bg-zinc-900/90 border-[#d8ff38]/30 shadow-[0_0_10px_rgba(216,255,56,0.05)]'
+                          n.read ? 'bg-black/40 border-white/5 opacity-70' : 'bg-[#14141a] border-[#FFC515]/30 shadow-[0_0_10px_rgba(255,197,21,0.05)]'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-bold text-xs text-white">{n.title}</span>
-                          <span className="text-[10px] text-zinc-500">{n.timestamp}</span>
+                          <span className="text-[10px] text-white/40">{n.timestamp}</span>
                         </div>
-                        <p className="text-zinc-400 text-xs leading-relaxed">{n.message}</p>
+                        <p className="text-white/70 text-xs leading-relaxed">{n.message}</p>
                       </div>
                     ))
                   )}
@@ -247,7 +247,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {/* Exit to Public Website */}
           <button
             onClick={() => setActiveTab('home')}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white uppercase font-bold tracking-wider transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#14141a] hover:bg-white hover:text-black border border-white/15 text-white/80 hover:text-black uppercase font-bold tracking-wider transition-colors"
           >
             <span>LIVE SITE</span>
             <ExternalLink size={12} />
@@ -269,7 +269,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="p-4 space-y-6">
             {navGroups.map(group => (
               <div key={group.group} className="space-y-1">
-                <div className="px-3 py-1.5 text-[10px] font-mono-num font-bold text-zinc-500 uppercase tracking-widest">
+                <div className="px-3 py-1.5 text-[10px] font-mono-num font-bold text-white/40 uppercase tracking-widest">
                   {group.group}
                 </div>
                 {group.items.map(item => {
@@ -286,19 +286,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         setActiveSubtab(item.id);
                         setIsMobileNavOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-xs font-mono-num font-semibold uppercase tracking-wider transition-all border ${
+                      className={`w-full flex items-center justify-between px-3 py-2 text-xs font-mono-num uppercase tracking-wider transition-all border ${
                         isActive
-                          ? 'bg-[#d8ff38] text-black border-[#d8ff38] font-bold shadow-[0_0_15px_rgba(216,255,56,0.2)]'
-                          : 'border-transparent text-zinc-400 hover:text-white hover:bg-zinc-900/60'
+                          ? 'bg-[#FFC515] text-black border-[#FFC515] font-extrabold shadow-[0_0_15px_rgba(255,197,21,0.2)]'
+                          : 'border-transparent text-white/60 hover:text-[#FFC515] hover:bg-[#14141a]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon size={15} className={isActive ? 'text-black' : 'text-zinc-400'} />
+                        <Icon size={15} className={isActive ? 'text-black' : 'text-white/60'} />
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
                         <span className={`text-[10px] px-1.5 py-0.2 font-mono-num font-bold ${
-                          isActive ? 'bg-black text-[#d8ff38]' : 'bg-zinc-800 text-zinc-300 border border-white/10'
+                          isActive ? 'bg-black text-[#FFC515]' : 'bg-[#14141a] text-white/80 border border-white/10'
                         }`}>
                           {item.badge}
                         </span>
@@ -311,12 +311,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
 
           {/* Quick Support / Version Info */}
-          <div className="p-4 border-t border-white/10 bg-zinc-950 font-mono-num text-[11px] text-zinc-500">
-            <div className="flex items-center justify-between text-zinc-400">
+          <div className="p-4 border-t border-white/10 bg-[#0c0c0f] font-mono-num text-[11px] text-white/40">
+            <div className="flex items-center justify-between text-white/60">
               <span>ENGINE: v2.4.0</span>
-              <span className="text-[#d8ff38]">ONLINE</span>
+              <span className="text-[#FFC515] font-bold">ONLINE</span>
             </div>
-            <p className="mt-1 text-[10px] text-zinc-600">FITNETHEIST ADMINISTRATIVE SUITE</p>
+            <p className="mt-1 text-[10px] text-white/30">FITNETHEIST ADMINISTRATIVE SUITE</p>
           </div>
 
         </aside>

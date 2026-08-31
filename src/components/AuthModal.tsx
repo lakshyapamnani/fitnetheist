@@ -66,7 +66,7 @@ export const AuthModal: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div>
-            <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#d8ff38] block">
+            <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#FFC515] font-bold block">
               ATHLETE SECURITY PROTOCOL
             </span>
             <h3 className="text-2xl font-bold uppercase font-display text-white mt-0.5">
@@ -75,7 +75,7 @@ export const AuthModal: React.FC = () => {
           </div>
           <button
             onClick={closeAuthModal}
-            className="text-zinc-400 hover:text-white p-1"
+            className="text-white/60 hover:text-white p-1 transition-colors"
           >
             <X size={20} />
           </button>
@@ -85,51 +85,51 @@ export const AuthModal: React.FC = () => {
         {mode === 'login' && (
           <form onSubmit={handleLoginSubmit} className="space-y-4 font-mono-num text-xs">
             <div>
-              <label className="block text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
+              <label className="block text-white/70 uppercase mb-1">EMAIL ADDRESS</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="athlete@fitnetheist.com"
-                className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2.5 text-white"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-zinc-400 uppercase mb-1">PASSWORD</label>
+              <label className="block text-white/70 uppercase mb-1">PASSWORD</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2.5 text-white"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-bold uppercase tracking-wider text-xs"
+                className="w-full py-3 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase tracking-wider text-xs shadow-[0_0_15px_rgba(255,197,21,0.25)] transition-colors"
               >
                 SIGN IN & ACCESS DASHBOARD
               </button>
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-zinc-400 text-[11px]">
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-white/60 text-[11px]">
               <button
                 type="button"
                 onClick={() => { setMode('signup'); setStep('credentials'); }}
-                className="hover:text-white underline"
+                className="hover:text-[#FFC515] underline transition-colors"
               >
                 Need an account? Enroll here
               </button>
-              <span className="text-zinc-600">|</span>
+              <span className="text-white/30">|</span>
               <button
                 type="button"
                 onClick={() => loginUser('demo@fitnetheist.com', 'demo')}
-                className="text-[#d8ff38] hover:underline"
+                className="text-[#FFC515] hover:underline font-bold"
               >
                 Instant Demo Access
               </button>
@@ -141,56 +141,56 @@ export const AuthModal: React.FC = () => {
         {mode === 'signup' && step === 'credentials' && (
           <form onSubmit={handleSignupFirstStep} className="space-y-4 font-mono-num text-xs">
             <div>
-              <label className="block text-zinc-400 uppercase mb-1">FULL ATHLETE NAME</label>
+              <label className="block text-white/70 uppercase mb-1">FULL ATHLETE NAME</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Alex Morgan"
-                className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2.5 text-white"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-zinc-400 uppercase mb-1">EMAIL ADDRESS</label>
+              <label className="block text-white/70 uppercase mb-1">EMAIL ADDRESS</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="alex@athlete.com"
-                className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2.5 text-white"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-zinc-400 uppercase mb-1">CHOOSE PASSWORD</label>
+              <label className="block text-white/70 uppercase mb-1">CHOOSE PASSWORD</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2.5 text-white"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,197,21,0.25)] transition-colors"
               >
                 <span>CONTINUE TO BIOMETRIC PROFILE</span>
                 <ArrowRight size={14} />
               </button>
             </div>
 
-            <div className="pt-4 border-t border-white/10 text-center text-zinc-400 text-[11px]">
+            <div className="pt-4 border-t border-white/10 text-center text-white/60 text-[11px]">
               <button
                 type="button"
                 onClick={() => setMode('login')}
-                className="hover:text-white underline"
+                className="hover:text-[#FFC515] underline transition-colors"
               >
                 Already registered? Sign In
               </button>
@@ -204,13 +204,13 @@ export const AuthModal: React.FC = () => {
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">SEX</label>
+                <label className="block text-white/70 uppercase mb-1">SEX</label>
                 <div className="grid grid-cols-2 gap-1">
                   <button
                     type="button"
                     onClick={() => setSex('male')}
-                    className={`py-2 text-[10px] uppercase font-bold border ${
-                      sex === 'male' ? 'bg-white text-black border-white' : 'border-zinc-800 text-zinc-400 bg-zinc-900'
+                    className={`py-2 text-[10px] uppercase font-bold border transition-colors ${
+                      sex === 'male' ? 'bg-[#FFC515] text-black border-[#FFC515]' : 'border-white/15 text-white/70 bg-[#14141a] hover:text-white'
                     }`}
                   >
                     MALE
@@ -218,8 +218,8 @@ export const AuthModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSex('female')}
-                    className={`py-2 text-[10px] uppercase font-bold border ${
-                      sex === 'female' ? 'bg-white text-black border-white' : 'border-zinc-800 text-zinc-400 bg-zinc-900'
+                    className={`py-2 text-[10px] uppercase font-bold border transition-colors ${
+                      sex === 'female' ? 'bg-[#FFC515] text-black border-[#FFC515]' : 'border-white/15 text-white/70 bg-[#14141a] hover:text-white'
                     }`}
                   >
                     FEMALE
@@ -228,44 +228,44 @@ export const AuthModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">AGE</label>
+                <label className="block text-white/70 uppercase mb-1">AGE</label>
                 <input
                   type="number"
                   value={age}
                   onChange={(e) => setAge(Number(e.target.value))}
-                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">HEIGHT (CM)</label>
+                <label className="block text-white/70 uppercase mb-1">HEIGHT (CM)</label>
                 <input
                   type="number"
                   value={heightCm}
                   onChange={(e) => setHeightCm(Number(e.target.value))}
-                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">WEIGHT (KG)</label>
+                <label className="block text-white/70 uppercase mb-1">WEIGHT (KG)</label>
                 <input
                   type="number"
                   value={weightKg}
                   onChange={(e) => setWeightKg(Number(e.target.value))}
-                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">DIET REGIME</label>
+                <label className="block text-white/70 uppercase mb-1">DIET REGIME</label>
                 <select
                   value={dietType}
                   onChange={(e) => setDietType(e.target.value as any)}
-                  className="w-full bg-zinc-900 border border-zinc-800 px-2 py-2 text-white text-[11px]"
+                  className="w-full bg-[#14141a] border border-white/15 px-2 py-2 text-white text-[11px] focus:border-[#FFC515] focus:outline-none"
                 >
                   <option value="NON-VEGETARIAN">NON-VEGETARIAN</option>
                   <option value="VEGETARIAN">VEGETARIAN</option>
@@ -274,11 +274,11 @@ export const AuthModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">PRIMARY GOAL</label>
+                <label className="block text-white/70 uppercase mb-1">PRIMARY GOAL</label>
                 <select
                   value={goal}
                   onChange={(e) => setGoal(e.target.value as any)}
-                  className="w-full bg-zinc-900 border border-zinc-800 px-2 py-2 text-white text-[11px]"
+                  className="w-full bg-[#14141a] border border-white/15 px-2 py-2 text-white text-[11px] focus:border-[#FFC515] focus:outline-none"
                 >
                   <option value="BUILD_MUSCLE">BUILD MUSCLE</option>
                   <option value="LOSE_WEIGHT">FAT LOSS</option>
@@ -292,13 +292,13 @@ export const AuthModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStep('credentials')}
-                className="px-4 py-2 border border-zinc-800 text-zinc-400 hover:text-white uppercase"
+                className="px-4 py-2 border border-white/15 text-white/70 hover:text-white uppercase transition-colors"
               >
                 BACK
               </button>
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-bold uppercase tracking-wider"
+                className="px-6 py-2.5 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase tracking-wider shadow-[0_0_15px_rgba(255,197,21,0.25)] transition-colors"
               >
                 INITIALIZE ACCOUNT
               </button>

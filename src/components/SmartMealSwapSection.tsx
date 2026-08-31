@@ -161,15 +161,15 @@ export const SmartMealSwapSection: React.FC = () => {
       className="relative bg-[#08080a] text-white py-24 sm:py-32 px-4 sm:px-6 lg:px-8 border-b border-white/10 overflow-hidden"
     >
       {/* Background ambient lighting */}
-      <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#d8ff38]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#FFC515]/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto">
         
         {/* Section Header */}
         <div className="border-b border-white/10 pb-12 mb-16">
           <div className="flex items-center gap-2 mb-4">
-            <span className="h-2 w-2 bg-[#d8ff38]"></span>
-            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
+            <span className="h-2 w-2 bg-[#FFC515]"></span>
+            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
               06 // SMART MEAL SWAP & MACRO EQUIVALENCE ENGINE
             </span>
           </div>
@@ -177,10 +177,10 @@ export const SmartMealSwapSection: React.FC = () => {
             <div className="lg:col-span-8">
               <h2 className="text-5xl sm:text-7xl md:text-8xl font-extrabold uppercase tracking-tight leading-[0.92] font-display text-white">
                 DON'T LIKE IT?<br />
-                <span className="text-[#d8ff38]">SWAP IT.</span>
+                <span className="text-[#FFC515]">SWAP IT.</span>
               </h2>
             </div>
-            <div className="lg:col-span-4 font-mono-num text-sm text-zinc-400">
+            <div className="lg:col-span-4 font-mono-num text-sm text-white/70">
               <p>
                 Strict diets fail when they are rigid. Fitnetheist calculates 1:1 bioavailable protein and calorie parity in real time so you can swap any food without disrupting your metabolic trajectory.
               </p>
@@ -191,16 +191,16 @@ export const SmartMealSwapSection: React.FC = () => {
           <div className="flex items-center gap-2 mt-8 font-mono-num text-xs">
             <button
               onClick={() => setActiveSectionTab('PRESET_MEALS')}
-              className={`px-4 py-2 uppercase font-bold border transition-colors ${
-                activeTab === 'PRESET_MEALS' ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+              className={`px-4 py-2 uppercase font-extrabold border transition-colors ${
+                activeTab === 'PRESET_MEALS' ? 'bg-[#FFC515] text-black border-[#FFC515]' : 'bg-[#14141a] border-white/10 text-white/60 hover:text-white'
               }`}
             >
               PRESET MEAL BENCHMARKS
             </button>
             <button
               onClick={() => setActiveSectionTab('CUSTOM_SOLVER')}
-              className={`px-4 py-2 uppercase font-bold border transition-colors flex items-center gap-1.5 ${
-                activeTab === 'CUSTOM_SOLVER' ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
+              className={`px-4 py-2 uppercase font-extrabold border transition-colors flex items-center gap-1.5 ${
+                activeTab === 'CUSTOM_SOLVER' ? 'bg-[#FFC515] text-black border-[#FFC515]' : 'bg-[#14141a] border-white/10 text-white/60 hover:text-white'
               }`}
             >
               <Scale size={13} />
@@ -214,18 +214,18 @@ export const SmartMealSwapSection: React.FC = () => {
           <div className="grid lg:grid-cols-12 gap-8 items-stretch">
             
             {/* Left Column: Base Prescribed Meal */}
-            <div className="lg:col-span-5 border border-white/10 bg-zinc-950 p-8 sm:p-10 flex flex-col justify-between">
+            <div className="lg:col-span-5 border border-white/10 bg-[#101014] p-8 sm:p-10 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-                  <span className="text-[11px] font-mono-num text-zinc-500 uppercase tracking-widest">
+                  <span className="text-[11px] font-mono-num text-white/40 uppercase tracking-widest">
                     BASELINE PRESCRIPTION
                   </span>
-                  <span className="text-[10px] font-mono-num px-2 py-0.5 bg-zinc-900 border border-white/10 text-white uppercase">
+                  <span className="text-[10px] font-mono-num px-2 py-0.5 bg-white/5 border border-white/10 text-white uppercase">
                     {BASE_MEAL.category}
                   </span>
                 </div>
 
-                <span className="text-xs font-mono-num text-[#d8ff38] font-bold block mb-1">
+                <span className="text-xs font-mono-num text-[#FFC515] font-bold block mb-1">
                   MEAL 02 // LUNCH
                 </span>
                 <h3 className="text-3xl font-extrabold font-display uppercase tracking-tight text-white mb-2">
@@ -236,38 +236,38 @@ export const SmartMealSwapSection: React.FC = () => {
                   <span className="text-5xl font-mono-num font-extrabold text-white">
                     {BASE_MEAL.calories}
                   </span>
-                  <span className="text-sm font-mono-num text-zinc-400 uppercase">
+                  <span className="text-sm font-mono-num text-white/50 uppercase">
                     KCAL
                   </span>
                 </div>
 
-                <div className="p-4 bg-[#09090b] border border-white/10 mb-6">
-                  <span className="text-[10px] font-mono-num text-zinc-500 uppercase tracking-wider block mb-1">
+                <div className="p-4 bg-[#08080a] border border-white/10 mb-6">
+                  <span className="text-[10px] font-mono-num text-white/40 uppercase tracking-wider block mb-1">
                     PORTION COMPOSITION
                   </span>
-                  <p className="text-xs font-mono-num text-zinc-300">
+                  <p className="text-xs font-mono-num text-white/80">
                     {BASE_MEAL.portion}
                   </p>
                 </div>
 
                 {/* Macros breakdown */}
                 <div className="grid grid-cols-3 gap-2 font-mono-num text-center">
-                  <div className="p-3 bg-zinc-900/60 border border-white/5">
-                    <span className="text-[10px] text-zinc-500 uppercase block">PROTEIN</span>
-                    <span className="text-base font-bold text-[#d8ff38] block mt-0.5">{BASE_MEAL.protein}g</span>
+                  <div className="p-3 bg-white/5 border border-white/5">
+                    <span className="text-[10px] text-white/40 uppercase block">PROTEIN</span>
+                    <span className="text-base font-bold text-[#FFC515] block mt-0.5">{BASE_MEAL.protein}g</span>
                   </div>
-                  <div className="p-3 bg-zinc-900/60 border border-white/5">
-                    <span className="text-[10px] text-zinc-500 uppercase block">CARBS</span>
+                  <div className="p-3 bg-white/5 border border-white/5">
+                    <span className="text-[10px] text-white/40 uppercase block">CARBS</span>
                     <span className="text-base font-bold text-white block mt-0.5">{BASE_MEAL.carbs}g</span>
                   </div>
-                  <div className="p-3 bg-zinc-900/60 border border-white/5">
-                    <span className="text-[10px] text-zinc-500 uppercase block">FATS</span>
+                  <div className="p-3 bg-white/5 border border-white/5">
+                    <span className="text-[10px] text-white/40 uppercase block">FATS</span>
                     <span className="text-base font-bold text-white block mt-0.5">{BASE_MEAL.fat}g</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-white/10 text-xs font-mono-num text-zinc-500 flex items-center justify-between">
+              <div className="pt-6 mt-6 border-t border-white/10 text-xs font-mono-num text-white/50 flex items-center justify-between">
                 <span>ACTIVE PROTOCOL</span>
                 <span className="text-white font-bold">LUNCH SLOT</span>
               </div>
@@ -275,23 +275,23 @@ export const SmartMealSwapSection: React.FC = () => {
 
             {/* Center Connector / Direction Arrow */}
             <div className="lg:col-span-2 flex lg:flex-col items-center justify-center py-4 lg:py-0">
-              <div className="p-4 bg-zinc-900 border border-white/15 text-[#d8ff38] flex flex-col items-center gap-2">
+              <div className="p-4 bg-[#14141a] border border-white/15 text-[#FFC515] flex flex-col items-center gap-2">
                 <span className="text-[11px] font-mono-num font-bold uppercase tracking-widest">
                   SWAP TO
                 </span>
                 <ArrowRight className="hidden lg:block" size={20} />
-                <span className="text-xs font-mono-num text-zinc-400">±15 KCAL</span>
+                <span className="text-xs font-mono-num text-white/60">±15 KCAL</span>
               </div>
             </div>
 
             {/* Right Column: Swap Options Matrix */}
-            <div className="lg:col-span-5 border border-white/10 bg-zinc-950 p-8 sm:p-10 flex flex-col justify-between">
+            <div className="lg:col-span-5 border border-white/10 bg-[#101014] p-8 sm:p-10 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                  <span className="text-[11px] font-mono-num text-zinc-400 uppercase tracking-widest">
+                  <span className="text-[11px] font-mono-num text-white/40 uppercase tracking-widest">
                     CALORIE-MATCHED ALTERNATIVES
                   </span>
-                  <span className="text-[10px] font-mono-num text-[#d8ff38] uppercase font-bold">
+                  <span className="text-[10px] font-mono-num text-[#FFC515] uppercase font-bold">
                     {calorieDelta === 0 ? 'PERFECT MATCH' : `${calorieDelta > 0 ? '+' : ''}${calorieDelta} KCAL DIFFERENCE`}
                   </span>
                 </div>
@@ -306,8 +306,8 @@ export const SmartMealSwapSection: React.FC = () => {
                         onClick={() => setSelectedSwap(opt)}
                         className={`w-full text-left p-3.5 border font-mono-num transition-all flex items-center justify-between ${
                           isSelected 
-                            ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white' 
-                            : 'border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+                            ? 'border-[#FFC515] bg-[#FFC515]/10 text-white' 
+                            : 'border-white/10 bg-[#14141a] text-white/60 hover:border-white/20 hover:text-white'
                         }`}
                       >
                         <div>
@@ -315,11 +315,11 @@ export const SmartMealSwapSection: React.FC = () => {
                             <span className="text-xs font-bold uppercase text-white font-display">
                               {opt.name}
                             </span>
-                            <span className="text-[10px] text-zinc-500 uppercase">
+                            <span className="text-[10px] text-white/40 uppercase">
                               ({opt.category})
                             </span>
                           </div>
-                          <span className="text-[11px] text-zinc-400 block mt-0.5">
+                          <span className="text-[11px] text-white/60 block mt-0.5">
                             {opt.tag}
                           </span>
                         </div>
@@ -327,7 +327,7 @@ export const SmartMealSwapSection: React.FC = () => {
                           <span className="text-sm font-bold text-white block">
                             {opt.calories} KCAL
                           </span>
-                          <span className="text-[10px] text-[#d8ff38]">
+                          <span className="text-[10px] text-[#FFC515] font-bold">
                             {opt.protein}g Protein
                           </span>
                         </div>
@@ -337,25 +337,25 @@ export const SmartMealSwapSection: React.FC = () => {
                 </div>
 
                 {/* Selected Swap Detail Card */}
-                <div className="p-4 bg-[#09090b] border border-white/10 space-y-3 font-mono-num text-xs">
-                  <div className="flex items-center justify-between text-zinc-400">
-                    <span className="text-[10px] uppercase tracking-wider text-zinc-500">SELECTED REPLACEMENT DETAILS</span>
-                    <span className="text-[#d8ff38] font-bold">READY TO DEPLOY</span>
+                <div className="p-4 bg-[#08080a] border border-white/10 space-y-3 font-mono-num text-xs">
+                  <div className="flex items-center justify-between text-white/60">
+                    <span className="text-[10px] uppercase tracking-wider text-white/40">SELECTED REPLACEMENT DETAILS</span>
+                    <span className="text-[#FFC515] font-bold">READY TO DEPLOY</span>
                   </div>
-                  <p className="text-zinc-300">
+                  <p className="text-white/80">
                     {selectedSwap.portion}
                   </p>
                   <div className="grid grid-cols-3 gap-2 text-center pt-2 border-t border-white/5">
                     <div>
-                      <span className="text-[10px] text-zinc-500 block">PROTEIN</span>
+                      <span className="text-[10px] text-white/40 block">PROTEIN</span>
                       <span className="text-white font-bold">{selectedSwap.protein}g</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-zinc-500 block">CARBS</span>
+                      <span className="text-[10px] text-white/40 block">CARBS</span>
                       <span className="text-white font-bold">{selectedSwap.carbs}g</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-zinc-500 block">FATS</span>
+                      <span className="text-[10px] text-white/40 block">FATS</span>
                       <span className="text-white font-bold">{selectedSwap.fat}g</span>
                     </div>
                   </div>
@@ -365,7 +365,7 @@ export const SmartMealSwapSection: React.FC = () => {
               <div className="pt-6 mt-6 border-t border-white/10">
                 <button
                   onClick={() => setActiveTab('nutrition')}
-                  className="w-full py-3.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-3.5 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-mono-num font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(255,197,21,0.25)]"
                 >
                   <span>OPEN FULL 7-DAY DIET GENERATOR</span>
                   <ArrowRight size={15} />
@@ -379,20 +379,20 @@ export const SmartMealSwapSection: React.FC = () => {
 
         {/* View Mode 2: Custom 1:1 Macro Equivalence Solver */}
         {activeTab === 'CUSTOM_SOLVER' && (
-          <div className="bg-zinc-950 border border-white/15 p-6 sm:p-10 space-y-8">
+          <div className="bg-[#101014] border border-white/15 p-6 sm:p-10 space-y-8">
             
             {/* Solver Controls */}
             <div className="grid md:grid-cols-3 gap-6 border-b border-white/10 pb-8">
               
               {/* Source Food */}
               <div>
-                <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-mono-num text-white/60 uppercase tracking-wider mb-2">
                   01 // SOURCE INGREDIENT TO REPLACE
                 </label>
                 <select
                   value={sourceFoodId}
                   onChange={(e) => setSourceFoodId(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 p-3 text-xs font-mono-num text-white uppercase focus:border-[#d8ff38] focus:outline-none mb-3"
+                  className="w-full bg-[#14141a] border border-white/10 p-3 text-xs font-mono-num text-white uppercase focus:border-[#FFC515] focus:outline-none mb-3"
                 >
                   {INGREDIENT_DATABASE.map(food => (
                     <option key={food.id} value={food.id}>
@@ -401,7 +401,7 @@ export const SmartMealSwapSection: React.FC = () => {
                   ))}
                 </select>
 
-                <div className="flex items-center justify-between text-xs font-mono-num text-zinc-400 mb-1">
+                <div className="flex items-center justify-between text-xs font-mono-num text-white/60 mb-1">
                   <span>PORTION SIZE</span>
                   <span className="text-white font-bold">{sourceGrams} grams</span>
                 </div>
@@ -412,13 +412,13 @@ export const SmartMealSwapSection: React.FC = () => {
                   step="5"
                   value={sourceGrams}
                   onChange={(e) => setSourceGrams(Number(e.target.value))}
-                  className="w-full accent-[#d8ff38] bg-zinc-800 h-1.5 cursor-pointer"
+                  className="w-full accent-[#FFC515] bg-zinc-800 h-1.5 cursor-pointer"
                 />
               </div>
 
               {/* Equivalence Strategy */}
               <div>
-                <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-mono-num text-white/60 uppercase tracking-wider mb-2">
                   02 // MATHEMATICAL PARITY TARGET
                 </label>
                 <div className="space-y-2">
@@ -427,12 +427,12 @@ export const SmartMealSwapSection: React.FC = () => {
                     onClick={() => setSolverMode('PROTEIN')}
                     className={`w-full text-left p-3 border font-mono-num transition-all ${
                       solverMode === 'PROTEIN'
-                        ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white'
-                        : 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-white'
+                        ? 'border-[#FFC515] bg-[#FFC515]/10 text-white'
+                        : 'border-white/10 bg-[#14141a] text-white/60 hover:text-white'
                     }`}
                   >
-                    <span className="text-xs font-bold uppercase block text-[#d8ff38]">1:1 PROTEIN PARITY</span>
-                    <span className="text-[10px] text-zinc-400 block mt-0.5">Calculates exact replacement grams to preserve daily protein synthesis.</span>
+                    <span className="text-xs font-bold uppercase block text-[#FFC515]">1:1 PROTEIN PARITY</span>
+                    <span className="text-[10px] text-white/50 block mt-0.5">Calculates exact replacement grams to preserve daily protein synthesis.</span>
                   </button>
 
                   <button
@@ -440,25 +440,25 @@ export const SmartMealSwapSection: React.FC = () => {
                     onClick={() => setSolverMode('CALORIE')}
                     className={`w-full text-left p-3 border font-mono-num transition-all ${
                       solverMode === 'CALORIE'
-                        ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white'
-                        : 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:text-white'
+                        ? 'border-[#FFC515] bg-[#FFC515]/10 text-white'
+                        : 'border-white/10 bg-[#14141a] text-white/60 hover:text-white'
                     }`}
                   >
                     <span className="text-xs font-bold uppercase block text-white">1:1 CALORIE PARITY</span>
-                    <span className="text-[10px] text-zinc-400 block mt-0.5">Calculates exact replacement grams to preserve daily energy deficit/surplus.</span>
+                    <span className="text-[10px] text-white/50 block mt-0.5">Calculates exact replacement grams to preserve daily energy deficit/surplus.</span>
                   </button>
                 </div>
               </div>
 
               {/* Replacement Target Food */}
               <div>
-                <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-mono-num text-white/60 uppercase tracking-wider mb-2">
                   03 // DESIRED REPLACEMENT INGREDIENT
                 </label>
                 <select
                   value={targetFoodId}
                   onChange={(e) => setTargetFoodId(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 p-3 text-xs font-mono-num text-white uppercase focus:border-[#d8ff38] focus:outline-none"
+                  className="w-full bg-[#14141a] border border-white/10 p-3 text-xs font-mono-num text-white uppercase focus:border-[#FFC515] focus:outline-none"
                 >
                   {INGREDIENT_DATABASE.map(food => (
                     <option key={food.id} value={food.id}>
@@ -466,11 +466,11 @@ export const SmartMealSwapSection: React.FC = () => {
                     </option>
                   ))}
                 </select>
-                <div className="p-3 bg-zinc-900/50 border border-white/5 mt-3 text-xs font-mono-num text-zinc-400">
-                  <span className="text-[10px] text-zinc-500 uppercase block mb-1">DENSITY (PER 100G RAW):</span>
-                  <div className="flex justify-between text-zinc-300">
+                <div className="p-3 bg-[#14141a] border border-white/5 mt-3 text-xs font-mono-num text-white/60">
+                  <span className="text-[10px] text-white/40 uppercase block mb-1">DENSITY (PER 100G RAW):</span>
+                  <div className="flex justify-between text-white/80">
                     <span>{targetFood.caloriesPer100g} kcal</span>
-                    <span>{targetFood.proteinPer100g}g protein</span>
+                    <span className="text-[#FFC515] font-bold">{targetFood.proteinPer100g}g protein</span>
                     <span>{targetFood.fatPer100g}g fat</span>
                   </div>
                 </div>
@@ -482,27 +482,27 @@ export const SmartMealSwapSection: React.FC = () => {
             <div className="grid md:grid-cols-12 gap-6 items-center">
               
               {/* Baseline Source Card */}
-              <div className="md:col-span-5 p-6 bg-zinc-900/40 border border-white/10 space-y-4 font-mono-num">
-                <span className="text-[10px] text-zinc-500 uppercase tracking-widest block">ORIGINAL PORTION</span>
+              <div className="md:col-span-5 p-6 bg-[#0c0c10] border border-white/10 space-y-4 font-mono-num">
+                <span className="text-[10px] text-white/40 uppercase tracking-widest block">ORIGINAL PORTION</span>
                 <div>
                   <h4 className="text-xl font-bold uppercase text-white">{sourceFood.name}</h4>
-                  <span className="text-2xl font-extrabold text-zinc-200 mt-1 block">{sourceGrams} GRAMS</span>
+                  <span className="text-2xl font-extrabold text-white mt-1 block">{sourceGrams} GRAMS</span>
                 </div>
                 <div className="grid grid-cols-4 gap-1 text-center text-xs pt-2 border-t border-white/5">
                   <div className="p-2 bg-black/40">
-                    <span className="text-[9px] text-zinc-500 block">KCAL</span>
+                    <span className="text-[9px] text-white/40 block">KCAL</span>
                     <span className="font-bold text-white">{sourceMacros.calories}</span>
                   </div>
                   <div className="p-2 bg-black/40">
-                    <span className="text-[9px] text-zinc-500 block">PRO</span>
-                    <span className="font-bold text-[#d8ff38]">{sourceMacros.protein}g</span>
+                    <span className="text-[9px] text-white/40 block">PRO</span>
+                    <span className="font-bold text-[#FFC515]">{sourceMacros.protein}g</span>
                   </div>
                   <div className="p-2 bg-black/40">
-                    <span className="text-[9px] text-zinc-500 block">CARB</span>
+                    <span className="text-[9px] text-white/40 block">CARB</span>
                     <span className="font-bold text-white">{sourceMacros.carbs}g</span>
                   </div>
                   <div className="p-2 bg-black/40">
-                    <span className="text-[9px] text-zinc-500 block">FAT</span>
+                    <span className="text-[9px] text-white/40 block">FAT</span>
                     <span className="font-bold text-white">{sourceMacros.fat}g</span>
                   </div>
                 </div>
@@ -510,40 +510,40 @@ export const SmartMealSwapSection: React.FC = () => {
 
               {/* Equivalence Operator */}
               <div className="md:col-span-2 text-center font-mono-num">
-                <div className="inline-flex flex-col items-center justify-center p-3 bg-[#0c0c0f] border border-[#d8ff38]/30">
-                  <span className="text-[10px] font-bold text-[#d8ff38] uppercase">EXACT SWAP</span>
+                <div className="inline-flex flex-col items-center justify-center p-3 bg-[#0c0c0f] border border-[#FFC515]/30">
+                  <span className="text-[10px] font-bold text-[#FFC515] uppercase">EXACT SWAP</span>
                   <ArrowRight size={18} className="text-white my-1" />
-                  <span className="text-[9px] text-zinc-400 uppercase">{solverMode} MATCH</span>
+                  <span className="text-[9px] text-white/50 uppercase">{solverMode} MATCH</span>
                 </div>
               </div>
 
               {/* Calculated Replacement Card */}
-              <div className="md:col-span-5 p-6 bg-[#0c0c0f] border-2 border-[#d8ff38] space-y-4 font-mono-num relative overflow-hidden">
-                <div className="absolute top-0 right-0 px-3 py-1 bg-[#d8ff38] text-black text-[10px] font-extrabold uppercase">
+              <div className="md:col-span-5 p-6 bg-[#0c0c0f] border-2 border-[#FFC515] space-y-4 font-mono-num relative overflow-hidden">
+                <div className="absolute top-0 right-0 px-3 py-1 bg-[#FFC515] text-black text-[10px] font-extrabold uppercase">
                   SOLVED PORTION
                 </div>
-                <span className="text-[10px] text-[#d8ff38] uppercase tracking-widest block font-bold">REPLACEMENT REQUIRED</span>
+                <span className="text-[10px] text-[#FFC515] uppercase tracking-widest block font-bold">REPLACEMENT REQUIRED</span>
                 <div>
                   <h4 className="text-xl font-bold uppercase text-white">{targetFood.name}</h4>
-                  <span className="text-3xl font-extrabold text-[#d8ff38] mt-1 block">
+                  <span className="text-3xl font-extrabold text-[#FFC515] mt-1 block">
                     {requiredTargetGrams} GRAMS
                   </span>
                 </div>
                 <div className="grid grid-cols-4 gap-1 text-center text-xs pt-2 border-t border-white/10">
-                  <div className="p-2 bg-zinc-900">
-                    <span className="text-[9px] text-zinc-500 block">KCAL</span>
+                  <div className="p-2 bg-white/5">
+                    <span className="text-[9px] text-white/40 block">KCAL</span>
                     <span className="font-bold text-white">{targetMacros.calories}</span>
                   </div>
-                  <div className="p-2 bg-zinc-900">
-                    <span className="text-[9px] text-zinc-500 block">PRO</span>
-                    <span className="font-bold text-[#d8ff38]">{targetMacros.protein}g</span>
+                  <div className="p-2 bg-white/5">
+                    <span className="text-[9px] text-white/40 block">PRO</span>
+                    <span className="font-bold text-[#FFC515]">{targetMacros.protein}g</span>
                   </div>
-                  <div className="p-2 bg-zinc-900">
-                    <span className="text-[9px] text-zinc-500 block">CARB</span>
+                  <div className="p-2 bg-white/5">
+                    <span className="text-[9px] text-white/40 block">CARB</span>
                     <span className="font-bold text-white">{targetMacros.carbs}g</span>
                   </div>
-                  <div className="p-2 bg-zinc-900">
-                    <span className="text-[9px] text-zinc-500 block">FAT</span>
+                  <div className="p-2 bg-white/5">
+                    <span className="text-[9px] text-white/40 block">FAT</span>
                     <span className="font-bold text-white">{targetMacros.fat}g</span>
                   </div>
                 </div>
@@ -552,11 +552,11 @@ export const SmartMealSwapSection: React.FC = () => {
             </div>
 
             {/* Macro Delta Summary Banner */}
-            <div className="p-4 bg-zinc-900/60 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono-num text-xs">
+            <div className="p-4 bg-[#14141a] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono-num text-xs">
               <div className="flex items-center gap-2">
-                <Zap size={15} className="text-[#d8ff38]" />
-                <span className="text-zinc-300 font-bold uppercase">NET VARIANCE:</span>
-                <span className="text-zinc-400">
+                <Zap size={15} className="text-[#FFC515]" />
+                <span className="text-white font-bold uppercase">NET VARIANCE:</span>
+                <span className="text-white/70">
                   Calories: {deltaCalories >= 0 ? `+${deltaCalories}` : deltaCalories} kcal | 
                   Protein: {deltaProtein >= 0 ? `+${deltaProtein}` : deltaProtein}g | 
                   Carbs: {deltaCarbs >= 0 ? `+${deltaCarbs}` : deltaCarbs}g | 
@@ -565,7 +565,7 @@ export const SmartMealSwapSection: React.FC = () => {
               </div>
               <button
                 onClick={() => setActiveTab('nutrition')}
-                className="px-4 py-2 bg-[#d8ff38] text-black font-bold uppercase text-[11px] shrink-0"
+                className="px-4 py-2 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase text-[11px] shrink-0 transition-colors"
               >
                 APPLY TO 7-DAY MEAL PLAN →
               </button>

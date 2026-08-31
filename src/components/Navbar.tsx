@@ -44,10 +44,10 @@ export const Navbar: React.FC = () => {
           onClick={() => { setActiveTab('home'); setIsMobileMenuOpen(false); }}
           className="group flex items-center gap-2 text-left text-white focus:outline-none"
         >
-          <span className="font-display font-extrabold text-xl sm:text-2xl tracking-tighter text-white group-hover:text-[#d8ff38] transition-colors">
+          <span className="font-display font-extrabold text-xl sm:text-2xl tracking-tighter text-white group-hover:text-[#FFC515] transition-colors">
             FITNETHEIST
           </span>
-          <span className="h-1.5 w-1.5 bg-[#d8ff38] rounded-full inline-block"></span>
+          <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full inline-block"></span>
         </button>
 
         {/* Desktop Navigation Links */}
@@ -61,8 +61,8 @@ export const Navbar: React.FC = () => {
                 onClick={() => setActiveTab(link.id)}
                 className={`text-xs font-mono-num font-semibold tracking-wider transition-all uppercase ${
                   isActive 
-                    ? 'text-[#d8ff38] border-b-2 border-[#d8ff38] pb-1' 
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'text-[#FFC515] border-b-2 border-[#FFC515] pb-1' 
+                    : 'text-white/60 hover:text-[#FFC515]'
                 }`}
               >
                 {link.label}
@@ -81,7 +81,7 @@ export const Navbar: React.FC = () => {
                 className={`px-3 py-1.5 text-xs font-mono-num font-semibold tracking-wider uppercase border transition-all ${
                   activeTab === 'dashboard'
                     ? 'bg-white text-black border-white'
-                    : 'text-white border-white/20 hover:border-white/50 bg-zinc-900/60'
+                    : 'text-white border-white/20 hover:border-white/50 bg-[#101014]'
                 }`}
               >
                 DASHBOARD ({user.streakDays}D)
@@ -91,7 +91,7 @@ export const Navbar: React.FC = () => {
                 id="nav-logout-button"
                 onClick={logoutUser}
                 title="Sign out"
-                className="text-xs text-zinc-500 hover:text-zinc-300 font-mono-num tracking-wide"
+                className="text-xs text-white/50 hover:text-white font-mono-num tracking-wide"
               >
                 LOGOUT
               </button>
@@ -101,14 +101,14 @@ export const Navbar: React.FC = () => {
               <button
                 id="nav-login-button"
                 onClick={() => openAuthModal('login')}
-                className="text-xs font-mono-num font-semibold tracking-wider text-zinc-300 hover:text-white px-3 py-1.5"
+                className="text-xs font-mono-num font-semibold tracking-wider text-white/70 hover:text-white px-3 py-1.5"
               >
                 LOGIN
               </button>
               <button
                 id="nav-start-now-button"
                 onClick={() => setActiveTab('calculate')}
-                className="px-4 py-2 text-xs font-mono-num font-bold tracking-wider text-black bg-[#d8ff38] hover:bg-[#ccf52b] transition-colors uppercase rounded-none glow-accent-subtle"
+                className="px-4 py-2 text-xs font-mono-num font-extrabold tracking-wider text-black bg-[#FFC515] hover:bg-[#E6AF0F] transition-colors uppercase rounded-none glow-accent-subtle shadow-[0_0_15px_rgba(255,197,21,0.25)]"
               >
                 START NOW
               </button>
@@ -121,7 +121,7 @@ export const Navbar: React.FC = () => {
           {user && (
             <button
               onClick={() => setActiveTab('dashboard')}
-              className="text-xs font-mono-num text-[#d8ff38] px-2 py-1 border border-[#d8ff38]/40"
+              className="text-xs font-mono-num text-[#FFC515] px-2 py-1 border border-[#FFC515]/40"
             >
               {user.streakDays}D STREAK
             </button>
@@ -140,10 +140,10 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div id="mobile-navigation-drawer" className="lg:hidden fixed inset-x-0 top-[60px] bg-[#09090b]/98 backdrop-blur-2xl border-b border-white/15 px-5 py-6 space-y-5 max-h-[calc(100vh-60px)] overflow-y-auto animate-in slide-in-from-top-2 duration-200 shadow-2xl">
+        <div id="mobile-navigation-drawer" className="lg:hidden fixed inset-x-0 top-[60px] bg-[#08080a]/98 backdrop-blur-2xl border-b border-white/15 px-5 py-6 space-y-5 max-h-[calc(100vh-60px)] overflow-y-auto animate-in slide-in-from-top-2 duration-200 shadow-2xl">
           
-          <div className="flex items-center justify-between text-xs font-mono-num text-zinc-400 border-b border-white/10 pb-3">
-            <span className="text-[#d8ff38] font-bold tracking-widest uppercase">DIRECT EXPLORATION</span>
+          <div className="flex items-center justify-between text-xs font-mono-num text-white/60 border-b border-white/10 pb-3">
+            <span className="text-[#FFC515] font-bold tracking-widest uppercase">DIRECT EXPLORATION</span>
             <span>{navLinks.length} MODULES</span>
           </div>
 
@@ -158,28 +158,28 @@ export const Navbar: React.FC = () => {
                 }}
                 className={`text-left px-3.5 py-3 text-xs font-mono-num font-bold tracking-wider uppercase border transition-all mobile-tap-active flex items-center justify-between ${
                   activeTab === link.id
-                    ? 'border-[#d8ff38] text-[#d8ff38] bg-[#d8ff38]/10'
-                    : 'border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:border-zinc-700'
+                    ? 'border-[#FFC515] text-[#FFC515] bg-[#FFC515]/10'
+                    : 'border-white/10 bg-[#101014] text-white/70 hover:text-white hover:border-white/30'
                 }`}
               >
                 <span>{link.label}</span>
-                {activeTab === link.id && <span className="h-1.5 w-1.5 bg-[#d8ff38] rounded-full" />}
+                {activeTab === link.id && <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full" />}
               </button>
             ))}
           </div>
 
-          <div className="pt-4 border-t border-zinc-800 flex flex-col gap-2.5">
+          <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
             {user ? (
               <>
                 <button
                   onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
-                  className="w-full py-3.5 bg-[#d8ff38] text-black text-xs font-mono-num font-extrabold tracking-wider uppercase mobile-tap-active"
+                  className="w-full py-3.5 bg-[#FFC515] text-black text-xs font-mono-num font-extrabold tracking-wider uppercase mobile-tap-active shadow-[0_0_15px_rgba(255,197,21,0.2)]"
                 >
                   VIEW ATHLETE DASHBOARD ({user.streakDays}D STREAK)
                 </button>
                 <button
                   onClick={() => { logoutUser(); setIsMobileMenuOpen(false); }}
-                  className="w-full py-2.5 border border-white/10 text-zinc-400 text-xs font-mono-num uppercase hover:text-white"
+                  className="w-full py-2.5 border border-white/10 text-white/50 text-xs font-mono-num uppercase hover:text-white"
                 >
                   LOGOUT ({user.name})
                 </button>
@@ -188,13 +188,13 @@ export const Navbar: React.FC = () => {
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   onClick={() => { openAuthModal('login'); setIsMobileMenuOpen(false); }}
-                  className="py-3 border border-white/20 text-white text-xs font-mono-num font-bold uppercase hover:bg-zinc-800"
+                  className="py-3 border border-white/20 text-white text-xs font-mono-num font-bold uppercase hover:bg-white/10"
                 >
                   LOGIN
                 </button>
                 <button
                   onClick={() => { setActiveTab('calculate'); setIsMobileMenuOpen(false); }}
-                  className="py-3 bg-[#d8ff38] text-black text-xs font-mono-num font-extrabold uppercase hover:bg-[#ccf52b]"
+                  className="py-3 bg-[#FFC515] text-black text-xs font-mono-num font-extrabold uppercase hover:bg-[#E6AF0F]"
                 >
                   CALCULATE CALORIES
                 </button>

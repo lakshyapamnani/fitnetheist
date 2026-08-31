@@ -2,20 +2,14 @@ import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { AdminProvider } from './context/AdminContext';
 import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
-import { ConnectWithUsSection } from './components/ConnectWithUsSection';
-import { BrandIntroSection } from './components/BrandIntroSection';
-import { CorePlatformIntroSection } from './components/CorePlatformIntroSection';
+import { HomePage } from './components/HomePage';
 import { CalorieCalculator } from './components/CalorieCalculator';
 import { DietGenerator } from './components/DietGenerator';
-import { SmartMealSwapSection } from './components/SmartMealSwapSection';
 import { WorkoutPlanner } from './components/WorkoutPlanner';
 import { ChallengesSection } from './components/ChallengesSection';
 import { TransformationsSection } from './components/TransformationsSection';
 import { CoachSection } from './components/CoachSection';
 import { CommunitySection } from './components/CommunitySection';
-import { ProgressExperienceSection } from './components/ProgressExperienceSection';
-import { FinalCtaSection } from './components/FinalCtaSection';
 import { PricingSection } from './components/PricingSection';
 import { UserDashboard } from './components/UserDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -32,57 +26,13 @@ const AppContent: React.FC = () => {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-[#08080a] text-white flex flex-col justify-between selection:bg-[#d8ff38] selection:text-black">
+    <div className="min-h-screen bg-[#08080a] text-white flex flex-col justify-between selection:bg-[#FFC515] selection:text-black">
       {/* Top Navigation */}
       <Navbar />
 
       {/* Main Content Area */}
       <main className="flex-1 w-full pb-20 lg:pb-0">
-        {activeTab === 'home' && (
-          <div id="fitnetheist-complete-homepage">
-            {/* HERO SECTION (Preserved) */}
-            <HeroSection />
-
-            {/* 01 — CONNECT WITH US */}
-            <ConnectWithUsSection />
-
-            {/* 02 — BRAND INTRODUCTION */}
-            <BrandIntroSection />
-
-            {/* 03 — CORE PLATFORM INTRO */}
-            <CorePlatformIntroSection />
-
-            {/* 04 — CALORIE CALCULATOR */}
-            <CalorieCalculator />
-
-            {/* 05 — DIET GENERATOR */}
-            <DietGenerator />
-
-            {/* 06 — SMART MEAL SWAP */}
-            <SmartMealSwapSection />
-
-            {/* 07 — WORKOUT PLANNER */}
-            <WorkoutPlanner />
-
-            {/* 08 — FITNESS CHALLENGES */}
-            <ChallengesSection />
-
-            {/* 09 — TRANSFORMATIONS */}
-            <TransformationsSection />
-
-            {/* 10 — THE COACH */}
-            <CoachSection />
-
-            {/* 11 — COMMUNITY / THE TRIBE */}
-            <CommunitySection />
-
-            {/* 12 — PROGRESS EXPERIENCE */}
-            <ProgressExperienceSection />
-
-            {/* 13 — FINAL CTA */}
-            <FinalCtaSection />
-          </div>
-        )}
+        {activeTab === 'home' && <HomePage />}
 
         {/* Individual Focused Tab Views */}
         {activeTab === 'calculate' && <CalorieCalculator />}
@@ -97,7 +47,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'admin' && <AdminDashboard />}
       </main>
 
-      {/* 14 — FOOTER */}
+      {/* Footer */}
       <Footer />
 
       {/* Mobile Sticky Navigation */}

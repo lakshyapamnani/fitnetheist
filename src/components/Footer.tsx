@@ -21,12 +21,12 @@ export const Footer: React.FC = () => {
               <span className="font-display font-extrabold text-2xl tracking-tighter text-white">
                 FITNETHEIST
               </span>
-              <span className="h-2 w-2 bg-[#d8ff38] rounded-full"></span>
+              <span className="h-2 w-2 bg-[#FFC515] rounded-full"></span>
             </div>
-            <p className="text-zinc-400 text-xs sm:text-sm font-mono-num max-w-lg leading-relaxed">
+            <p className="text-white/70 text-xs sm:text-sm font-mono-num max-w-lg leading-relaxed">
               Human performance architecture. We dismantle fitness guesswork through scientifically derived caloric metrics, macro-exact nutrition matrices, and progressive training splits.
             </p>
-            <div className="pt-2 text-[11px] font-mono-num text-zinc-500">
+            <div className="pt-2 text-[11px] font-mono-num text-white/40">
               ENGINEERED FOR RADICAL DISCIPLINE.
             </div>
           </div>
@@ -35,27 +35,27 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8 font-mono-num text-xs">
             
             <div className="space-y-3">
-              <span className="text-[#d8ff38] font-bold uppercase tracking-wider block">
+              <span className="text-[#FFC515] font-bold uppercase tracking-wider block">
                 CORE PROTOCOLS
               </span>
-              <ul className="space-y-2 text-zinc-400">
+              <ul className="space-y-2 text-white/70">
                 <li>
-                  <button onClick={() => setActiveTab('calculate')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('calculate')} className="hover:text-[#FFC515] transition-colors">
                     Calorie Calculator
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('nutrition')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('nutrition')} className="hover:text-[#FFC515] transition-colors">
                     7-Day Diet Generator
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('train')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('train')} className="hover:text-[#FFC515] transition-colors">
                     Workout Planner
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('train')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('train')} className="hover:text-[#FFC515] transition-colors">
                     Exercise Catalog
                   </button>
                 </li>
@@ -63,32 +63,32 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <span className="text-[#d8ff38] font-bold uppercase tracking-wider block">
+              <span className="text-[#FFC515] font-bold uppercase tracking-wider block">
                 COMMUNITY & PRO
               </span>
-              <ul className="space-y-2 text-zinc-400">
+              <ul className="space-y-2 text-white/70">
                 <li>
-                  <button onClick={() => setActiveTab('challenges')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('challenges')} className="hover:text-[#FFC515] transition-colors">
                     Fitness Challenges
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('transform')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('transform')} className="hover:text-[#FFC515] transition-colors">
                     Transformations
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('community')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('community')} className="hover:text-[#FFC515] transition-colors">
                     The Tribe Feed
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('coach')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('coach')} className="hover:text-[#FFC515] transition-colors">
                     Head Coach Vik
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => setActiveTab('pricing')} className="hover:text-white transition-colors">
+                  <button onClick={() => setActiveTab('pricing')} className="hover:text-[#FFC515] transition-colors">
                     Membership Tiers
                   </button>
                 </li>
@@ -96,16 +96,16 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <span className="text-zinc-500 font-bold uppercase tracking-wider block">
+              <span className="text-white/40 font-bold uppercase tracking-wider block">
                 SYSTEM & LEGAL
               </span>
-              <ul className="space-y-2 text-zinc-500 text-[11px]">
+              <ul className="space-y-2 text-white/50 text-[11px]">
                 <li>Mifflin-St Jeor Engine</li>
                 <li>Macro Parity Validator</li>
                 <li>Privacy Policy</li>
                 <li>Terms of Service</li>
                 <li>
-                  <button onClick={() => setActiveTab('admin')} className="text-zinc-400 hover:text-white">
+                  <button onClick={() => setActiveTab('admin')} className="text-white/70 hover:text-[#FFC515] transition-colors">
                     Admin Portal
                   </button>
                 </li>
@@ -116,21 +116,21 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Legal Disclaimer */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono-num text-zinc-500">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono-num text-white/50">
           <p className="text-[11px] leading-relaxed max-w-3xl">
-            <strong>DISCLAIMER:</strong> Fitnetheist delivers mathematical estimates and educational guidance. This platform does not provide medical diagnosis, clinical treatment, or replace certified healthcare advice. Always consult a physician prior to initiating rigorous exercise or dietary changes.
+            <strong className="text-white">DISCLAIMER:</strong> Fitnetheist delivers mathematical estimates and educational guidance. This platform does not provide medical diagnosis, clinical treatment, or replace certified healthcare advice. Always consult a physician prior to initiating rigorous exercise or dietary changes.
           </p>
 
           <button
             onClick={scrollToTop}
-            className="flex items-center gap-1 text-zinc-400 hover:text-white uppercase tracking-wider text-[11px] p-2 border border-zinc-900 shrink-0"
+            className="flex items-center gap-1 text-white/60 hover:text-[#FFC515] uppercase tracking-wider text-[11px] p-2 border border-white/10 shrink-0 transition-colors"
           >
             <span>BACK TO TOP</span>
             <ArrowUp size={12} />
           </button>
         </div>
 
-        <div className="pt-4 text-center md:text-left text-[10px] font-mono-num text-zinc-600">
+        <div className="pt-4 text-center md:text-left text-[10px] font-mono-num text-white/30">
           © {new Date().getFullYear()} FITNETHEIST. ALL RIGHTS RESERVED. BOLD. CINEMATIC. UNBROKEN.
         </div>
 
