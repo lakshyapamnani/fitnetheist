@@ -1,106 +1,83 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { Lead, LeadStatus, LeadSource, LeadTag } from '../../types/admin';
+import { LeadStatus, LeadSource } from '../../types/admin';
 import { 
+  Users, 
   Search, 
   Filter, 
-  Plus, 
   Download, 
+  Plus, 
   Flame, 
   Phone, 
   Mail, 
-  MessageSquare, 
-  Clock, 
-  UserCheck, 
-  CheckCircle2, 
-  XCircle, 
-  ChevronRight,
-  Sparkles,
-  ArrowUpDown,
-  Tag as TagIcon
+  Calendar, 
+  Tag as TagIcon, 
+  ChevronRight, 
+  MoreVertical,
+  CheckCircle2,
+  Clock,
+  IndianRupee
 } from 'lucide-react';
 
 export const LeadManagementView: React.FC = () => {
   const { 
     leads, 
+    updateLeadStatus, 
+    assignLead, 
     setSelectedLeadId, 
     setActiveSubtab, 
-    updateLeadStatus,
-    assignLead,
-    captureLead
+    captureLead 
   } = useAdmin();
 
-  // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('ALL');
   const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('ALL');
-  const [selectedGoalFilter, setSelectedGoalFilter] = useState<string>('ALL');
-  const [selectedDietFilter, setSelectedDietFilter] = useState<string>('ALL');
   const [selectedScoreFilter, setSelectedScoreFilter] = useState<string>('ALL');
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
 
-  // New Lead Form State
+  // Form state for creating a new manual lead
   const [newLeadName, setNewLeadName] = useState('');
   const [newLeadEmail, setNewLeadEmail] = useState('');
   const [newLeadPhone, setNewLeadPhone] = useState('');
   const [newLeadSource, setNewLeadSource] = useState<LeadSource>('MANUAL_ENTRY');
-  const [newLeadGoal, setNewLeadGoal] = useState<'BUILD_MUSCLE' | 'LOSE_WEIGHT' | 'STRENGTH'>('BUILD_MUSCLE');
-  const [newLeadDiet, setNewLeadDiet] = useState<'VEGETARIAN' | 'NON-VEGETARIAN' | 'VEGAN'>('VEGETARIAN');
   const [newLeadChallenge, setNewLeadChallenge] = useState('21 Day Ignite');
   const [newLeadNote, setNewLeadNote] = useState('');
 
-  // Statuses for tab filters
-  const statusTabs = [
-    { key: 'ALL', label: 'ALL LEADS', count: leads.length },
-    { key: 'NEW', label: 'NEW', count: leads.filter(l => l.status === 'NEW').length },
-    { key: 'QUALIFIED', label: 'QUALIFIED', count: leads.filter(l => l.status === 'QUALIFIED').length },
-    { key: 'INTERESTED', label: 'INTERESTED', count: leads.filter(l => l.status === 'INTERESTED').length },
-    { key: 'FOLLOW_UP', label: 'FOLLOW-UP', count: leads.filter(l => l.status === 'FOLLOW_UP').length },
-    { key: 'CONVERTED', label: 'CONVERTED', count: leads.filter(l => l.status === 'CONVERTED').length },
-    { key: 'LOST', label: 'LOST', count: leads.filter(l => l.status === 'LOST').length }
-  ];
+  // Filtering
+  const safeLeads = Array.isArray(leads) ? leads : [];
 
-  // Filtered Leads
-  const filteredLeads = useMemo(() => {
-    return leads.filter(lead => {
-      // Search matches name, phone, or email
-      const matchesSearch = 
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm);
+  const filteredLeads = safeLeads.filter(lead => {
+    if (!lead) return false;
+    const term = (searchTerm || '').toLowerCase();
+    const nameMatch = (lead.name || '').toLowerCase().includes(term);
+    const emailMatch = (lead.email || '').toLowerCase().includes(term);
+    const phoneMatch = (lead.phone || '').includes(searchTerm);
+    const notesMatch = Array.isArray(lead.notes) && lead.notes.some(n => 
+      ((n.content || (n as any).text || '')).toLowerCase().includes(term)
+    );
 
-      // Status filter
-      const matchesStatus = selectedStatusFilter === 'ALL' || lead.status === selectedStatusFilter;
+    const matchesSearch = !term || nameMatch || emailMatch || phoneMatch || notesMatch;
+    const matchesStatus = selectedStatusFilter === 'ALL' || lead.status === selectedStatusFilter;
+    const matchesSource = selectedSourceFilter === 'ALL' || lead.source === selectedSourceFilter;
+    const matchesScore = selectedScoreFilter === 'ALL' || lead.scoreClassification === selectedScoreFilter;
 
-      // Source filter
-      const matchesSource = selectedSourceFilter === 'ALL' || lead.source === selectedSourceFilter;
-
-      // Goal filter
-      const matchesGoal = selectedGoalFilter === 'ALL' || lead.goal === selectedGoalFilter;
-
-      // Diet filter
-      const matchesDiet = selectedDietFilter === 'ALL' || lead.dietType === selectedDietFilter;
-
-      // Score filter
-      const matchesScore = selectedScoreFilter === 'ALL' || lead.scoreClassification === selectedScoreFilter;
-
-      return matchesSearch && matchesStatus && matchesSource && matchesGoal && matchesDiet && matchesScore;
-    });
-  }, [leads, searchTerm, selectedStatusFilter, selectedSourceFilter, selectedGoalFilter, selectedDietFilter, selectedScoreFilter]);
+    return matchesSearch && matchesStatus && matchesSource && matchesScore;
+  });
 
   const handleCreateManualLead = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newLeadEmail.trim() || !newLeadName.trim()) return;
+    if (!newLeadName.trim() || !newLeadEmail.trim()) return;
 
     captureLead({
-      name: newLeadName,
-      email: newLeadEmail,
-      phone: newLeadPhone || '+91 99999 00000',
+      name: newLeadName.trim(),
+      email: newLeadEmail.trim(),
+      phone: newLeadPhone.trim() || '+91 99999 99999',
       source: newLeadSource,
-      goal: newLeadGoal,
-      dietType: newLeadDiet,
+      goal: 'FAT_LOSS_AND_MUSCLE',
       challengeInterest: newLeadChallenge,
-      customNote: newLeadNote || 'Manually entered into CRM by administrator.'
+      dietType: 'Non-Vegetarian',
+      preferredCuisine: 'North Indian',
+      customNote: newLeadNote.trim() || undefined
     });
 
     setIsAddLeadModalOpen(false);
@@ -110,10 +87,20 @@ export const LeadManagementView: React.FC = () => {
     setNewLeadNote('');
   };
 
+  const statusTabs = [
+    { key: 'ALL', label: 'All Inquiries', count: safeLeads.length },
+    { key: 'NEW', label: 'New', count: safeLeads.filter(l => l?.status === 'NEW').length },
+    { key: 'CONTACTED', label: 'Contacted', count: safeLeads.filter(l => l?.status === 'CONTACTED').length },
+    { key: 'QUALIFIED', label: 'Qualified', count: safeLeads.filter(l => l?.status === 'QUALIFIED').length },
+    { key: 'FOLLOW_UP', label: 'Follow-Up', count: safeLeads.filter(l => l?.status === 'FOLLOW_UP').length },
+    { key: 'CONVERTED', label: 'Converted', count: safeLeads.filter(l => l?.status === 'CONVERTED').length },
+    { key: 'LOST', label: 'Lost', count: safeLeads.filter(l => l?.status === 'LOST').length },
+  ];
+
   const handleExportCSV = () => {
-    const headers = ['ID,Name,Phone,Email,Source,Goal,Diet,Status,AssignedTo,Score,Value,Created'];
-    const rows = filteredLeads.map(l => 
-      `"${l.id}","${l.name}","${l.phone}","${l.email}","${l.source}","${l.goal}","${l.dietType || ''}","${l.status}","${l.assignedTo}","${l.score}","${l.estimatedValue}","${l.createdAt}"`
+    const headers = ['ID,Name,Email,Phone,Source,Goal,Score,Classification,Status,AssignedTo,EstimatedValue(INR),CreatedAt'];
+    const rows = leads.map(l => 
+      `"${l.id}","${l.name}","${l.email}","${l.phone}","${l.source}","${l.goal}",${l.score},"${l.scoreClassification}","${l.status}","${l.assignedTo}",${l.estimatedValue},"${l.createdAt}"`
     );
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -126,22 +113,22 @@ export const LeadManagementView: React.FC = () => {
   };
 
   return (
-    <div id="lead-management-crm-view" className="space-y-6">
+    <div id="lead-management-crm-view" className="space-y-6 max-w-7xl mx-auto font-mono-num text-xs">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="h-2 w-2 bg-[#d8ff38]"></span>
-            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
-              ATHLETE CRM & CONVERSION PIPELINE
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#FFC515]"></span>
+            <span className="text-xs font-mono-num font-bold uppercase tracking-widest text-[#FFC515]">
+              ATHLETE PIPELINE & INQUIRIES
             </span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight font-display text-white">
+          <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display text-white">
             LEAD MANAGEMENT
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Every website calculator submission, diet plan export, and challenge click auto-populates here in real time.
+            Website calculator submissions, diet plan exports, and challenge enrollments captured in real time.
           </p>
         </div>
 
@@ -149,7 +136,7 @@ export const LeadManagementView: React.FC = () => {
         <div className="flex items-center gap-2 font-mono-num text-xs">
           <button
             onClick={handleExportCSV}
-            className="px-3.5 py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white uppercase font-bold flex items-center gap-1.5 transition-colors"
+            className="px-3.5 py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-white/15 text-zinc-300 hover:text-white uppercase font-bold flex items-center gap-1.5 transition-colors rounded-sm"
           >
             <Download size={14} />
             <span>EXPORT CSV</span>
@@ -157,29 +144,29 @@ export const LeadManagementView: React.FC = () => {
 
           <button
             onClick={() => setIsAddLeadModalOpen(true)}
-            className="px-4 py-2.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-bold uppercase flex items-center gap-2 transition-colors"
+            className="px-4 py-2.5 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold uppercase flex items-center gap-2 transition-colors rounded-sm"
           >
             <Plus size={14} />
-            <span>ADD MANUAL LEAD</span>
+            <span>ADD INQUIRY</span>
           </button>
         </div>
       </div>
 
       {/* Status Tabs Bar */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-2 border-b border-white/10 font-mono-num text-xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 font-mono-num text-xs">
         {statusTabs.map(tab => (
           <button
             key={tab.key}
             onClick={() => setSelectedStatusFilter(tab.key)}
-            className={`px-3 py-2 uppercase font-bold transition-all whitespace-nowrap flex items-center gap-2 border ${
+            className={`px-3 py-2 uppercase font-bold transition-all whitespace-nowrap flex items-center gap-2 rounded-sm border ${
               selectedStatusFilter === tab.key
-                ? 'bg-zinc-800 text-[#d8ff38] border-[#d8ff38]'
+                ? 'bg-zinc-900 text-[#FFC515] border-[#FFC515]'
                 : 'bg-zinc-950 text-zinc-400 border-white/5 hover:border-white/20'
             }`}
           >
             <span>{tab.label}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-none font-extrabold ${
-              selectedStatusFilter === tab.key ? 'bg-[#d8ff38] text-black' : 'bg-zinc-900 text-zinc-500'
+            <span className={`text-[10px] px-1.5 py-0.2 font-extrabold rounded-xs ${
+              selectedStatusFilter === tab.key ? 'bg-[#FFC515] text-black' : 'bg-zinc-900 text-zinc-500'
             }`}>
               {tab.count}
             </span>
@@ -192,13 +179,13 @@ export const LeadManagementView: React.FC = () => {
         
         {/* Search Input */}
         <div className="sm:col-span-2 relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by Name, Phone (+91...), or Email..."
-            className="w-full bg-zinc-950 border border-white/10 pl-9 pr-4 py-2.5 text-white placeholder-zinc-500 text-xs focus:border-[#d8ff38] focus:outline-none"
+            className="w-full bg-zinc-950 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           />
         </div>
 
@@ -207,7 +194,7 @@ export const LeadManagementView: React.FC = () => {
           <select
             value={selectedSourceFilter}
             onChange={(e) => setSelectedSourceFilter(e.target.value)}
-            className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#d8ff38] focus:outline-none"
+            className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           >
             <option value="ALL">ALL SOURCES</option>
             <option value="CALORIE_CALCULATOR">CALORIE CALCULATOR</option>
@@ -220,51 +207,42 @@ export const LeadManagementView: React.FC = () => {
           </select>
         </div>
 
-        {/* Goal Filter */}
-        <div>
-          <select
-            value={selectedGoalFilter}
-            onChange={(e) => setSelectedGoalFilter(e.target.value)}
-            className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#d8ff38] focus:outline-none"
-          >
-            <option value="ALL">ALL GOALS</option>
-            <option value="BUILD_MUSCLE">BUILD MUSCLE</option>
-            <option value="LOSE_WEIGHT">LOSE WEIGHT</option>
-            <option value="STRENGTH">STRENGTH</option>
-            <option value="MAINTAIN">MAINTAIN</option>
-          </select>
-        </div>
-
         {/* Score Classification Filter */}
         <div>
           <select
             value={selectedScoreFilter}
             onChange={(e) => setSelectedScoreFilter(e.target.value)}
-            className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#d8ff38] focus:outline-none"
+            className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           >
-            <option value="ALL">ALL SCORES</option>
-            <option value="HOT">HOT LEADS (70-100)</option>
-            <option value="WARM">WARM LEADS (35-69)</option>
-            <option value="COLD">COLD LEADS (0-34)</option>
+            <option value="ALL">ALL INTENT SCORES</option>
+            <option value="HOT">HOT (HIGH INTENT)</option>
+            <option value="WARM">WARM (MODERATE)</option>
+            <option value="COLD">COLD (DISCOVERY)</option>
           </select>
+        </div>
+
+        {/* Results summary */}
+        <div className="flex items-center justify-between px-3 py-2.5 bg-zinc-950 border border-white/10 text-zinc-400 rounded-sm">
+          <span>SHOWING:</span>
+          <span className="text-[#FFC515] font-bold">{filteredLeads.length} of {leads.length}</span>
         </div>
 
       </div>
 
       {/* Main Leads CRM Table */}
-      <div className="bg-zinc-950 border border-white/10 overflow-hidden font-mono-num">
+      <div className="bg-zinc-950 border border-white/10 overflow-hidden font-mono-num rounded-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
                 <th className="p-3.5">ATHLETE NAME</th>
                 <th className="p-3.5">CONTACT INFO</th>
-                <th className="p-3.5">SOURCE & GOAL</th>
-                <th className="p-3.5">SCORE</th>
+                <th className="p-3.5">EST. VALUE</th>
+                <th className="p-3.5">INTENT SCORE</th>
                 <th className="p-3.5">STATUS</th>
                 <th className="p-3.5">ASSIGNED TO</th>
-                <th className="p-3.5">NEXT FOLLOW-UP</th>
-                <th className="p-3.5 text-right">ACTIONS</th>
+                <th className="p-3.5">FOLLOW-UP</th>
+                <th className="p-3.5 text-right">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -288,53 +266,46 @@ export const LeadManagementView: React.FC = () => {
                         setActiveSubtab('leads-detail');
                       }}
                     >
-                      {/* Name & Tags */}
+                      {/* Name & Goal */}
                       <td className="p-3.5 font-bold text-white">
                         <div className="flex items-center gap-2">
-                          <span className="group-hover:text-[#d8ff38] transition-colors">{lead.name}</span>
+                          <span className="group-hover:text-[#FFC515] transition-colors">{lead.name}</span>
                           {isHot && (
-                            <span title="Hot Lead" className="text-[#d8ff38]">
+                            <span title="Hot Lead" className="text-[#FFC515]">
                               <Flame size={13} />
                             </span>
                           )}
                         </div>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {lead.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="text-[9px] px-1 py-0.2 bg-zinc-900 border border-white/10 text-zinc-400">
-                              {tag.replace(/_/g, ' ')}
-                            </span>
-                          ))}
-                        </div>
+                        <span className="text-[10px] text-zinc-500 uppercase block mt-0.5">
+                          via {lead.source.replace(/_/g, ' ')}
+                        </span>
                       </td>
 
                       {/* Contact Info */}
                       <td className="p-3.5 text-zinc-300">
-                        <div className="flex items-center gap-1.5 text-zinc-300">
+                        <div className="flex items-center gap-1.5 text-zinc-200">
                           <Phone size={11} className="text-zinc-500" />
                           <span>{lead.phone}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-zinc-500 text-[11px] mt-0.5">
+                        <div className="flex items-center gap-1.5 text-zinc-500 text-[10px] mt-0.5">
                           <Mail size={11} />
-                          <span className="truncate max-w-[150px]">{lead.email}</span>
+                          <span className="truncate max-w-[140px]">{lead.email}</span>
                         </div>
                       </td>
 
-                      {/* Source & Goal */}
-                      <td className="p-3.5">
-                        <span className="text-white font-bold block">{lead.goal.replace(/_/g, ' ')}</span>
-                        <span className="text-[10px] text-zinc-500 uppercase">
-                          via {lead.source.replace(/_/g, ' ')}
-                        </span>
+                      {/* Est Value in INR */}
+                      <td className="p-3.5 font-extrabold text-white">
+                        ₹{lead.estimatedValue.toLocaleString('en-IN')}
                       </td>
 
                       {/* Score Badge */}
                       <td className="p-3.5">
                         <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 text-[10px] font-extrabold border ${
+                          <span className={`px-2 py-0.5 text-[10px] font-extrabold border rounded-xs ${
                             isHot 
-                              ? 'bg-[#d8ff38]/20 text-[#d8ff38] border-[#d8ff38]/50' 
+                              ? 'bg-[#FFC515]/20 text-[#FFC515] border-[#FFC515]/50' 
                               : isWarm 
-                                ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' 
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' 
                                 : 'bg-zinc-800 text-zinc-400 border-white/10'
                           }`}>
                             {lead.score} / 100
@@ -347,11 +318,11 @@ export const LeadManagementView: React.FC = () => {
                         <select
                           value={lead.status}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value as LeadStatus)}
-                          className={`text-[10px] font-bold px-2 py-1 uppercase bg-zinc-900 border focus:outline-none ${
+                          className={`text-[10px] font-bold px-2 py-1 uppercase bg-zinc-900 border rounded-xs focus:outline-none ${
                             lead.status === 'CONVERTED' 
-                              ? 'text-[#d8ff38] border-[#d8ff38]' 
+                              ? 'text-[#FFC515] border-[#FFC515]' 
                               : lead.status === 'QUALIFIED' 
-                                ? 'text-yellow-300 border-yellow-500' 
+                                ? 'text-amber-300 border-amber-500' 
                                 : lead.status === 'NEW' 
                                   ? 'text-white border-white/30' 
                                   : 'text-zinc-400 border-zinc-800'
@@ -375,7 +346,7 @@ export const LeadManagementView: React.FC = () => {
                       {/* Next Follow-Up */}
                       <td className="p-3.5 text-zinc-400 text-[11px]">
                         {lead.nextFollowUpDate ? (
-                          <span className="text-[#d8ff38] font-bold">{lead.nextFollowUpDate}</span>
+                          <span className="text-[#FFC515] font-bold">{lead.nextFollowUpDate}</span>
                         ) : (
                           <span className="text-zinc-600">None set</span>
                         )}
@@ -388,7 +359,7 @@ export const LeadManagementView: React.FC = () => {
                             setSelectedLeadId(lead.id);
                             setActiveSubtab('leads-detail');
                           }}
-                          className="px-2.5 py-1 bg-zinc-900 hover:bg-[#d8ff38] hover:text-black text-white text-[10px] uppercase font-bold border border-white/10 transition-colors inline-flex items-center gap-1"
+                          className="px-2.5 py-1 bg-zinc-900 hover:bg-[#FFC515] hover:text-black text-white text-[10px] uppercase font-bold border border-white/10 transition-colors inline-flex items-center gap-1 rounded-xs"
                         >
                           <span>DOSSIER</span>
                           <ChevronRight size={12} />
@@ -407,10 +378,10 @@ export const LeadManagementView: React.FC = () => {
       {/* Manual Add Lead Modal */}
       {isAddLeadModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-lg w-full font-mono-num text-xs space-y-5">
+          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-lg w-full font-mono-num text-xs space-y-5 rounded-sm">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
-                <Plus size={16} className="text-[#d8ff38]" />
+                <Plus size={16} className="text-[#FFC515]" />
                 CREATE MANUAL CRM LEAD
               </h3>
               <button 
@@ -430,7 +401,7 @@ export const LeadManagementView: React.FC = () => {
                   value={newLeadName}
                   onChange={(e) => setNewLeadName(e.target.value)}
                   placeholder="e.g. Rahul Sen"
-                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                 />
               </div>
 
@@ -443,7 +414,7 @@ export const LeadManagementView: React.FC = () => {
                     value={newLeadEmail}
                     onChange={(e) => setNewLeadEmail(e.target.value)}
                     placeholder="e.g. rahul@example.com"
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   />
                 </div>
                 <div>
@@ -453,7 +424,7 @@ export const LeadManagementView: React.FC = () => {
                     value={newLeadPhone}
                     onChange={(e) => setNewLeadPhone(e.target.value)}
                     placeholder="e.g. +91 98200 11223"
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   />
                 </div>
               </div>
@@ -464,7 +435,7 @@ export const LeadManagementView: React.FC = () => {
                   <select
                     value={newLeadSource}
                     onChange={(e) => setNewLeadSource(e.target.value as any)}
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   >
                     <option value="MANUAL_ENTRY">MANUAL ENTRY</option>
                     <option value="WHATSAPP">WHATSAPP DESK</option>
@@ -477,7 +448,7 @@ export const LeadManagementView: React.FC = () => {
                   <select
                     value={newLeadChallenge}
                     onChange={(e) => setNewLeadChallenge(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   >
                     <option value="7 Day Reset">7 DAY RESET</option>
                     <option value="21 Day Ignite">21 DAY IGNITE</option>
@@ -494,7 +465,7 @@ export const LeadManagementView: React.FC = () => {
                   value={newLeadNote}
                   onChange={(e) => setNewLeadNote(e.target.value)}
                   placeholder="Notes from initial phone call or WhatsApp inquiry..."
-                  className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white"
+                  className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white rounded-xs"
                 />
               </div>
 
@@ -502,13 +473,13 @@ export const LeadManagementView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddLeadModalOpen(false)}
-                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 uppercase font-bold"
+                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 uppercase font-bold rounded-xs"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-bold uppercase"
+                  className="px-5 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold uppercase rounded-xs"
                 >
                   SAVE & SCORE LEAD
                 </button>

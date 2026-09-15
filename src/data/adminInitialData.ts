@@ -2,6 +2,7 @@ import {
   Lead, 
   Customer, 
   Order, 
+  Invoice,
   Subscription, 
   CMSPage, 
   BlogPost, 
@@ -36,10 +37,10 @@ export const INITIAL_LEADS: Lead[] = [
     dietType: 'VEGETARIAN',
     preferredCuisine: 'INDIAN',
     status: 'QUALIFIED',
-    assignedTo: 'Vikram Mehta (Sales Lead)',
+    assignedTo: 'Coach Neetu (Head Coach)',
     lastContact: '2026-08-26T14:30:00Z',
     createdAt: '2026-08-25T09:15:00Z',
-    estimatedValue: 149,
+    estimatedValue: 7500,
     score: 85,
     scoreClassification: 'HOT',
     age: 29,
@@ -55,13 +56,13 @@ export const INITIAL_LEADS: Lead[] = [
       {
         id: 'n_1',
         createdAt: '2026-08-25T10:00:00Z',
-        author: 'Vikram Mehta',
+        author: 'Coach Neetu',
         content: 'Calculated 1850 kcal deficit. Looking to drop 10kg before wedding in November. Prefers Indian vegetarian meal swaps.'
       },
       {
         id: 'n_2',
         createdAt: '2026-08-26T14:35:00Z',
-        author: 'Vikram Mehta',
+        author: 'Coach Neetu',
         content: 'Had 15-min WhatsApp discovery call. Very keen on the 21-day cohort starting next Monday. Sent payment link.'
       }
     ],
@@ -78,14 +79,14 @@ export const INITIAL_LEADS: Lead[] = [
         timestamp: '2026-08-25T09:30:00Z',
         type: 'STATUS_CHANGE',
         description: 'Status changed from NEW to QUALIFIED (+25 Lead Score)',
-        performedBy: 'Vikram Mehta'
+        performedBy: 'Coach Neetu'
       },
       {
         id: 'act_3',
         timestamp: '2026-08-26T14:30:00Z',
         type: 'CALL',
         description: 'WhatsApp Audio Call completed (Duration: 14m 22s)',
-        performedBy: 'Vikram Mehta'
+        performedBy: 'Coach Neetu'
       }
     ],
     followUpHistory: [
@@ -93,7 +94,7 @@ export const INITIAL_LEADS: Lead[] = [
         date: '2026-08-26',
         type: 'WHATSAPP',
         notes: 'Sent PDF breakdown of 21-Day Ignite protocol & vegetarian macro sheet',
-        loggedBy: 'Vikram Mehta'
+        loggedBy: 'Coach Neetu'
       }
     ]
   },
@@ -107,10 +108,10 @@ export const INITIAL_LEADS: Lead[] = [
     dietType: 'NON-VEGETARIAN',
     preferredCuisine: 'INDIAN_INTERNATIONAL',
     status: 'INTERESTED',
-    assignedTo: 'Ananya Roy (Coach/Advisor)',
+    assignedTo: 'Coach Neetu (Head Coach)',
     lastContact: '2026-08-27T08:00:00Z',
     createdAt: '2026-08-26T18:20:00Z',
-    estimatedValue: 249,
+    estimatedValue: 11000,
     score: 75,
     scoreClassification: 'HOT',
     age: 26,
@@ -126,7 +127,7 @@ export const INITIAL_LEADS: Lead[] = [
       {
         id: 'n_3',
         createdAt: '2026-08-27T08:05:00Z',
-        author: 'Ananya Roy',
+        author: 'Coach Neetu',
         content: 'Generated 4-meal 2150 kcal high protein plan. Wants to improve upper body hypertrophy and deadlift strength.'
       }
     ],
@@ -151,10 +152,10 @@ export const INITIAL_LEADS: Lead[] = [
     dietType: 'NON-VEGETARIAN',
     preferredCuisine: 'INTERNATIONAL',
     status: 'CONVERTED',
-    assignedTo: 'Alex Mercer (Head Coach)',
+    assignedTo: 'Coach Neetu (Head Coach)',
     lastContact: '2026-08-24T16:00:00Z',
     createdAt: '2026-08-20T11:00:00Z',
-    estimatedValue: 399,
+    estimatedValue: 21000,
     score: 110,
     scoreClassification: 'HOT',
     age: 32,
@@ -163,14 +164,14 @@ export const INITIAL_LEADS: Lead[] = [
     weightKg: 82,
     activityLevel: 'VERY_ACTIVE',
     calculatedCalories: 2750,
-    challengeInterest: '90 Day Beast Mode',
+    challengeInterest: '90 Day Nutrition + Workout Coaching',
     tags: ['HIGH_VALUE', '90_DAY', 'MUSCLE_GAIN'],
     notes: [
       {
         id: 'n_4',
         createdAt: '2026-08-24T16:30:00Z',
-        author: 'Alex Mercer',
-        content: 'Converted to 90 Day Beast Mode Tier + Pro Access Pass. Onboarded to athlete telemetry dashboard.'
+        author: 'Coach Neetu',
+        content: 'Converted to 90 Day Nutrition + Workout Coaching (₹21,000). Onboarded to athlete telemetry dashboard.'
       }
     ],
     activities: [
@@ -178,8 +179,8 @@ export const INITIAL_LEADS: Lead[] = [
         id: 'act_5',
         timestamp: '2026-08-24T16:00:00Z',
         type: 'CONVERTED',
-        description: 'Completed purchase for $399 (Order #ORD-9842)',
-        performedBy: 'STRIPE_GATEWAY'
+        description: 'Completed purchase for ₹21,000 (Order #ORD-9842)',
+        performedBy: 'RAZORPAY_GATEWAY'
       }
     ],
     followUpHistory: []
@@ -194,10 +195,10 @@ export const INITIAL_LEADS: Lead[] = [
     dietType: 'VEGAN',
     preferredCuisine: 'INDIAN',
     status: 'FOLLOW_UP',
-    assignedTo: 'Vikram Mehta (Sales Lead)',
+    assignedTo: 'Coach Neetu (Head Coach)',
     lastContact: '2026-08-26T11:20:00Z',
     createdAt: '2026-08-26T10:00:00Z',
-    estimatedValue: 79,
+    estimatedValue: 4000,
     score: 60,
     scoreClassification: 'WARM',
     age: 35,
@@ -206,15 +207,15 @@ export const INITIAL_LEADS: Lead[] = [
     weightKg: 91,
     activityLevel: 'SEDENTARY',
     calculatedCalories: 1700,
-    challengeInterest: '7 Day Reset',
+    challengeInterest: 'Nutrition Only (Monthly)',
     tags: ['WARM', '21_DAY', 'WEIGHT_LOSS', 'VEGAN'],
     nextFollowUpDate: '2026-08-28',
     notes: [
       {
         id: 'n_5',
         createdAt: '2026-08-26T11:25:00Z',
-        author: 'Vikram Mehta',
-        content: 'Strict vegan. Requested confirmation that all 7-Day Reset meal substitutions have 100% plant-based protein parity.'
+        author: 'Coach Neetu',
+        content: 'Strict vegan. Requested confirmation that all meal substitutions have 100% plant-based protein parity.'
       }
     ],
     activities: [
@@ -231,7 +232,7 @@ export const INITIAL_LEADS: Lead[] = [
         date: '2026-08-26',
         type: 'EMAIL',
         notes: 'Emailed vegan protein substitution guide (Tofu, Edamame, Soya, Pea isolate)',
-        loggedBy: 'Vikram Mehta'
+        loggedBy: 'Coach Neetu'
       }
     ]
   },
@@ -247,7 +248,7 @@ export const INITIAL_LEADS: Lead[] = [
     status: 'NEW',
     assignedTo: 'Unassigned',
     createdAt: '2026-08-27T02:15:00Z',
-    estimatedValue: 149,
+    estimatedValue: 7500,
     score: 35,
     scoreClassification: 'WARM',
     tags: ['WARM', 'VEGETARIAN'],
@@ -273,10 +274,10 @@ export const INITIAL_LEADS: Lead[] = [
     dietType: 'VEGETARIAN',
     preferredCuisine: 'INDIAN',
     status: 'CONTACTED',
-    assignedTo: 'Ananya Roy (Coach/Advisor)',
+    assignedTo: 'Coach Neetu (Head Coach)',
     lastContact: '2026-08-26T19:00:00Z',
     createdAt: '2026-08-26T15:40:00Z',
-    estimatedValue: 149,
+    estimatedValue: 7500,
     score: 45,
     scoreClassification: 'WARM',
     tags: ['WARM', 'WEIGHT_LOSS', 'VEGETARIAN'],
@@ -284,8 +285,8 @@ export const INITIAL_LEADS: Lead[] = [
       {
         id: 'n_6',
         createdAt: '2026-08-26T19:05:00Z',
-        author: 'Ananya Roy',
-        content: 'DM inquiry from @tanvifit. Wants to join 21 Day Ignite. Shared calorie calculator link.'
+        author: 'Coach Neetu',
+        content: 'DM inquiry from @tanvifit. Wants to join 1-on-1 coaching. Shared calorie calculator link.'
       }
     ],
     activities: [
@@ -294,7 +295,7 @@ export const INITIAL_LEADS: Lead[] = [
         timestamp: '2026-08-26T15:40:00Z',
         type: 'CREATED',
         description: 'Captured via Instagram Direct Message Desk',
-        performedBy: 'Ananya Roy'
+        performedBy: 'Coach Neetu'
       }
     ],
     followUpHistory: []
@@ -304,24 +305,108 @@ export const INITIAL_LEADS: Lead[] = [
 export const INITIAL_CUSTOMERS: Customer[] = [
   {
     id: 'cust_01',
-    name: 'Alex Mercer',
-    email: 'alex.mercer@fitnetheist.com',
+    name: 'Marcus Vance',
+    email: 'marcus.vance@techcorp.io',
     phone: '+1 650 492 8812',
     avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
     joinedDate: '2026-05-14',
-    totalSpent: 498,
-    activeChallengeId: 'c_21_day_ignite',
-    activeChallengeName: '21 Day Ignite',
+    totalSpent: 21000,
+    status: 'ACTIVE',
+    programTier: '90-Day VIP 1-on-1 Transformation',
+    assignedCoach: 'Coach Vikram (Strength Specialist)',
+    startDate: '2026-05-15',
+    endDate: '2026-08-15',
+    age: 29,
+    gender: 'MALE',
+    city: 'San Francisco, CA',
+    emergencyContact: '+1 650 332 9011 (Spouse)',
+    heightCm: 182,
+    startingWeightKg: 94.5,
+    currentWeightKg: 85.2,
+    targetWeightKg: 82.0,
+    targetDate: '2026-09-30',
+    injuriesOrMedicalConditions: 'Mild right shoulder impingement during heavy overhead presses; subbed with landmine press.',
+    dietGoal: 'BUILD_MUSCLE',
+    dietType: 'NON_VEGETARIAN',
+    dailyCalories: 2650,
+    proteinGrams: 195,
+    carbsGrams: 280,
+    fatsGrams: 65,
+    waterLitres: 4.0,
+    mealsPerDay: 4,
+    allergiesOrRestrictions: 'Lactose intolerant (use plant/isolate protein only)',
+    cheatMealProtocol: '1 refeed meal every Saturday (High Carb, Low Fat)',
+    workoutSplit: '4-Day Upper / Lower Split',
+    trainingDaysPerWeek: 4,
+    experienceLevel: 'ADVANCED',
+    cardioProtocol: '10,000 steps daily + 15 min incline walk post-workout',
+    strengthBenchmarks: {
+      benchPressKg: 110,
+      squatKg: 145,
+      deadliftKg: 180,
+      overheadPressKg: 65
+    },
+    activeChallengeId: 'c_90_day_beast',
+    activeChallengeName: '90 Day Nutrition + Workout',
     activeSubscription: {
-      plan: 'Fitnetheist Elite Tier',
+      plan: '90-Day Full Coaching',
       renewalDate: '2026-09-14',
       status: 'ACTIVE'
     },
     lastActivity: '12 minutes ago',
-    dietGoal: 'BUILD_MUSCLE',
-    workoutSplit: '4-Day Upper / Lower Split',
-    streakDays: 12,
-    orderIds: ['ORD-9120', 'ORD-9842']
+    streakDays: 48,
+    orderIds: ['ORD-9842'],
+    checkIns: [
+      {
+        id: 'chk_1',
+        date: '2026-09-12',
+        weightKg: 85.2,
+        waistCm: 81.5,
+        bodyFatPercent: 12.8,
+        adherenceScore: 10,
+        clientNotes: 'Felt very energized this week. Incline bench hit 85kg for 8 reps cleanly.',
+        coachFeedback: 'Outstanding progress Marcus. Shoulders looking much fuller, keep water intake at 4L.',
+        photosUploaded: true
+      },
+      {
+        id: 'chk_2',
+        date: '2026-09-05',
+        weightKg: 86.1,
+        waistCm: 82.2,
+        bodyFatPercent: 13.5,
+        adherenceScore: 9,
+        clientNotes: 'Had one business dinner on Thursday, kept alcohol to zero and picked grilled salmon.',
+        coachFeedback: 'Great discipline navigating that business dinner.',
+        photosUploaded: true
+      },
+      {
+        id: 'chk_3',
+        date: '2026-08-28',
+        weightKg: 87.0,
+        waistCm: 83.4,
+        bodyFatPercent: 14.2,
+        adherenceScore: 9,
+        clientNotes: 'First week on the 2,650 kcal adjustment. Recovery is noticeably faster.',
+        coachFeedback: 'Calorie increase is doing its job. Keep progressive overload consistent.',
+        photosUploaded: true
+      }
+    ],
+    coachNotes: [
+      {
+        id: 'cn_1',
+        createdAt: '2026-09-10T14:30:00Z',
+        author: 'Coach Vikram',
+        type: 'MACRO_ADJUSTMENT',
+        content: 'Bumped carbs by +25g on training days to maximize bench/squat peak strength.'
+      },
+      {
+        id: 'cn_2',
+        createdAt: '2026-08-15T10:00:00Z',
+        author: 'Coach Vikram',
+        type: 'MILESTONE',
+        content: 'Hit sub-13% body fat milestone! Athlete is preparing for lean hypertrophy phase.'
+      }
+    ]
   },
   {
     id: 'cust_02',
@@ -330,14 +415,80 @@ export const INITIAL_CUSTOMERS: Customer[] = [
     phone: '+91 98112 34509',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     joinedDate: '2026-06-01',
-    totalSpent: 249,
-    activeChallengeId: 'c_60_day_transform',
-    activeChallengeName: '60 Day Transform',
-    lastActivity: '2 hours ago',
+    totalSpent: 11000,
+    status: 'ACTIVE',
+    programTier: '90-Day Nutrition Protocol',
+    assignedCoach: 'Coach Neetu (Head Coach)',
+    startDate: '2026-06-01',
+    endDate: '2026-08-31',
+    age: 34,
+    gender: 'MALE',
+    city: 'New Delhi, India',
+    emergencyContact: '+91 98112 99001 (Brother)',
+    heightCm: 176,
+    startingWeightKg: 88.0,
+    currentWeightKg: 79.4,
+    targetWeightKg: 74.0,
+    targetDate: '2026-10-15',
+    injuriesOrMedicalConditions: 'None. Slight lower back stiffness after prolonged desk work.',
     dietGoal: 'LOSE_WEIGHT',
+    dietType: 'VEGETARIAN',
+    dailyCalories: 1850,
+    proteinGrams: 145,
+    carbsGrams: 190,
+    fatsGrams: 45,
+    waterLitres: 3.5,
+    mealsPerDay: 4,
+    allergiesOrRestrictions: 'Pure Vegetarian. Protein sources: Paneer, Whey, Greek Yogurt, Tofu, Soya.',
+    cheatMealProtocol: 'Single clean cheat meal on Sunday lunch (max 700 kcal).',
     workoutSplit: 'Push / Pull / Legs',
+    trainingDaysPerWeek: 5,
+    experienceLevel: 'INTERMEDIATE',
+    cardioProtocol: '8,500 daily steps + 10 min stairmaster warmup',
+    strengthBenchmarks: {
+      benchPressKg: 75,
+      squatKg: 95,
+      deadliftKg: 120,
+      overheadPressKg: 45
+    },
+    activeChallengeId: 'c_60_day_transform',
+    activeChallengeName: '90 Day Nutrition Only',
+    lastActivity: '2 hours ago',
     streakDays: 45,
-    orderIds: ['ORD-8812']
+    orderIds: ['ORD-9843'],
+    checkIns: [
+      {
+        id: 'chk_4',
+        date: '2026-09-11',
+        weightKg: 79.4,
+        waistCm: 84.0,
+        bodyFatPercent: 18.2,
+        adherenceScore: 9,
+        clientNotes: 'Dropped below 80kg! Huge psychological milestone for me.',
+        coachFeedback: 'Phenomenal work Karan! Breaking the 80kg plateau is huge. Maintaining calories as is.',
+        photosUploaded: true
+      },
+      {
+        id: 'chk_5',
+        date: '2026-09-04',
+        weightKg: 80.3,
+        waistCm: 85.0,
+        bodyFatPercent: 19.1,
+        adherenceScore: 8,
+        clientNotes: 'Slight craving for sweets mid-week, solved with whey casein pudding.',
+        coachFeedback: 'Casein pudding is the perfect low-cal hack. Keep it up.',
+        photosUploaded: true
+      }
+    ],
+    coachNotes: [
+      {
+        id: 'cn_3',
+        createdAt: '2026-09-11T16:00:00Z',
+        author: 'Coach Neetu',
+        type: 'MILESTONE',
+        content: 'Broken 80kg barrier. Total weight loss to date: -8.6 kg in 14 weeks.'
+      }
+    ]
   },
   {
     id: 'cust_03',
@@ -346,14 +497,136 @@ export const INITIAL_CUSTOMERS: Customer[] = [
     phone: '+91 97230 45671',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
     joinedDate: '2026-07-10',
-    totalSpent: 149,
-    activeChallengeId: 'c_21_day_ignite',
-    activeChallengeName: '21 Day Ignite',
-    lastActivity: 'Yesterday',
-    dietGoal: 'BUILD_MUSCLE',
+    totalSpent: 7500,
+    status: 'ACTIVE',
+    programTier: 'Monthly Nutrition + Workout',
+    assignedCoach: 'Coach Neetu (Head Coach)',
+    startDate: '2026-07-10',
+    endDate: '2026-10-10',
+    age: 27,
+    gender: 'FEMALE',
+    city: 'Mumbai, India',
+    heightCm: 164,
+    startingWeightKg: 65.0,
+    currentWeightKg: 60.8,
+    targetWeightKg: 58.0,
+    targetDate: '2026-10-31',
+    injuriesOrMedicalConditions: 'History of runner knee on left patella; squats limited to parallel.',
+    dietGoal: 'LOSE_WEIGHT',
+    dietType: 'VEGETARIAN',
+    dailyCalories: 1550,
+    proteinGrams: 115,
+    carbsGrams: 160,
+    fatsGrams: 40,
+    waterLitres: 3.0,
+    mealsPerDay: 3,
+    allergiesOrRestrictions: 'No nuts (tree nut allergy)',
     workoutSplit: 'Full Body 3x/Week',
+    trainingDaysPerWeek: 3,
+    experienceLevel: 'BEGINNER',
+    cardioProtocol: '7,000 steps daily',
+    strengthBenchmarks: {
+      benchPressKg: 35,
+      squatKg: 50,
+      deadliftKg: 65,
+      overheadPressKg: 20
+    },
+    activeChallengeId: 'c_21_day_ignite',
+    activeChallengeName: 'Monthly Nutrition + Workout',
+    lastActivity: 'Yesterday',
     streakDays: 19,
-    orderIds: ['ORD-9021']
+    orderIds: ['ORD-9844'],
+    checkIns: [
+      {
+        id: 'chk_6',
+        date: '2026-09-13',
+        weightKg: 60.8,
+        waistCm: 71.0,
+        bodyFatPercent: 22.4,
+        adherenceScore: 10,
+        clientNotes: 'Strength on deadlifts jumped to 65kg for 5 clean reps.',
+        coachFeedback: 'Form looked crisp on video check. Ready for next progression cycle.',
+        photosUploaded: true
+      }
+    ],
+    coachNotes: [
+      {
+        id: 'cn_4',
+        createdAt: '2026-09-01T09:15:00Z',
+        author: 'Coach Neetu',
+        type: 'GENERAL',
+        content: 'Onboarded to app and assigned Full Body 3x beginner hypertrophy split.'
+      }
+    ]
+  },
+  {
+    id: 'cust_04',
+    name: 'Ananya Deshmukh',
+    email: 'ananya.deshmukh@gmail.com',
+    phone: '+91 99201 88412',
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+    joinedDate: '2026-08-01',
+    totalSpent: 14500,
+    status: 'ONBOARDING',
+    programTier: '60-Day Recomp Challenge',
+    assignedCoach: 'Coach Rahul (Metabolic Coach)',
+    startDate: '2026-08-01',
+    endDate: '2026-10-01',
+    age: 31,
+    gender: 'FEMALE',
+    city: 'Pune, India',
+    heightCm: 168,
+    startingWeightKg: 72.0,
+    currentWeightKg: 69.8,
+    targetWeightKg: 64.0,
+    targetDate: '2026-11-15',
+    injuriesOrMedicalConditions: 'None reported.',
+    dietGoal: 'MAINTAIN',
+    dietType: 'EGGETARIAN',
+    dailyCalories: 1750,
+    proteinGrams: 130,
+    carbsGrams: 180,
+    fatsGrams: 45,
+    waterLitres: 3.2,
+    mealsPerDay: 4,
+    allergiesOrRestrictions: 'Egg-friendly vegetarian. No beef or pork.',
+    workoutSplit: 'Upper / Lower 4-Day Split',
+    trainingDaysPerWeek: 4,
+    experienceLevel: 'INTERMEDIATE',
+    cardioProtocol: '8,000 steps daily',
+    strengthBenchmarks: {
+      benchPressKg: 42,
+      squatKg: 60,
+      deadliftKg: 75,
+      overheadPressKg: 25
+    },
+    activeChallengeId: 'c_60_day_transform',
+    activeChallengeName: '60-Day Recomp Challenge',
+    lastActivity: '4 hours ago',
+    streakDays: 14,
+    orderIds: [],
+    checkIns: [
+      {
+        id: 'chk_7',
+        date: '2026-09-10',
+        weightKg: 69.8,
+        waistCm: 74.5,
+        bodyFatPercent: 24.1,
+        adherenceScore: 9,
+        clientNotes: 'Felt strong during lower body day. Energy levels are super stable.',
+        coachFeedback: 'Great adherence on the egg-protein plan. Keep hydration steady.',
+        photosUploaded: false
+      }
+    ],
+    coachNotes: [
+      {
+        id: 'cn_5',
+        createdAt: '2026-08-01T12:00:00Z',
+        author: 'Coach Rahul',
+        type: 'CALL_SUMMARY',
+        content: 'Completed 45-min onboarding call. Outlined 4-day split and grocery list.'
+      }
+    ]
   }
 ];
 
@@ -361,14 +634,14 @@ export const INITIAL_ORDERS: Order[] = [
   {
     id: 'ORD-9842',
     customerId: 'cust_01',
-    customerName: 'Alex Mercer',
-    customerEmail: 'alex.mercer@fitnetheist.com',
-    productTitle: '90 Day Beast Mode All-Access',
+    customerName: 'Marcus Vance',
+    customerEmail: 'marcus.vance@techcorp.io',
+    productTitle: '90 Day Nutrition + Workout Coaching',
     productType: 'CHALLENGE',
-    amount: 399,
-    currency: 'USD',
+    amount: 21000,
+    currency: 'INR',
     paymentStatus: 'PAID',
-    paymentMethod: 'STRIPE',
+    paymentMethod: 'RAZORPAY',
     createdAt: '2026-08-24T16:00:00Z'
   },
   {
@@ -376,12 +649,12 @@ export const INITIAL_ORDERS: Order[] = [
     customerId: 'cust_02',
     customerName: 'Karan Malhotra',
     customerEmail: 'karan.m@gmail.com',
-    productTitle: '60 Day Body Recomp Protocol',
+    productTitle: '90 Day Nutrition Protocol',
     productType: 'CHALLENGE',
-    amount: 249,
-    currency: 'USD',
+    amount: 11000,
+    currency: 'INR',
     paymentStatus: 'PAID',
-    paymentMethod: 'RAZORPAY',
+    paymentMethod: 'UPI',
     createdAt: '2026-08-25T11:20:00Z'
   },
   {
@@ -389,10 +662,10 @@ export const INITIAL_ORDERS: Order[] = [
     customerId: 'cust_03',
     customerName: 'Sneha Patel',
     customerEmail: 'sneha.patel@corporate.in',
-    productTitle: '21 Day Ignite Challenge Pass',
+    productTitle: 'Monthly Nutrition + Workout Coaching',
     productType: 'CHALLENGE',
-    amount: 149,
-    currency: 'USD',
+    amount: 7500,
+    currency: 'INR',
     paymentStatus: 'PAID',
     paymentMethod: 'UPI',
     createdAt: '2026-08-26T08:45:00Z'
@@ -402,10 +675,10 @@ export const INITIAL_ORDERS: Order[] = [
     customerId: 'cust_04_guest',
     customerName: 'Arjun Verma',
     customerEmail: 'arjun.v@gmail.com',
-    productTitle: '7 Day Metabolic Reset',
+    productTitle: 'Monthly Nutrition Only Coaching',
     productType: 'CHALLENGE',
-    amount: 79,
-    currency: 'USD',
+    amount: 4000,
+    currency: 'INR',
     paymentStatus: 'PENDING',
     paymentMethod: 'CARD',
     createdAt: '2026-08-27T01:10:00Z'
@@ -416,24 +689,24 @@ export const INITIAL_SUBSCRIPTIONS: Subscription[] = [
   {
     id: 'sub_001',
     customerId: 'cust_01',
-    customerName: 'Alex Mercer',
-    customerEmail: 'alex.mercer@fitnetheist.com',
-    planName: 'Elite Coaching Pass',
+    customerName: 'Marcus Vance',
+    customerEmail: 'marcus.vance@techcorp.io',
+    planName: 'Monthly Coaching Retainer',
     startDate: '2026-06-14',
     renewalDate: '2026-09-14',
     status: 'ACTIVE',
-    amountPerMonth: 49
+    amountPerMonth: 7500
   },
   {
     id: 'sub_002',
     customerId: 'cust_02',
     customerName: 'Karan Malhotra',
     customerEmail: 'karan.m@gmail.com',
-    planName: 'Pro Athlete Telemetry',
+    planName: 'Monthly Nutrition Protocol',
     startDate: '2026-07-01',
     renewalDate: '2026-09-01',
     status: 'ACTIVE',
-    amountPerMonth: 29
+    amountPerMonth: 4000
   }
 ];
 
@@ -812,7 +1085,7 @@ export const INITIAL_NOTIFICATIONS: AdminNotification[] = [
     message: 'Marcus Vance purchased 90 Day Beast Mode All-Access pass via Stripe.',
     type: 'NEW_PURCHASE',
     read: false,
-    linkSubtab: 'orders'
+    linkSubtab: 'invoices'
   },
   {
     id: 'notif_3',
@@ -824,3 +1097,129 @@ export const INITIAL_NOTIFICATIONS: AdminNotification[] = [
     linkSubtab: 'leads'
   }
 ];
+
+export const INITIAL_INVOICES: Invoice[] = [
+  {
+    id: 'inv_1001',
+    invoiceNumber: 'INV-2026-0042',
+    type: 'TAX_INVOICE',
+    status: 'PAID',
+    issueDate: '2026-08-25',
+    dueDate: '2026-08-25',
+    businessName: 'FITNETHEIST ELITE PERFORMANCE & NUTRITION',
+    businessGstin: '07AAACF8899Q1ZX',
+    businessPan: 'AAACF8899Q',
+    businessAddress: 'Plot 42, Sector 18, Commercial Hub, Cyber City, Gurugram, HR 122002',
+    businessEmail: 'billing@fitnetheist.com',
+    businessPhone: '+91 98100 45678',
+    clientName: 'Alex Mercer',
+    clientEmail: 'alex.mercer@gmail.com',
+    clientPhone: '+91 98200 11223',
+    clientAddress: 'B-402, Highline Residency, Bandra West, Mumbai, MH 400050',
+    items: [
+      {
+        id: 'item_1',
+        description: '90-Day VIP 1-on-1 Physique Transformation Protocol (Weekly Video Check-ins, Custom Hypertrophy Split, Macro Engineering)',
+        category: 'COACHING',
+        quantity: 1,
+        unitPrice: 19999,
+        discountAmount: 2000,
+        taxRatePercent: 18,
+        total: 21238.82
+      }
+    ],
+    subtotal: 17999,
+    discountTotal: 2000,
+    taxTotal: 3239.82,
+    totalAmount: 21238.82,
+    currency: 'INR',
+    paymentMethod: 'UPI',
+    transactionReference: 'UPI-AXIS-9821034459',
+    paymentDate: '2026-08-25',
+    notes: 'Thank you for committing to your athletic evolution with Fitnetheist. All custom macros and periodized training splits are active in your dashboard.',
+    terms: 'All digital fitness and customized coaching services are non-refundable once custom programs are deployed. Access valid for 90 days from activation date.',
+    createdAt: '2026-08-25T11:20:00Z'
+  },
+  {
+    id: 'inv_1002',
+    invoiceNumber: 'REC-2026-0089',
+    type: 'PAYMENT_RECEIPT',
+    status: 'PAID',
+    issueDate: '2026-08-26',
+    dueDate: '2026-08-26',
+    businessName: 'FITNETHEIST ELITE PERFORMANCE & NUTRITION',
+    businessGstin: '07AAACF8899Q1ZX',
+    businessPan: 'AAACF8899Q',
+    businessAddress: 'Plot 42, Sector 18, Commercial Hub, Cyber City, Gurugram, HR 122002',
+    businessEmail: 'billing@fitnetheist.com',
+    businessPhone: '+91 98100 45678',
+    clientName: 'Priya Sharma',
+    clientEmail: 'priya.fitness@example.com',
+    clientPhone: '+91 98765 43210',
+    clientAddress: 'Flat 12A, Orchid Towers, Indiranagar, Bengaluru, KA 560038',
+    items: [
+      {
+        id: 'item_2',
+        description: '21-Day Ignite Shred Challenge (Exclusive Community Access, Daily Habit Tracking, Meal Swap Engine)',
+        category: 'CHALLENGE',
+        quantity: 1,
+        unitPrice: 3499,
+        discountAmount: 500,
+        taxRatePercent: 18,
+        total: 3538.82
+      }
+    ],
+    subtotal: 2999,
+    discountTotal: 500,
+    taxTotal: 539.82,
+    totalAmount: 3538.82,
+    currency: 'INR',
+    paymentMethod: 'RAZORPAY',
+    transactionReference: 'pay_RZP884930127',
+    paymentDate: '2026-08-26',
+    notes: 'Official payment receipt for 21-Day Ignite enrollment. Challenge dashboard unlocked.',
+    terms: 'Receipt generated automatically upon successful gateway authorization.',
+    createdAt: '2026-08-26T09:45:00Z'
+  },
+  {
+    id: 'inv_1003',
+    invoiceNumber: 'INV-2026-0090',
+    type: 'TAX_INVOICE',
+    status: 'PENDING',
+    issueDate: '2026-08-27',
+    dueDate: '2026-08-30',
+    businessName: 'FITNETHEIST ELITE PERFORMANCE & NUTRITION',
+    businessGstin: '07AAACF8899Q1ZX',
+    businessPan: 'AAACF8899Q',
+    businessAddress: 'Plot 42, Sector 18, Commercial Hub, Cyber City, Gurugram, HR 122002',
+    businessEmail: 'billing@fitnetheist.com',
+    businessPhone: '+91 98100 45678',
+    clientName: 'Rohan Sharma',
+    clientEmail: 'rohan.sharma@example.com',
+    clientPhone: '+91 98201 44521',
+    clientAddress: 'Saket, New Delhi, DL 110017',
+    items: [
+      {
+        id: 'item_3',
+        description: '60-Day Body Recomposition Elite Coaching Pass (Custom Indian Vegetarian Macro Engine & Strength Split)',
+        category: 'COACHING',
+        quantity: 1,
+        unitPrice: 12999,
+        discountAmount: 1000,
+        taxRatePercent: 18,
+        total: 14158.82
+      }
+    ],
+    subtotal: 11999,
+    discountTotal: 1000,
+    taxTotal: 2159.82,
+    totalAmount: 14158.82,
+    currency: 'INR',
+    paymentMethod: 'UPI',
+    transactionReference: 'PENDING_CONFIRMATION',
+    notes: 'Invoice generated following 1-on-1 consultation with Head Coach Neetu.',
+    terms: 'Payment due within 3 days to reserve intake slot in the upcoming transformation cohort.',
+    createdAt: '2026-08-27T15:10:00Z'
+  }
+];
+

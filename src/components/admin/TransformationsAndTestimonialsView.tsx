@@ -15,12 +15,15 @@ import {
 
 export const TransformationsAndTestimonialsView: React.FC = () => {
   const { transformations } = useApp();
-  const { testimonials, updateTestimonialStatus, logAuditAction } = useAdmin();
+  const { testimonials, updateTestimonialStatus } = useAdmin();
 
   const [activeTab, setActiveTab] = useState<'TESTIMONIALS' | 'TRANSFORMATIONS'>('TESTIMONIALS');
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
 
-  const filteredTestimonials = testimonials.filter(t => filterStatus === 'ALL' || t.status === filterStatus);
+  const safeTestimonials = Array.isArray(testimonials) ? testimonials : [];
+  const safeTransformations = Array.isArray(transformations) ? transformations : [];
+
+  const filteredTestimonials = safeTestimonials.filter(t => filterStatus === 'ALL' || t.status === filterStatus);
 
   return (
     <div id="transformations-testimonials-admin" className="space-y-6 font-mono-num text-xs">
@@ -29,8 +32,8 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="h-2 w-2 bg-[#d8ff38]"></span>
-            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
+            <span className="h-2 w-2 bg-[#FFC515]"></span>
+            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
               SOCIAL PROOF & ATHLETE EVIDENCE
             </span>
           </div>
@@ -47,18 +50,18 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
           <button
             onClick={() => setActiveTab('TESTIMONIALS')}
             className={`px-3.5 py-2 uppercase font-bold text-[10px] ${
-              activeTab === 'TESTIMONIALS' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
+              activeTab === 'TESTIMONIALS' ? 'bg-[#FFC515] text-black' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            TESTIMONIALS QUEUE ({testimonials.filter(t => t.status === 'PENDING').length} PENDING)
+            TESTIMONIALS QUEUE ({safeTestimonials.filter(t => t.status === 'PENDING').length} PENDING)
           </button>
           <button
             onClick={() => setActiveTab('TRANSFORMATIONS')}
             className={`px-3.5 py-2 uppercase font-bold text-[10px] ${
-              activeTab === 'TRANSFORMATIONS' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
+              activeTab === 'TRANSFORMATIONS' ? 'bg-[#FFC515] text-black' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            TRANSFORMATIONS ({transformations.length})
+            TRANSFORMATIONS ({safeTransformations.length})
           </button>
         </div>
       </div>
@@ -75,7 +78,7 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
                 onClick={() => setFilterStatus(st)}
                 className={`px-2.5 py-1 uppercase font-bold text-[10px] border ${
                   filterStatus === st 
-                    ? 'bg-zinc-800 text-[#d8ff38] border-[#d8ff38]' 
+                    ? 'bg-zinc-800 text-[#FFC515] border-[#FFC515]' 
                     : 'bg-zinc-950 text-zinc-500 border-white/5 hover:border-white/20'
                 }`}
               >
@@ -116,8 +119,8 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
                     "{item.quote}"
                   </p>
 
-                  <div className="flex items-center gap-1 text-[#d8ff38]">
-                    {[...Array(item.rating)].map((_, i) => (
+                  <div className="flex items-center gap-1 text-[#FFC515]">
+                    {[...Array(item.rating || 5)].map((_, i) => (
                       <Star key={i} size={11} fill="currentColor" />
                     ))}
                     <span className="text-[10px] text-zinc-500 ml-1">Submitted {item.submittedDate}</span>
@@ -155,32 +158,32 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
       ) : (
         /* Transformations Grid */
         <div className="grid md:grid-cols-3 gap-6">
-          {transformations.map(tr => (
+          {safeTransformations.map(tr => (
             <div key={tr.id} className="bg-zinc-950 border border-white/10 overflow-hidden space-y-3">
               <div className="grid grid-cols-2 h-44 bg-zinc-900 border-b border-white/10">
                 <div className="relative">
-                  <img src={tr.beforeImage} alt="Before" className="h-full w-full object-cover" />
+                  <img src={tr.beforePhoto || (tr as any).beforeImage} alt="Before" className="h-full w-full object-cover" />
                   <span className="absolute bottom-2 left-2 bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-zinc-400">
-                    BEFORE ({tr.startWeight}kg)
+                    BEFORE
                   </span>
                 </div>
                 <div className="relative">
-                  <img src={tr.afterImage} alt="After" className="h-full w-full object-cover" />
-                  <span className="absolute bottom-2 right-2 bg-[#d8ff38] px-1.5 py-0.5 text-[9px] font-bold text-black">
-                    AFTER ({tr.currentWeight}kg)
+                  <img src={tr.afterPhoto || (tr as any).afterImage} alt="After" className="h-full w-full object-cover" />
+                  <span className="absolute bottom-2 right-2 bg-[#FFC515] px-1.5 py-0.5 text-[9px] font-bold text-black">
+                    AFTER
                   </span>
                 </div>
               </div>
 
               <div className="p-4 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-white text-sm uppercase">{tr.name}</span>
-                  <span className="text-[#d8ff38] font-bold">{tr.timeframe}</span>
+                  <span className="font-bold text-white text-sm uppercase">{tr.name} ({tr.age}y)</span>
+                  <span className="text-[#FFC515] font-bold">{tr.duration || (tr as any).timeframe}</span>
                 </div>
 
                 <div className="p-2 bg-zinc-900 border border-white/5 flex justify-between text-[11px]">
                   <span className="text-zinc-400">NET CHANGE:</span>
-                  <span className="text-[#d8ff38] font-bold">{tr.delta}</span>
+                  <span className="text-[#FFC515] font-bold">{tr.statChange || (tr as any).delta}</span>
                 </div>
 
                 <p className="text-zinc-400 text-xs italic line-clamp-2">
@@ -191,7 +194,7 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
                   <span className="flex items-center gap-1 text-emerald-400">
                     <ShieldCheck size={12} /> Consent Verified
                   </span>
-                  <span className="text-white uppercase font-bold">{tr.challengeName}</span>
+                  <span className="text-white uppercase font-bold">{tr.keyStrategy}</span>
                 </div>
               </div>
             </div>

@@ -17,6 +17,7 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 
 const AppContent: React.FC = () => {
   const { activeTab } = useApp();
+  const isAdmin = activeTab === 'admin';
 
   // Scroll to top upon tab switch
   useEffect(() => {
@@ -25,11 +26,11 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#08080a] text-white flex flex-col justify-between selection:bg-[#FFC515] selection:text-black">
-      {/* Top Navigation */}
-      <Navbar />
+      {/* Top Navigation (hidden on Admin OS to avoid overlapping admin header) */}
+      {!isAdmin && <Navbar />}
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full pb-20 lg:pb-0">
+      <main className={`flex-1 w-full ${!isAdmin ? 'pb-20 lg:pb-0' : ''}`}>
         {activeTab === 'home' && <HomePage />}
 
         {/* Dedicated Tools Suite */}
@@ -47,11 +48,11 @@ const AppContent: React.FC = () => {
         {activeTab === 'admin' && <AdminDashboard />}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer (hidden on Admin OS) */}
+      {!isAdmin && <Footer />}
 
-      {/* Mobile Sticky Navigation */}
-      <MobileBottomNav />
+      {/* Mobile Sticky Navigation (hidden on Admin OS) */}
+      {!isAdmin && <MobileBottomNav />}
 
       {/* Global Auth & Onboarding Modal */}
       <AuthModal />

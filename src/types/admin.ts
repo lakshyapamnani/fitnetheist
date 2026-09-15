@@ -116,6 +116,26 @@ export interface Lead {
   }[];
 }
 
+export interface ClientCheckIn {
+  id: string;
+  date: string;
+  weightKg: number;
+  waistCm?: number;
+  bodyFatPercent?: number;
+  adherenceScore: number; // 1-10
+  clientNotes?: string;
+  coachFeedback?: string;
+  photosUploaded?: boolean;
+}
+
+export interface ClientCoachNote {
+  id: string;
+  createdAt: string;
+  author: string;
+  type: 'GENERAL' | 'MACRO_ADJUSTMENT' | 'WORKOUT_CHANGE' | 'CALL_SUMMARY' | 'MILESTONE';
+  content: string;
+}
+
 export interface Customer {
   id: string;
   name: string;
@@ -124,6 +144,53 @@ export interface Customer {
   avatarUrl?: string;
   joinedDate: string;
   totalSpent: number;
+  
+  // Status & Membership
+  status?: 'ACTIVE' | 'ONBOARDING' | 'PAUSED' | 'COMPLETED';
+  programTier?: string;
+  assignedCoach?: string;
+  startDate?: string;
+  endDate?: string;
+  
+  // Physical & Biometrics
+  age?: number;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
+  city?: string;
+  emergencyContact?: string;
+  heightCm?: number;
+  startingWeightKg?: number;
+  currentWeightKg?: number;
+  targetWeightKg?: number;
+  targetDate?: string;
+  injuriesOrMedicalConditions?: string;
+  
+  // Nutrition Protocol
+  dietGoal: FitnessGoal;
+  dietType?: 'VEGAN' | 'VEGETARIAN' | 'EGGETARIAN' | 'NON_VEGETARIAN' | 'JAIN' | 'KETO';
+  dailyCalories?: number;
+  proteinGrams?: number;
+  carbsGrams?: number;
+  fatsGrams?: number;
+  waterLitres?: number;
+  mealsPerDay?: number;
+  allergiesOrRestrictions?: string;
+  cheatMealProtocol?: string;
+  
+  // Workout Protocol
+  workoutSplit: string;
+  trainingDaysPerWeek?: number;
+  experienceLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  cardioProtocol?: string;
+  strengthBenchmarks?: {
+    benchPressKg?: number;
+    squatKg?: number;
+    deadliftKg?: number;
+    overheadPressKg?: number;
+  };
+  
+  // Progress & Interactions
+  streakDays: number;
+  lastActivity: string;
   activeChallengeId?: string;
   activeChallengeName?: string;
   activeSubscription?: {
@@ -131,11 +198,10 @@ export interface Customer {
     renewalDate: string;
     status: 'ACTIVE' | 'PAUSED' | 'CANCELLED';
   };
-  lastActivity: string;
-  dietGoal: FitnessGoal;
-  workoutSplit: string;
-  streakDays: number;
   orderIds: string[];
+  checkIns?: ClientCheckIn[];
+  coachNotes?: ClientCoachNote[];
+  convertedFromLeadId?: string;
 }
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'CANCELLED';
@@ -151,6 +217,64 @@ export interface Order {
   currency: string;
   paymentStatus: OrderStatus;
   paymentMethod: 'STRIPE' | 'RAZORPAY' | 'UPI' | 'CARD' | 'MANUAL';
+  createdAt: string;
+}
+
+export type InvoiceType = 'TAX_INVOICE' | 'PAYMENT_RECEIPT' | 'BILL_OF_SUPPLY';
+export type InvoiceStatus = 'PAID' | 'PENDING' | 'OVERDUE' | 'REFUNDED' | 'CANCELLED';
+
+export interface InvoiceItem {
+  id: string;
+  description: string;
+  category?: string;
+  quantity: number;
+  unitPrice: number;
+  discountAmount?: number;
+  taxRatePercent?: number;
+  total: number;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  type: InvoiceType;
+  status: InvoiceStatus;
+  issueDate: string;
+  dueDate: string;
+  
+  // Business Info
+  businessName: string;
+  businessGstin?: string;
+  businessPan?: string;
+  businessAddress: string;
+  businessEmail: string;
+  businessPhone: string;
+  
+  // Customer / Athlete Info
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientAddress?: string;
+  clientGstinPan?: string;
+  
+  // Line Items
+  items: InvoiceItem[];
+  
+  // Financials
+  subtotal: number;
+  discountTotal: number;
+  taxTotal: number;
+  totalAmount: number;
+  currency: string;
+  
+  // Payment info
+  paymentMethod: 'UPI' | 'RAZORPAY' | 'BANK_TRANSFER' | 'CREDIT_DEBIT_CARD' | 'CASH';
+  transactionReference?: string;
+  paymentDate?: string;
+  
+  // Custom Notes
+  notes?: string;
+  terms?: string;
   createdAt: string;
 }
 

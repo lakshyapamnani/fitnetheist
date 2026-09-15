@@ -6,7 +6,11 @@ import {
   LeadSource, 
   LeadTag, 
   Customer, 
+  ClientCheckIn,
+  ClientCoachNote,
   Order, 
+  Invoice,
+  InvoiceStatus,
   Subscription, 
   CMSPage, 
   CMSSection, 
@@ -25,6 +29,7 @@ import {
   INITIAL_LEADS,
   INITIAL_CUSTOMERS,
   INITIAL_ORDERS,
+  INITIAL_INVOICES,
   INITIAL_SUBSCRIPTIONS,
   INITIAL_CMS_PAGES,
   INITIAL_BLOG_POSTS,
@@ -39,12 +44,16 @@ import {
 
 export type AdminSubtab = 
   | 'dashboard'
+  | 'cms'
   | 'leads'
   | 'leads-detail'
-  | 'customers'
-  | 'challenges'
+  | 'clients'
+  | 'clients-detail'
   | 'workouts'
   | 'exercises'
+  | 'invoices'
+  | 'customers'
+  | 'challenges'
   | 'diets'
   | 'foods'
   | 'transformations'
@@ -71,6 +80,14 @@ interface AdminContextType {
   setActiveSubtab: (tab: AdminSubtab) => void;
   selectedLeadId: string | null;
   setSelectedLeadId: (id: string | null) => void;
+  selectedCustomerId: string | null;
+  setSelectedCustomerId: (id: string | null) => void;
+  
+  // Invoices & Receipts
+  invoices: Invoice[];
+  createInvoice: (invoice: Invoice) => void;
+  updateInvoiceStatus: (id: string, status: InvoiceStatus) => void;
+  deleteInvoice: (id: string) => void;
   
   // Leads CRM
   leads: Lead[];
@@ -110,9 +127,14 @@ interface AdminContextType {
   toggleLeadTag: (leadId: string, tag: LeadTag) => void;
   deleteLead: (leadId: string) => void;
 
-  // Customers
+  // Customers & Clients Management
   customers: Customer[];
+  addCustomer: (data: Partial<Customer>) => Customer;
+  convertLeadToCustomer: (leadId: string, clientDetails?: Partial<Customer>) => Customer;
   updateCustomer: (customerId: string, data: Partial<Customer>) => void;
+  deleteCustomer: (customerId: string) => void;
+  addClientCheckIn: (customerId: string, checkIn: Omit<ClientCheckIn, 'id'>) => void;
+  addClientCoachNote: (customerId: string, note: Omit<ClientCoachNote, 'id' | 'createdAt'>) => void;
 
   // Orders & Subscriptions
   orders: Order[];
@@ -176,57 +198,145 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentRole, setCurrentRole] = useState<AdminRole>('SUPER_ADMIN');
-  const [activeSubtab, setActiveSubtab] = useState<AdminSubtab>('dashboard');
+  const [activeSubtab, setActiveSubtab] = useState<AdminSubtab>('cms');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   // Leads state
   const [leads, setLeads] = useState<Lead[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_crm_leads');
-    return saved ? JSON.parse(saved) : INITIAL_LEADS;
+    try {
+      const saved = localStorage.getItem('fitnetheist_crm_leads');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((l: any) => ({
+            ...l,
+            tags: Array.isArray(l.tags) ? l.tags : [],
+            notes: Array.isArray(l.notes) ? l.notes : [],
+            timeline: Array.isArray(l.timeline) ? l.timeline : [],
+            followUpHistory: Array.isArray(l.followUpHistory) ? l.followUpHistory : [],
+            activities: Array.isArray(l.activities) ? l.activities : []
+          }));
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing leads from localStorage', e);
+    }
+    return INITIAL_LEADS;
   });
 
   const [scoringRules, setScoringRules] = useState<LeadScoringRules>(INITIAL_LEAD_SCORING_RULES);
 
   // Customers state
   const [customers, setCustomers] = useState<Customer[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_customers');
-    return saved ? JSON.parse(saved) : INITIAL_CUSTOMERS;
+    try {
+      const saved = localStorage.getItem('fitnetheist_customers');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing customers from localStorage', e);
+    }
+    return INITIAL_CUSTOMERS;
   });
 
   // Orders state
   const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+    try {
+      const saved = localStorage.getItem('fitnetheist_orders');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing orders from localStorage', e);
+    }
+    return INITIAL_ORDERS;
+  });
+
+  // Invoices state
+  const [invoices, setInvoices] = useState<Invoice[]>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_invoices');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing invoices from localStorage', e);
+    }
+    return INITIAL_INVOICES;
   });
 
   // Subscriptions state
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_subscriptions');
-    return saved ? JSON.parse(saved) : INITIAL_SUBSCRIPTIONS;
+    try {
+      const saved = localStorage.getItem('fitnetheist_subscriptions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing subscriptions from localStorage', e);
+    }
+    return INITIAL_SUBSCRIPTIONS;
   });
 
   // CMS state
   const [cmsPages, setCmsPages] = useState<CMSPage[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_cms_pages');
-    return saved ? JSON.parse(saved) : INITIAL_CMS_PAGES;
+    try {
+      const saved = localStorage.getItem('fitnetheist_cms_pages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing cms pages from localStorage', e);
+    }
+    return INITIAL_CMS_PAGES;
   });
 
   // Blog state
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_cms_blog');
-    return saved ? JSON.parse(saved) : INITIAL_BLOG_POSTS;
+    try {
+      const saved = localStorage.getItem('fitnetheist_cms_blog');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing blog posts from localStorage', e);
+    }
+    return INITIAL_BLOG_POSTS;
   });
 
   // FAQ state
   const [faqs, setFaqs] = useState<FAQItem[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_cms_faqs');
-    return saved ? JSON.parse(saved) : INITIAL_FAQS;
+    try {
+      const saved = localStorage.getItem('fitnetheist_cms_faqs');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing faqs from localStorage', e);
+    }
+    return INITIAL_FAQS;
   });
 
   // Media Library state
   const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>(() => {
-    const saved = localStorage.getItem('fitnetheist_cms_media');
-    return saved ? JSON.parse(saved) : INITIAL_MEDIA_LIBRARY;
+    try {
+      const saved = localStorage.getItem('fitnetheist_cms_media');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error('Error parsing media from localStorage', e);
+    }
+    return INITIAL_MEDIA_LIBRARY;
   });
 
   // Navigation & SEO
@@ -290,8 +400,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [leads]);
 
   useEffect(() => {
+    localStorage.setItem('fitnetheist_customers', JSON.stringify(customers));
+  }, [customers]);
+
+  useEffect(() => {
     localStorage.setItem('fitnetheist_cms_pages', JSON.stringify(cmsPages));
   }, [cmsPages]);
+
+  useEffect(() => {
+    localStorage.setItem('fitnetheist_invoices', JSON.stringify(invoices));
+  }, [invoices]);
 
   // Log an audit action helper
   const logAuditAction = (action: string, targetResource: string, oldValue?: string, newValue?: string) => {
@@ -621,11 +739,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       content: noteText
     };
 
-    setLeads(prev => prev.map(l => {
+    setLeads(prev => (prev || []).map(l => {
       if (l.id === leadId) {
+        const currentNotes = Array.isArray(l.notes) ? l.notes : [];
+        const currentActivities = Array.isArray(l.activities) ? l.activities : [];
         return {
           ...l,
-          notes: [newNote, ...l.notes],
+          notes: [newNote, ...currentNotes],
           activities: [
             {
               id: `act_${Date.now()}`,
@@ -634,7 +754,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               description: `Added note: "${noteText.length > 40 ? noteText.substring(0, 40) + '...' : noteText}"`,
               performedBy: currentRole.replace('_', ' ')
             },
-            ...l.activities
+            ...currentActivities
           ]
         };
       }
@@ -643,7 +763,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const scheduleFollowUp = (leadId: string, date: string, type: 'CALL' | 'WHATSAPP' | 'EMAIL' | 'MEETING', notes: string) => {
-    setLeads(prev => prev.map(l => {
+    setLeads(prev => (prev || []).map(l => {
       if (l.id === leadId) {
         const entry = {
           date,
@@ -651,11 +771,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           notes,
           loggedBy: currentRole.replace('_', ' ')
         };
+        const currentFollowUps = Array.isArray(l.followUpHistory) ? l.followUpHistory : [];
+        const currentActivities = Array.isArray(l.activities) ? l.activities : [];
         return {
           ...l,
           nextFollowUpDate: date,
           status: 'FOLLOW_UP',
-          followUpHistory: [entry, ...l.followUpHistory],
+          followUpHistory: [entry, ...currentFollowUps],
           activities: [
             {
               id: `act_${Date.now()}`,
@@ -664,7 +786,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               description: `Scheduled ${type} follow-up on ${date}: ${notes}`,
               performedBy: currentRole.replace('_', ' ')
             },
-            ...l.activities
+            ...currentActivities
           ]
         };
       }
@@ -673,10 +795,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const toggleLeadTag = (leadId: string, tag: LeadTag) => {
-    setLeads(prev => prev.map(l => {
+    setLeads(prev => (prev || []).map(l => {
       if (l.id === leadId) {
-        const hasTag = l.tags.includes(tag);
-        const newTags = hasTag ? l.tags.filter(t => t !== tag) : [...l.tags, tag];
+        const currentTags = Array.isArray(l.tags) ? l.tags : [];
+        const hasTag = currentTags.includes(tag);
+        const newTags = hasTag ? currentTags.filter(t => t !== tag) : [...currentTags, tag];
         return {
           ...l,
           tags: newTags
@@ -697,8 +820,258 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateCustomer = (customerId: string, data: Partial<Customer>) => {
-    setCustomers(prev => prev.map(c => c.id === customerId ? { ...c, ...data } : c));
+    setCustomers(prev => (prev || []).map(c => c.id === customerId ? { ...c, ...data } : c));
     logAuditAction('UPDATED_CUSTOMER_PROFILE', customerId);
+  };
+
+  const addCustomer = (data: Partial<Customer>): Customer => {
+    const newId = `cust_${Date.now()}`;
+    const startingWeight = data.startingWeightKg || 78;
+    const currentWeight = data.currentWeightKg || startingWeight;
+    const targetWeight = data.targetWeightKg || (data.dietGoal === 'LOSE_WEIGHT' ? startingWeight - 6 : startingWeight + 4);
+    const calTarget = data.dailyCalories || 2100;
+
+    const newCustomer: Customer = {
+      id: newId,
+      name: data.name || 'New Athlete',
+      email: data.email || `athlete_${Date.now()}@domain.com`,
+      phone: data.phone || '',
+      avatarUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      joinedDate: data.joinedDate || new Date().toISOString().split('T')[0],
+      totalSpent: data.totalSpent ?? 0,
+      status: data.status || 'ACTIVE',
+      programTier: data.programTier || '90-Day VIP 1-on-1 Transformation',
+      assignedCoach: data.assignedCoach || (currentRole === 'COACH' ? 'Assigned Coach' : 'Coach Neetu (Head Coach)'),
+      startDate: data.startDate || new Date().toISOString().split('T')[0],
+      endDate: data.endDate || new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+      age: data.age || 28,
+      gender: data.gender || 'MALE',
+      city: data.city || 'India',
+      emergencyContact: data.emergencyContact || '',
+      heightCm: data.heightCm || 175,
+      startingWeightKg: startingWeight,
+      currentWeightKg: currentWeight,
+      targetWeightKg: targetWeight,
+      targetDate: data.targetDate || '',
+      injuriesOrMedicalConditions: data.injuriesOrMedicalConditions || 'None reported.',
+      dietGoal: data.dietGoal || 'BUILD_MUSCLE',
+      dietType: data.dietType || 'VEGETARIAN',
+      dailyCalories: calTarget,
+      proteinGrams: data.proteinGrams || Math.round(startingWeight * 2),
+      carbsGrams: data.carbsGrams || Math.round((calTarget * 0.45) / 4),
+      fatsGrams: data.fatsGrams || Math.round((calTarget * 0.25) / 9),
+      waterLitres: data.waterLitres || 3.5,
+      mealsPerDay: data.mealsPerDay || 4,
+      allergiesOrRestrictions: data.allergiesOrRestrictions || 'None',
+      cheatMealProtocol: data.cheatMealProtocol || '1 clean cheat meal weekly',
+      workoutSplit: data.workoutSplit || 'Push / Pull / Legs',
+      trainingDaysPerWeek: data.trainingDaysPerWeek || 5,
+      experienceLevel: data.experienceLevel || 'INTERMEDIATE',
+      cardioProtocol: data.cardioProtocol || '8,000 steps daily',
+      strengthBenchmarks: data.strengthBenchmarks || { benchPressKg: 70, squatKg: 90, deadliftKg: 120, overheadPressKg: 40 },
+      streakDays: 1,
+      lastActivity: 'Just enrolled',
+      orderIds: [],
+      checkIns: data.checkIns || [
+        {
+          id: `chk_${Date.now()}`,
+          date: new Date().toISOString().split('T')[0],
+          weightKg: currentWeight,
+          adherenceScore: 10,
+          clientNotes: 'Athlete profile initialized. Ready to begin training.',
+          coachFeedback: 'Welcome to the team! Protocol assigned and active.',
+          photosUploaded: false
+        }
+      ],
+      coachNotes: data.coachNotes || [
+        {
+          id: `cn_${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          author: currentRole === 'SUPER_ADMIN' ? 'Admin' : currentRole.replace('_', ' '),
+          type: 'GENERAL',
+          content: `Athlete enrolled into ${data.programTier || 'Coaching Program'}. Initial protocol active.`
+        }
+      ]
+    };
+
+    setCustomers(prev => [newCustomer, ...(prev || [])]);
+    logAuditAction('CREATED_NEW_CLIENT', newCustomer.name, undefined, `${newCustomer.programTier} (Assigned: ${newCustomer.assignedCoach})`);
+
+    const newNotif: AdminNotification = {
+      id: `notif_${Date.now()}`,
+      timestamp: 'Just now',
+      title: `New Client Enrolled: ${newCustomer.name}`,
+      message: `Directly onboarded to ${newCustomer.programTier}. Assigned to ${newCustomer.assignedCoach}.`,
+      type: 'NEW_LEAD',
+      read: false,
+      linkSubtab: 'clients'
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+
+    return newCustomer;
+  };
+
+  const convertLeadToCustomer = (leadId: string, clientDetails?: Partial<Customer>): Customer => {
+    const lead = leads.find(l => l.id === leadId);
+    const existingCust = customers.find(c => lead && (c.email.toLowerCase() === lead.email.toLowerCase() || (lead.phone && c.phone === lead.phone)));
+    
+    const startingWeight = clientDetails?.startingWeightKg || lead?.weightKg || 75;
+    const currentWeight = clientDetails?.currentWeightKg || lead?.weightKg || startingWeight;
+    const targetWeight = clientDetails?.targetWeightKg || (lead?.goal === 'LOSE_WEIGHT' ? startingWeight - 6 : startingWeight + 4);
+    const calTarget = clientDetails?.dailyCalories || lead?.calculatedCalories || 2000;
+
+    const newCustomer: Customer = {
+      id: existingCust ? existingCust.id : `cust_${Date.now()}`,
+      name: clientDetails?.name || lead?.name || 'New Client',
+      email: clientDetails?.email || lead?.email || `client_${Date.now()}@domain.com`,
+      phone: clientDetails?.phone || lead?.phone || '',
+      avatarUrl: clientDetails?.avatarUrl || existingCust?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      joinedDate: new Date().toISOString().split('T')[0],
+      totalSpent: clientDetails?.totalSpent ?? (lead?.estimatedValue || 7500),
+      status: clientDetails?.status || 'ACTIVE',
+      programTier: clientDetails?.programTier || lead?.challengeInterest || '90-Day VIP 1-on-1 Transformation',
+      assignedCoach: clientDetails?.assignedCoach || (lead?.assignedTo && lead.assignedTo !== 'Unassigned' ? lead.assignedTo : 'Coach Neetu (Head Coach)'),
+      startDate: clientDetails?.startDate || new Date().toISOString().split('T')[0],
+      endDate: clientDetails?.endDate || new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+      age: clientDetails?.age || lead?.age || 29,
+      gender: clientDetails?.gender || (lead?.sex === 'female' ? 'FEMALE' : 'MALE'),
+      city: clientDetails?.city || 'India',
+      emergencyContact: clientDetails?.emergencyContact || '',
+      heightCm: clientDetails?.heightCm || lead?.heightCm || 175,
+      startingWeightKg: startingWeight,
+      currentWeightKg: currentWeight,
+      targetWeightKg: targetWeight,
+      targetDate: clientDetails?.targetDate || '',
+      injuriesOrMedicalConditions: clientDetails?.injuriesOrMedicalConditions || 'None reported.',
+      dietGoal: clientDetails?.dietGoal || (lead?.goal as any) || 'BUILD_MUSCLE',
+      dietType: clientDetails?.dietType || (lead?.dietType as any) || 'VEGETARIAN',
+      dailyCalories: calTarget,
+      proteinGrams: clientDetails?.proteinGrams || Math.round(startingWeight * 2),
+      carbsGrams: clientDetails?.carbsGrams || Math.round((calTarget * 0.45) / 4),
+      fatsGrams: clientDetails?.fatsGrams || Math.round((calTarget * 0.25) / 9),
+      waterLitres: clientDetails?.waterLitres || 3.5,
+      mealsPerDay: clientDetails?.mealsPerDay || (lead?.dietPreferences?.mealsPerDay || 4),
+      allergiesOrRestrictions: clientDetails?.allergiesOrRestrictions || (lead?.dietPreferences?.restrictions?.join(', ') || 'None'),
+      cheatMealProtocol: clientDetails?.cheatMealProtocol || '1 clean cheat meal weekly',
+      workoutSplit: clientDetails?.workoutSplit || (lead?.workoutPreferences?.daysPerWeek === 4 ? '4-Day Upper / Lower' : 'Push / Pull / Legs 6-Day'),
+      trainingDaysPerWeek: clientDetails?.trainingDaysPerWeek || (lead?.workoutPreferences?.daysPerWeek || 4),
+      experienceLevel: clientDetails?.experienceLevel || (lead?.workoutPreferences?.experience as any) || 'INTERMEDIATE',
+      cardioProtocol: clientDetails?.cardioProtocol || '8,500 daily steps',
+      strengthBenchmarks: clientDetails?.strengthBenchmarks || { benchPressKg: 70, squatKg: 90, deadliftKg: 120, overheadPressKg: 40 },
+      streakDays: 1,
+      lastActivity: 'Converted from Lead',
+      orderIds: existingCust ? existingCust.orderIds : [],
+      convertedFromLeadId: leadId,
+      checkIns: existingCust?.checkIns || [
+        {
+          id: `chk_${Date.now()}`,
+          date: new Date().toISOString().split('T')[0],
+          weightKg: currentWeight,
+          adherenceScore: 10,
+          clientNotes: 'Initial onboarding check-in. Ready to begin protocol.',
+          coachFeedback: 'Welcome aboard! Dial in water and initial meal prep today.',
+          photosUploaded: false
+        }
+      ],
+      coachNotes: [
+        {
+          id: `cn_${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          author: currentRole === 'SUPER_ADMIN' ? 'Admin' : currentRole.replace('_', ' '),
+          type: 'GENERAL',
+          content: `Converted from CRM Lead (${lead?.source?.replace(/_/g, ' ') || 'CRM'}). Starting: ${startingWeight}kg, Goal: ${targetWeight}kg.`
+        },
+        ...(existingCust?.coachNotes || [])
+      ]
+    };
+
+    if (existingCust) {
+      setCustomers(prev => (prev || []).map(c => c.id === existingCust.id ? newCustomer : c));
+    } else {
+      setCustomers(prev => [newCustomer, ...(prev || [])]);
+    }
+
+    // Update the lead status to CONVERTED
+    setLeads(prev => (prev || []).map(l => {
+      if (l.id === leadId) {
+        return {
+          ...l,
+          status: 'CONVERTED' as LeadStatus,
+          activities: [
+            {
+              id: `act_${Date.now()}`,
+              timestamp: new Date().toISOString(),
+              type: 'CONVERTED' as const,
+              description: `Successfully converted to active Client Profile (#${newCustomer.id})`,
+              performedBy: currentRole.replace('_', ' ')
+            },
+            ...(Array.isArray(l.activities) ? l.activities : [])
+          ]
+        };
+      }
+      return l;
+    }));
+
+    logAuditAction('CONVERTED_LEAD_TO_CLIENT', newCustomer.name, lead?.status, 'CONVERTED');
+
+    const newNotif: AdminNotification = {
+      id: `notif_${Date.now()}`,
+      timestamp: 'Just now',
+      title: `Lead Converted: ${newCustomer.name}`,
+      message: `Enrolled into ${newCustomer.programTier}. Client profile created.`,
+      type: 'NEW_PURCHASE',
+      read: false,
+      linkSubtab: 'clients'
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+
+    return newCustomer;
+  };
+
+  const deleteCustomer = (customerId: string) => {
+    setCustomers(prev => (prev || []).filter(c => c.id !== customerId));
+    logAuditAction('DELETED_CUSTOMER_PROFILE', customerId);
+  };
+
+  const addClientCheckIn = (customerId: string, checkIn: Omit<ClientCheckIn, 'id'>) => {
+    const newCheckIn: ClientCheckIn = {
+      id: `chk_${Date.now()}`,
+      ...checkIn
+    };
+    setCustomers(prev => (prev || []).map(c => {
+      if (c.id === customerId) {
+        const existingCheckIns = Array.isArray(c.checkIns) ? c.checkIns : [];
+        return {
+          ...c,
+          currentWeightKg: checkIn.weightKg || c.currentWeightKg,
+          lastActivity: 'Logged Check-in',
+          streakDays: (c.streakDays || 0) + 1,
+          checkIns: [newCheckIn, ...existingCheckIns]
+        };
+      }
+      return c;
+    }));
+    logAuditAction('LOGGED_CLIENT_CHECKIN', customerId, undefined, `Weight: ${checkIn.weightKg}kg | Adherence: ${checkIn.adherenceScore}/10`);
+  };
+
+  const addClientCoachNote = (customerId: string, note: Omit<ClientCoachNote, 'id' | 'createdAt'>) => {
+    const newNote: ClientCoachNote = {
+      id: `cn_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      ...note
+    };
+    setCustomers(prev => (prev || []).map(c => {
+      if (c.id === customerId) {
+        const existingNotes = Array.isArray(c.coachNotes) ? c.coachNotes : [];
+        return {
+          ...c,
+          lastActivity: 'Coach Note Added',
+          coachNotes: [newNote, ...existingNotes]
+        };
+      }
+      return c;
+    }));
+    logAuditAction('ADDED_CLIENT_COACH_NOTE', customerId, undefined, note.type);
   };
 
   const updateOrderStatus = (orderId: string, status: OrderStatus) => {
@@ -709,6 +1082,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateSubscriptionStatus = (subId: string, status: SubscriptionStatus) => {
     setSubscriptions(prev => prev.map(s => s.id === subId ? { ...s, status } : s));
     logAuditAction('UPDATED_SUBSCRIPTION_STATUS', subId, undefined, status);
+  };
+
+  // Invoice & Receipt operations
+  const createInvoice = (invoice: Invoice) => {
+    setInvoices(prev => [invoice, ...(prev || [])]);
+    logAuditAction('CREATED_INVOICE_RECEIPT', invoice.invoiceNumber, undefined, `₹${invoice.totalAmount} (${invoice.type}) for ${invoice.clientName}`);
+  };
+
+  const updateInvoiceStatus = (id: string, status: InvoiceStatus) => {
+    setInvoices(prev => (prev || []).map(inv => inv.id === id ? { ...inv, status } : inv));
+    logAuditAction('UPDATED_INVOICE_STATUS', id, undefined, status);
+  };
+
+  const deleteInvoice = (id: string) => {
+    setInvoices(prev => (prev || []).filter(inv => inv.id !== id));
+    logAuditAction('DELETED_INVOICE', id);
   };
 
   // CMS Section controls
@@ -874,6 +1263,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setActiveSubtab,
       selectedLeadId,
       setSelectedLeadId,
+      selectedCustomerId,
+      setSelectedCustomerId,
+      invoices,
+      createInvoice,
+      updateInvoiceStatus,
+      deleteInvoice,
       leads,
       scoringRules,
       updateScoringRules,
@@ -886,7 +1281,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       toggleLeadTag,
       deleteLead,
       customers,
+      addCustomer,
+      convertLeadToCustomer,
       updateCustomer,
+      deleteCustomer,
+      addClientCheckIn,
+      addClientCoachNote,
       orders,
       updateOrderStatus,
       subscriptions,

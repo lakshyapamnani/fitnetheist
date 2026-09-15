@@ -33,9 +33,14 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
   const [keyFormTip, setKeyFormTip] = useState('Retract scapulae and drive heels into floor');
   const [videoThumbnail, setVideoThumbnail] = useState('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=600&q=80');
 
-  const filteredExercises = exercises.filter(ex => {
-    const matchesSearch = ex.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          ex.targetMuscles.toLowerCase().includes(searchTerm.toLowerCase());
+  const safeExercises = Array.isArray(exercises) ? exercises : [];
+
+  const filteredExercises = safeExercises.filter(ex => {
+    if (!ex) return false;
+    const term = (searchTerm || '').toLowerCase();
+    const nameMatch = (ex.name || '').toLowerCase().includes(term);
+    const targetMatch = (ex.targetMuscles || '').toLowerCase().includes(term);
+    const matchesSearch = !term || nameMatch || targetMatch;
     const matchesCategory = categoryFilter === 'ALL' || ex.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });

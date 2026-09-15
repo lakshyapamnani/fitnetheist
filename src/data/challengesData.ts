@@ -24,7 +24,7 @@ export const CHALLENGES_DATA: Challenge[] = [
       'Complete designated daily workout or active recovery steps.',
       'Check in on the Tribe board before 10:00 PM every evening.'
     ],
-    price: 'FREE / $0',
+    price: 'FREE / ₹0',
     badgeName: '7-DAY RESET SURVIVOR',
     enrolledCount: 1420,
     testimonials: [
@@ -73,7 +73,7 @@ export const CHALLENGES_DATA: Challenge[] = [
       'Calorie adherence within +/- 75 kcal daily window.',
       'Submit weekly progress metrics on Day 7, 14, and 21.'
     ],
-    price: '$29 / ONE-TIME',
+    price: '₹2,499 / ONE-TIME',
     badgeName: '21-DAY IGNITE DISCIPLINE',
     enrolledCount: 3840,
     testimonials: [
@@ -122,7 +122,7 @@ export const CHALLENGES_DATA: Challenge[] = [
       'Log weights and reps for every working set.',
       'Maintain 85%+ weekly nutritional compliance score.'
     ],
-    price: '$59 / ONE-TIME',
+    price: '₹4,999 / ONE-TIME',
     badgeName: '60-DAY TRANSFORM ELITE',
     enrolledCount: 2190,
     testimonials: [
@@ -161,7 +161,7 @@ export const CHALLENGES_DATA: Challenge[] = [
       'Mandatory daily logging of sleep duration, morning resting heart rate, and training RPE.',
       'Bi-weekly coach milestone checkpoints.'
     ],
-    price: '$89 / ONE-TIME',
+    price: '₹7,499 / ONE-TIME',
     badgeName: '90-DAY BEAST TITAN',
     enrolledCount: 1630,
     testimonials: [

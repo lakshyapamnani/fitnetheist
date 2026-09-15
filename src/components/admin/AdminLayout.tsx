@@ -46,7 +46,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     markNotificationRead,
     clearAllNotifications,
     leads,
-    orders
+    customers,
+    orders,
+    invoices
   } = useAdmin();
   
   const { setActiveTab } = useApp();
@@ -68,52 +70,56 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const isAllowed = (subtab: AdminSubtab): boolean => {
     if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') return true;
     if (currentRole === 'COACH') {
-      return ['dashboard', 'workouts', 'exercises', 'diets', 'foods', 'challenges', 'transformations', 'customers'].includes(subtab);
+      return ['clients', 'clients-detail', 'customers', 'workouts', 'exercises'].includes(subtab);
     }
     if (currentRole === 'CONTENT_MANAGER') {
-      return ['dashboard', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo', 'testimonials', 'transformations'].includes(subtab);
+      return ['cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
     }
     if (currentRole === 'SALES_LEAD_MANAGER') {
-      return ['dashboard', 'leads', 'leads-detail', 'customers', 'orders', 'subscriptions', 'payments'].includes(subtab);
+      return ['leads', 'leads-detail', 'clients', 'clients-detail', 'invoices', 'orders'].includes(subtab);
     }
     return true;
   };
 
   const navGroups = [
     {
-      group: 'OPERATIONS & CRM',
+      group: 'PRIMARY MODULES',
       items: [
-        { id: 'dashboard' as AdminSubtab, label: 'Dashboard', icon: LayoutDashboard, badge: undefined },
-        { id: 'leads' as AdminSubtab, label: 'Leads & CRM', icon: Users, badge: `${leads.length}` },
-        { id: 'customers' as AdminSubtab, label: 'Customers', icon: UserCheck, badge: undefined },
-        { id: 'challenges' as AdminSubtab, label: 'Challenges', icon: Trophy, badge: undefined },
-        { id: 'workouts' as AdminSubtab, label: 'Workout Programs', icon: Dumbbell, badge: undefined },
-        { id: 'exercises' as AdminSubtab, label: 'Exercise Library', icon: Activity, badge: undefined },
-        { id: 'foods' as AdminSubtab, label: 'Food Database', icon: Utensils, badge: undefined },
-        { id: 'diets' as AdminSubtab, label: 'Diet & Macro Rules', icon: Utensils, badge: undefined },
-        { id: 'transformations' as AdminSubtab, label: 'Transformations', icon: Sparkles, badge: undefined },
-        { id: 'testimonials' as AdminSubtab, label: 'Testimonials', icon: MessageSquare, badge: undefined },
-        { id: 'orders' as AdminSubtab, label: 'Orders & Sales', icon: ShoppingBag, badge: `${orders.length}` },
-        { id: 'subscriptions' as AdminSubtab, label: 'Subscriptions', icon: CreditCard, badge: undefined },
-      ]
-    },
-    {
-      group: 'CONTENT MANAGEMENT (CMS)',
-      items: [
-        { id: 'cms-pages' as AdminSubtab, label: 'Page & Sections', icon: Layers, badge: 'Live' },
-        { id: 'cms-blog' as AdminSubtab, label: 'Blog & Articles', icon: FileText, badge: undefined },
-        { id: 'cms-faq' as AdminSubtab, label: 'FAQ Database', icon: HelpCircle, badge: undefined },
-        { id: 'cms-media' as AdminSubtab, label: 'Media Library', icon: ImageIcon, badge: undefined },
-        { id: 'cms-navigation' as AdminSubtab, label: 'Navigation & Links', icon: Compass, badge: undefined },
-        { id: 'cms-seo' as AdminSubtab, label: 'Global SEO', icon: Search, badge: undefined }
-      ]
-    },
-    {
-      group: 'SYSTEM & GOVERNANCE',
-      items: [
-        { id: 'users' as AdminSubtab, label: 'User Directory', icon: ShieldCheck, badge: undefined },
-        { id: 'activity' as AdminSubtab, label: 'Audit Logs', icon: History, badge: undefined },
-        { id: 'settings' as AdminSubtab, label: 'Settings & Scoring', icon: Settings, badge: undefined }
+        { 
+          id: 'cms' as AdminSubtab, 
+          label: 'CMS', 
+          desc: 'Pages, Blog, FAQs, Media & Proof',
+          icon: Layers, 
+          badge: 'Live' 
+        },
+        { 
+          id: 'leads' as AdminSubtab, 
+          label: 'Leads & CRM', 
+          desc: 'Athlete Pipeline & Inquiries',
+          icon: Users, 
+          badge: `${leads?.length || 0}` 
+        },
+        { 
+          id: 'clients' as AdminSubtab, 
+          label: 'Clients', 
+          desc: 'Athletes, Intake & Profiles',
+          icon: UserCheck, 
+          badge: `${customers?.length || 0}` 
+        },
+        { 
+          id: 'workouts' as AdminSubtab, 
+          label: 'Workout & Exercises', 
+          desc: 'Programs, Splits & Library',
+          icon: Dumbbell, 
+          badge: undefined 
+        },
+        { 
+          id: 'invoices' as AdminSubtab, 
+          label: 'Invoice & Receipts', 
+          desc: 'GST Invoices, Bills & Receipts',
+          icon: FileText, 
+          badge: `${invoices?.length || 0}` 
+        }
       ]
     }
   ];
@@ -247,10 +253,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           {/* Exit to Public Website */}
           <button
             onClick={() => setActiveTab('home')}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#14141a] hover:bg-white hover:text-black border border-white/15 text-white/80 hover:text-black uppercase font-bold tracking-wider transition-colors"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-[#14141a] hover:bg-white hover:text-black border border-white/15 text-white/80 hover:text-black uppercase font-bold tracking-wider transition-colors"
+            title="Exit to Public Live Site"
           >
-            <span>LIVE SITE</span>
-            <ExternalLink size={12} />
+            <span className="hidden sm:inline">LIVE SITE</span>
+            <ExternalLink size={13} />
           </button>
 
         </div>
@@ -286,18 +293,27 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         setActiveSubtab(item.id);
                         setIsMobileNavOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3 py-2 text-xs font-mono-num uppercase tracking-wider transition-all border ${
+                      className={`w-full flex items-center justify-between p-3 text-xs font-mono-num uppercase tracking-wider transition-all border rounded-sm ${
                         isActive
                           ? 'bg-[#FFC515] text-black border-[#FFC515] font-extrabold shadow-[0_0_15px_rgba(255,197,21,0.2)]'
-                          : 'border-transparent text-white/60 hover:text-[#FFC515] hover:bg-[#14141a]'
+                          : 'border-white/5 text-white/70 hover:text-white hover:bg-[#14141a] hover:border-white/10'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
-                        <Icon size={15} className={isActive ? 'text-black' : 'text-white/60'} />
-                        <span>{item.label}</span>
+                      <div className="flex items-center gap-3 text-left">
+                        <div className={`p-2 rounded-sm ${isActive ? 'bg-black text-[#FFC515]' : 'bg-[#14141a] text-white/60'}`}>
+                          <Icon size={16} />
+                        </div>
+                        <div>
+                          <div className="font-bold text-xs leading-none">{item.label}</div>
+                          {item.desc && (
+                            <div className={`text-[10px] mt-1 font-normal normal-case tracking-normal ${isActive ? 'text-black/80' : 'text-zinc-400'}`}>
+                              {item.desc}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       {item.badge && (
-                        <span className={`text-[10px] px-1.5 py-0.2 font-mono-num font-bold ${
+                        <span className={`text-[10px] px-2 py-0.5 font-mono-num font-bold rounded-sm ${
                           isActive ? 'bg-black text-[#FFC515]' : 'bg-[#14141a] text-white/80 border border-white/10'
                         }`}>
                           {item.badge}

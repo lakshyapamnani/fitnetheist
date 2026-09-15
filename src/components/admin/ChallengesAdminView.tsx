@@ -12,7 +12,7 @@ import {
   CheckCircle2, 
   Save, 
   Users,
-  DollarSign
+  IndianRupee
 } from 'lucide-react';
 
 export const ChallengesAdminView: React.FC = () => {
@@ -28,7 +28,7 @@ export const ChallengesAdminView: React.FC = () => {
   const [durationDays, setDurationDays] = useState(21);
   const [difficulty, setDifficulty] = useState('Intermediate');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('$149');
+  const [price, setPrice] = useState('₹2,499');
   const [badgeName, setBadgeName] = useState('POPULAR');
   const [image, setImage] = useState('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80');
 
@@ -39,7 +39,7 @@ export const ChallengesAdminView: React.FC = () => {
     setDurationDays(ch.durationDays);
     setDifficulty(ch.difficulty);
     setDescription(ch.description);
-    setPrice(ch.price || '$149');
+    setPrice(ch.price || '₹2,499');
     setBadgeName(ch.badgeName || 'POPULAR');
     setImage(ch.image);
   };
@@ -105,22 +105,22 @@ export const ChallengesAdminView: React.FC = () => {
   };
 
   return (
-    <div id="challenges-admin-view" className="space-y-6 font-mono-num text-xs">
+    <div id="challenges-admin-view" className="space-y-6 font-mono-num text-xs max-w-7xl mx-auto">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="h-2 w-2 bg-[#d8ff38]"></span>
-            <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
-              COHORT & CHALLENGE CMS
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#FFC515]"></span>
+            <span className="text-xs font-mono-num font-bold uppercase tracking-widest text-[#FFC515]">
+              COHORTS & CURRICULUM
             </span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight font-display text-white">
+          <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display text-white">
             FITNESS CHALLENGES
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Manage cohort pricing, duration, accountability rules, and live publication status across the website.
+            Manage cohort pricing in INR (Rs), duration, accountability rules, and publication status.
           </p>
         </div>
 
@@ -131,27 +131,27 @@ export const ChallengesAdminView: React.FC = () => {
             setTitle('');
             setTagline('');
             setDescription('');
-            setPrice('$149');
+            setPrice('₹2,499');
             setIsCreateModalOpen(true);
           }}
-          className="px-4 py-2.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-bold uppercase flex items-center gap-2 transition-colors"
+          className="px-4 py-2.5 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold uppercase flex items-center gap-2 transition-colors rounded-sm"
         >
           <Plus size={14} />
-          <span>CREATE NEW CHALLENGE</span>
+          <span>CREATE CHALLENGE</span>
         </button>
       </div>
 
       {/* Challenges Grid */}
       <div className="grid md:grid-cols-2 gap-6">
-        {challenges.map(ch => (
-          <div key={ch.id} className="bg-zinc-950 border border-white/10 p-6 flex flex-col justify-between space-y-4">
+        {(Array.isArray(challenges) ? challenges : []).map(ch => (
+          <div key={ch.id} className="bg-zinc-950 border border-white/10 p-6 flex flex-col justify-between space-y-4 rounded-sm hover:border-[#FFC515]/40 transition-colors">
             
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="px-2 py-0.5 bg-zinc-900 border border-white/10 text-white font-bold uppercase text-[10px]">
+                <span className="px-2 py-0.5 bg-zinc-900 border border-white/10 text-white font-bold uppercase text-[10px] rounded-xs">
                   {ch.durationDays} Days • {ch.difficulty}
                 </span>
-                <span className="px-2 py-0.5 text-[10px] font-bold uppercase border bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                <span className="px-2 py-0.5 text-[10px] font-bold uppercase border bg-amber-500/10 text-[#FFC515] border-[#FFC515]/30 rounded-xs">
                   {ch.badgeName || 'ACTIVE'}
                 </span>
               </div>
@@ -159,18 +159,18 @@ export const ChallengesAdminView: React.FC = () => {
               <h3 className="text-xl font-bold uppercase text-white font-display">{ch.title}</h3>
               <p className="text-zinc-400 text-xs leading-relaxed">{ch.description}</p>
 
-              <div className="pt-2 border-t border-white/5 space-y-1 text-xs">
+              <div className="pt-2 border-t border-white/5 space-y-1.5 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-zinc-500 uppercase">TIER PRICE</span>
-                  <span className="text-[#d8ff38] font-bold">{ch.price}</span>
+                  <span className="text-zinc-400 uppercase">TIER PRICE</span>
+                  <span className="text-[#FFC515] font-extrabold text-sm">{ch.price}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-500 uppercase">DURATION DAYS</span>
+                  <span className="text-zinc-400 uppercase">DURATION</span>
                   <span className="text-white font-bold">{ch.durationDays} Days</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-500 uppercase">ENROLLED ATHLETES</span>
-                  <span className="text-white font-bold">{ch.enrolledCount.toLocaleString()} athletes</span>
+                  <span className="text-zinc-400 uppercase">ENROLLED ATHLETES</span>
+                  <span className="text-white font-bold">{(ch.enrolledCount || 0).toLocaleString()} athletes</span>
                 </div>
               </div>
             </div>
@@ -181,7 +181,7 @@ export const ChallengesAdminView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => startEdit(ch)}
-                  className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white uppercase text-[10px] font-bold flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white uppercase text-[10px] font-bold flex items-center gap-1 transition-colors rounded-xs"
                 >
                   <Edit3 size={12} />
                   <span>EDIT</span>
@@ -193,7 +193,7 @@ export const ChallengesAdminView: React.FC = () => {
                       logAuditAction('DELETED_CHALLENGE', ch.title);
                     }
                   }}
-                  className="p-1.5 bg-zinc-950 hover:bg-red-950 text-zinc-500 hover:text-red-400 border border-white/5"
+                  className="p-1.5 bg-zinc-950 hover:bg-red-950 text-zinc-500 hover:text-red-400 border border-white/5 rounded-xs"
                   title="Delete Challenge"
                 >
                   <Trash2 size={12} />
@@ -208,7 +208,7 @@ export const ChallengesAdminView: React.FC = () => {
       {/* Create / Edit Modal */}
       {(isCreateModalOpen || editingChallenge) && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-lg w-full font-mono-num text-xs space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-lg w-full font-mono-num text-xs space-y-4 max-h-[90vh] overflow-y-auto rounded-sm">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-sm font-bold uppercase text-white">
                 {editingChallenge ? `EDIT CHALLENGE: ${editingChallenge.title}` : 'CREATE NEW CHALLENGE'}
@@ -233,7 +233,7 @@ export const ChallengesAdminView: React.FC = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. 21 Day Ignite"
-                  className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white"
+                  className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white rounded-xs"
                 />
               </div>
 
@@ -244,7 +244,7 @@ export const ChallengesAdminView: React.FC = () => {
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
                   placeholder="e.g. Build unbreakable habits"
-                  className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white"
+                  className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white rounded-xs"
                 />
               </div>
 
@@ -255,17 +255,17 @@ export const ChallengesAdminView: React.FC = () => {
                     type="number"
                     value={durationDays}
                     onChange={(e) => setDurationDays(Number(e.target.value))}
-                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white rounded-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 uppercase mb-1">PRICE</label>
+                  <label className="block text-zinc-400 uppercase mb-1">PRICE (INR)</label>
                   <input
                     type="text"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    placeholder="$149"
-                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white"
+                    placeholder="₹2,499"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white rounded-xs"
                   />
                 </div>
               </div>
@@ -276,7 +276,7 @@ export const ChallengesAdminView: React.FC = () => {
                   <select
                     value={difficulty}
                     onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white uppercase font-bold"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white uppercase font-bold rounded-xs"
                   >
                     <option value="Beginner">BEGINNER</option>
                     <option value="Intermediate">INTERMEDIATE</option>
@@ -291,7 +291,7 @@ export const ChallengesAdminView: React.FC = () => {
                     value={badgeName}
                     onChange={(e) => setBadgeName(e.target.value)}
                     placeholder="POPULAR"
-                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white"
+                    className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white rounded-xs"
                   />
                 </div>
               </div>
@@ -303,7 +303,7 @@ export const ChallengesAdminView: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Comprehensive cohort overview..."
-                  className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white"
+                  className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white rounded-xs"
                 />
               </div>
 
@@ -314,13 +314,13 @@ export const ChallengesAdminView: React.FC = () => {
                     setIsCreateModalOpen(false);
                     setEditingChallenge(null);
                   }}
-                  className="px-4 py-2 bg-zinc-900 text-zinc-400 uppercase font-bold"
+                  className="px-4 py-2 bg-zinc-900 text-zinc-400 uppercase font-bold rounded-xs"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#d8ff38] text-black font-bold uppercase"
+                  className="px-5 py-2 bg-[#FFC515] text-black font-bold uppercase rounded-xs"
                 >
                   SAVE CHALLENGE
                 </button>

@@ -17,7 +17,9 @@ import {
   EquipmentType,
   ScheduledMeal,
   Challenge,
-  FoodItem
+  FoodItem,
+  Exercise,
+  TransformationStory
 } from '../types';
 import { FOOD_DATABASE, generateSevenDayDietPlan, generateGroceryList, getMealAlternatives } from '../data/nutritionDatabase';
 import { EXERCISE_DATABASE, generateWorkoutPlan } from '../data/workoutDatabase';
@@ -37,6 +39,8 @@ interface AppContextType {
   leaderboard: LeaderboardEntry[];
   challenges: Challenge[];
   foodDatabase: FoodItem[];
+  exercises: Exercise[];
+  transformations: TransformationStory[];
   adminAnalytics: AdminAnalytics;
   adminHeroTitle: string;
   adminHeroSubtitle: string;
@@ -50,6 +54,7 @@ interface AppContextType {
   openAuthModal: (mode?: 'login' | 'signup' | 'forgot' | 'onboarding') => void;
   closeAuthModal: () => void;
   loginUser: (email: string, name?: string) => void;
+  signupUser: (name: string, email: string, password?: string, profile?: Partial<UserProfile>) => void;
   logoutUser: () => void;
   saveUserProfile: (profile: Partial<UserProfile>) => void;
   calculateAndSetCalories: (
@@ -85,6 +90,15 @@ interface AppContextType {
   viewChallengeDetails: (challenge: Challenge) => void;
   updateAdminCms: (title: string, subtitle: string) => void;
   addFoodToDatabase: (food: FoodItem) => void;
+  deleteFoodFromDatabase: (id: string) => void;
+  addExercise: (exercise: Exercise) => void;
+  updateExercise: (id: string, updates: Partial<Exercise>) => void;
+  deleteExercise: (id: string) => void;
+  addChallenge: (challenge: Challenge) => void;
+  updateChallenge: (id: string, updates: Partial<Challenge>) => void;
+  deleteChallenge: (id: string) => void;
+  addTransformation: (story: TransformationStory) => void;
+  deleteTransformation: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -218,6 +232,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(LEADERBOARD_DATA);
   const [challenges, setChallenges] = useState<Challenge[]>(CHALLENGES_DATA);
   const [foodDatabase, setFoodDatabase] = useState<FoodItem[]>(FOOD_DATABASE);
+  const [exercises, setExercises] = useState<Exercise[]>(EXERCISE_DATABASE);
+  const [transformations, setTransformations] = useState<TransformationStory[]>(TRANSFORMATIONS_DATA);
 
   // Admin CMS
   const [adminHeroTitle, setAdminHeroTitle] = useState('BUILD THE BODY. BUILD THE DISCIPLINE.');
@@ -274,6 +290,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       completedWorkoutsCount: user?.completedWorkoutsCount || 18,
       joinedChallengeId: 'c_21_day_ignite',
       joinedChallengeDay: 12
+    };
+    setUser(newUser);
+    closeAuthModal();
+  };
+
+  const signupUser = (
+    name: string,
+    email: string,
+    _password?: string,
+    profile?: Partial<UserProfile>
+  ) => {
+    const newUser: UserProfile = {
+      id: `usr_${Date.now()}`,
+      name: name || 'Alex Mercer',
+      email: email || 'alex.mercer@fitnetheist.com',
+      avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
+      age: profile?.age || 26,
+      sex: profile?.sex || 'male',
+      heightCm: profile?.heightCm || 178,
+      weightKg: profile?.weightKg || 78,
+      activityLevel: profile?.activityLevel || 'MODERATE',
+      goal: profile?.goal || 'BUILD_MUSCLE',
+      dietType: profile?.dietType || 'NON-VEGETARIAN',
+      cuisine: profile?.cuisine || 'INDIAN_INTERNATIONAL',
+      mealsPerDay: profile?.mealsPerDay || 4,
+      foodPreferences: profile?.foodPreferences || ['Chicken', 'Rice', 'Oats', 'Paneer'],
+      foodsToAvoid: profile?.foodsToAvoid || [],
+      budget: profile?.budget || 'STANDARD',
+      cookingStyle: profile?.cookingStyle || 'NORMAL',
+      streakDays: 1,
+      completedWorkoutsCount: 0,
+      joinedChallengeId: profile?.joinedChallengeId || 'c_21_day_ignite',
+      joinedChallengeDay: 1
     };
     setUser(newUser);
     closeAuthModal();
@@ -546,6 +595,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setFoodDatabase(prev => [food, ...prev]);
   };
 
+  const deleteFoodFromDatabase = (id: string) => {
+    setFoodDatabase(prev => prev.filter(f => f.id !== id));
+  };
+
+  const addExercise = (exercise: Exercise) => {
+    setExercises(prev => [exercise, ...prev]);
+  };
+
+  const updateExercise = (id: string, updates: Partial<Exercise>) => {
+    setExercises(prev => prev.map(ex => ex.id === id ? { ...ex, ...updates } : ex));
+  };
+
+  const deleteExercise = (id: string) => {
+    setExercises(prev => prev.filter(ex => ex.id !== id));
+  };
+
+  const addChallenge = (challenge: Challenge) => {
+    setChallenges(prev => [challenge, ...prev]);
+  };
+
+  const updateChallenge = (id: string, updates: Partial<Challenge>) => {
+    setChallenges(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+  };
+
+  const deleteChallenge = (id: string) => {
+    setChallenges(prev => prev.filter(c => c.id !== id));
+  };
+
+  const addTransformation = (story: TransformationStory) => {
+    setTransformations(prev => [story, ...prev]);
+  };
+
+  const deleteTransformation = (id: string) => {
+    setTransformations(prev => prev.filter(t => t.id !== id));
+  };
+
   return (
     <AppContext.Provider value={{
       user,
@@ -560,6 +645,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       leaderboard,
       challenges,
       foodDatabase,
+      exercises,
+      transformations,
       adminAnalytics,
       adminHeroTitle,
       adminHeroSubtitle,
@@ -571,6 +658,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       openAuthModal,
       closeAuthModal,
       loginUser,
+      signupUser,
       logoutUser,
       saveUserProfile,
       calculateAndSetCalories,
@@ -584,7 +672,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       toggleLikeCommunityPost,
       viewChallengeDetails,
       updateAdminCms,
-      addFoodToDatabase
+      addFoodToDatabase,
+      deleteFoodFromDatabase,
+      addExercise,
+      updateExercise,
+      deleteExercise,
+      addChallenge,
+      updateChallenge,
+      deleteChallenge,
+      addTransformation,
+      deleteTransformation
     }}>
       {children}
     </AppContext.Provider>
