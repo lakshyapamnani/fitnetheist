@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Shield } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, activeTab, setActiveTab, openAuthModal, logoutUser } = useApp();
@@ -94,9 +94,23 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right CTA Actions: CONNECT, LOGIN, START NOW */}
-        <div id="nav-right-actions" className="hidden lg:flex items-center gap-4">
+        {/* Right CTA Actions: ADMIN, CONNECT, LOGIN, START NOW */}
+        <div id="nav-right-actions" className="hidden lg:flex items-center gap-3">
           
+          <button
+            id="nav-admin-portal-button"
+            onClick={() => { setActiveTab('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            title="Admin Portal"
+            className={`text-xs font-mono-num font-semibold tracking-wider flex items-center gap-1 px-2.5 py-1.5 border uppercase transition-colors ${
+              activeTab === 'admin'
+                ? 'bg-[#FFC515] text-black border-[#FFC515]'
+                : 'text-white/60 hover:text-[#FFC515] border-white/10 hover:border-[#FFC515]/40 bg-[#101014]'
+            }`}
+          >
+            <Shield size={13} className={activeTab === 'admin' ? 'text-black' : 'text-[#FFC515]'} />
+            <span>ADMIN</span>
+          </button>
+
           <button
             id="nav-connect-button"
             onClick={() => handleNavClick('connect-with-us-section')}
@@ -194,6 +208,14 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-white/10 space-y-2">
+            <button
+              onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="w-full py-2.5 px-4 border border-[#FFC515]/40 bg-[#FFC515]/10 text-[#FFC515] font-mono-num text-xs uppercase font-bold flex items-center justify-center gap-2"
+            >
+              <Shield size={14} className="text-[#FFC515]" />
+              <span>ADMIN PORTAL</span>
+            </button>
+
             <button
               onClick={() => handleNavClick('connect-with-us-section')}
               className="w-full py-3 text-center border border-white/20 text-white font-mono-num text-xs uppercase font-bold"

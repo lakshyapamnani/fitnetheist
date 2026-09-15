@@ -89,10 +89,63 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const getTabFromLocation = (): string => {
+  if (typeof window === 'undefined') return 'home';
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  const searchParams = new URLSearchParams(window.location.search);
+  const tabParam = searchParams.get('tab')?.toLowerCase();
+  const hash = window.location.hash.replace(/^#/, '').toLowerCase();
+
+  const candidate = tabParam || path || hash;
+  if (candidate) {
+    if (['admin', 'dashboard', 'tools', 'calculate', 'nutrition', 'train', 'challenges', 'transform', 'community', 'coach', 'pricing'].includes(candidate)) {
+      return candidate;
+    }
+  }
+  return 'home';
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Navigation State
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTabState] = useState<string>(() => getTabFromLocation());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        if (tab === 'home') {
+          url.searchParams.delete('tab');
+          if (url.pathname !== '/') {
+            window.history.pushState({}, '', '/' + (url.search ? url.search : ''));
+          } else {
+            window.history.pushState({}, '', url.toString());
+          }
+        } else {
+          url.searchParams.set('tab', tab);
+          window.history.pushState({}, '', url.toString());
+        }
+      } catch {
+        // Fallback for restricted iframe environments
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const tab = getTabFromLocation();
+      setActiveTabState(tab);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
+  }, []);
+
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot' | 'onboarding'>('login');
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const [selectedExerciseCategory, setSelectedExerciseCategory] = useState<string>('ALL');
