@@ -19,6 +19,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Tuck elbows at 45° to protect shoulders and maximize sternal chest recruitment.',
     videoThumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=vcBig73ojpE',
     equipment: 'FULL_GYM'
   },
   {
@@ -37,6 +38,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Do not exceed 30°-45° incline to avoid shifting load predominantly to front delts.',
     videoThumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=8iPEnn-ltC8',
     equipment: 'DUMBBELLS'
   },
   {
@@ -55,6 +57,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Maintain forward lean throughout to target chest over triceps.',
     videoThumbnail: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=2z8JmcrW-As',
     equipment: 'HOME_GYM'
   },
   {
@@ -73,6 +76,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Keep neck neutral and protract shoulder blades at the very top.',
     videoThumbnail: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=IODxDxX7oi4',
     equipment: 'NO_EQUIPMENT'
   },
 
@@ -93,6 +97,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Engage lats as if bending the bar around your shins before lifting.',
     videoThumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
     equipment: 'FULL_GYM'
   },
   {
@@ -111,6 +116,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Eliminates lumbar fatigue while overloading upper back density.',
     videoThumbnail: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=j3Igk5nyZE4',
     equipment: 'FULL_GYM'
   },
   {
@@ -128,6 +134,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Lead with sternum, not chin, to maximize lat fiber recruitment.',
     videoThumbnail: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=eGo4IYlbE5g',
     equipment: 'HOME_GYM'
   },
 
@@ -148,6 +155,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Squeeze glutes rock hard to prevent hyper-extending the lumbar spine.',
     videoThumbnail: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=2yjwXTZQDDI',
     equipment: 'FULL_GYM'
   },
   {
@@ -165,6 +173,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Provides continuous tension through the entire range of motion.',
     videoThumbnail: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=PzsMln2t284',
     equipment: 'FULL_GYM'
   },
   {
@@ -182,6 +191,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Never shrug traps at the top; keep shoulder blades down.',
     videoThumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=3VcKaXpzqRo',
     equipment: 'DUMBBELLS'
   },
 
@@ -201,6 +211,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Maintains extreme stretch on the long head of the bicep throughout.',
     videoThumbnail: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=soxrZlIl35U',
     equipment: 'DUMBBELLS'
   },
   {
@@ -218,6 +229,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Angling the upper arm back 10° keeps constant tension at the top lockout.',
     videoThumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=d_KZxkY_0cM',
     equipment: 'FULL_GYM'
   },
 
@@ -238,6 +250,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Track knees directly over middle toes, ensuring heels remain glued down.',
     videoThumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=bEv6CCg2BC8',
     equipment: 'FULL_GYM'
   },
   {
@@ -256,6 +269,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Move through hips only—do not increase knee flexion on the way down.',
     videoThumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=JCXUYuzwNrM',
     equipment: 'DUMBBELLS'
   },
   {
@@ -274,6 +288,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Slight forward torso lean shifts emphasis onto glute max.',
     videoThumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=2C-uNgKwPLE',
     equipment: 'DUMBBELLS'
   },
 
@@ -293,6 +308,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Curl your pelvis upward at the top; do not just flex hip flexors.',
     videoThumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=hdng3Nm1x_E',
     equipment: 'HOME_GYM'
   },
   {
@@ -310,6 +326,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Never let lower back hyperextend—keep abs locked in hollow body position.',
     videoThumbnail: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=rqiTPdK1c_I',
     equipment: 'HOME_GYM'
   },
 
@@ -329,6 +346,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Drive through balls of feet and maintain aggressive rhythmic breathing.',
     videoThumbnail: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=Yf-P0y8d5yM',
     equipment: 'FULL_GYM'
   },
   {
@@ -346,6 +364,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Power comes entirely from the hip snap, not the shoulder pull.',
     videoThumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=6P7r0O6jJ1U',
     equipment: 'DUMBBELLS'
   },
 
@@ -365,6 +384,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Breathe out on rotation to unlock deep thoracic spine mobility.',
     videoThumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=-uxU4cTcLlE',
     equipment: 'NO_EQUIPMENT'
   },
   {
@@ -382,6 +402,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Keep sit bones anchored and pivot smoothly on heels.',
     videoThumbnail: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/watch?v=6A2V9B8vKqg',
     equipment: 'NO_EQUIPMENT'
   }
 ];

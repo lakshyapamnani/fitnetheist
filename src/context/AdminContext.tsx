@@ -208,8 +208,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const saved = localStorage.getItem('fitnetheist_crm_leads');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((l: any) => ({
+        if (Array.isArray(parsed)) {
+          const clean = parsed.filter((l: any) => !/^(lead_10[1-9])/i.test(l.id));
+          return clean.map((l: any) => ({
             ...l,
             tags: Array.isArray(l.tags) ? l.tags : [],
             notes: Array.isArray(l.notes) ? l.notes : [],
@@ -233,7 +234,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const saved = localStorage.getItem('fitnetheist_customers');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter((c: any) => !/^(cust_0[1-9]|cust_10[1-9])/i.test(c.id));
+        }
       }
     } catch (e) {
       console.error('Error parsing customers from localStorage', e);
@@ -247,7 +250,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const saved = localStorage.getItem('fitnetheist_orders');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter((o: any) => !/^(ORD-984[0-9])/i.test(o.id));
+        }
       }
     } catch (e) {
       console.error('Error parsing orders from localStorage', e);
@@ -261,7 +266,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const saved = localStorage.getItem('fitnetheist_invoices');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter((i: any) => !/^(inv_100[1-9])/i.test(i.id));
+        }
       }
     } catch (e) {
       console.error('Error parsing invoices from localStorage', e);
@@ -275,7 +282,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const saved = localStorage.getItem('fitnetheist_subscriptions');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter((s: any) => !/^(sub_00[1-9])/i.test(s.id));
+        }
       }
     } catch (e) {
       console.error('Error parsing subscriptions from localStorage', e);

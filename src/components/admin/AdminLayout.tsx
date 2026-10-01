@@ -125,10 +125,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div id="fitnetheist-admin-app" className="min-h-screen bg-[#08080a] text-white flex flex-col font-sans selection:bg-[#FFC515] selection:text-black">
+    <div id="fitnetheist-admin-app" className="h-screen max-h-screen w-full bg-[#08080a] text-white flex flex-col font-sans selection:bg-[#FFC515] selection:text-black overflow-hidden">
       
       {/* Top Admin Status Bar */}
-      <header className="h-16 border-b border-white/10 bg-[#0c0c0f] sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between">
+      <header className="h-16 flex-shrink-0 border-b border-white/10 bg-[#0c0c0f] z-40 px-4 sm:px-6 flex items-center justify-between">
         
         {/* Left Branding & Mobile Trigger */}
         <div className="flex items-center gap-4">
@@ -265,11 +265,20 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </header>
 
       {/* Main Admin Body: Sidebar + Main Content Canvas */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0 relative">
         
-        {/* Left Admin Sidebar */}
+        {/* Mobile Backdrop Overlay */}
+        {isMobileNavOpen && (
+          <div 
+            onClick={() => setIsMobileNavOpen(false)} 
+            className="fixed inset-0 bg-black/70 backdrop-blur-xs z-30 lg:hidden"
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Left Admin Sidebar - Static & pinned to viewport */}
         <aside className={`
-          fixed lg:static inset-y-16 left-0 z-30 w-64 bg-[#0a0a0d] border-r border-white/10 flex flex-col justify-between overflow-y-auto transition-transform duration-200
+          fixed lg:static top-16 bottom-0 left-0 z-40 lg:z-10 w-64 flex-shrink-0 bg-[#0a0a0d] border-r border-white/10 flex flex-col justify-between overflow-y-auto transition-transform duration-200 h-[calc(100dvh-4rem)] lg:h-full
           ${isMobileNavOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           
@@ -327,7 +336,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
 
           {/* Quick Support / Version Info */}
-          <div className="p-4 border-t border-white/10 bg-[#0c0c0f] font-mono-num text-[11px] text-white/40">
+          <div className="p-4 border-t border-white/10 bg-[#0c0c0f] font-mono-num text-[11px] text-white/40 flex-shrink-0">
             <div className="flex items-center justify-between text-white/60">
               <span>ENGINE: v2.4.0</span>
               <span className="text-[#FFC515] font-bold">ONLINE</span>
@@ -337,9 +346,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
         </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-[#08080a] p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto space-y-8">
+        {/* Main Content Area - Scrollable canvas */}
+        <main className="flex-1 h-full overflow-y-auto bg-[#08080a] p-4 sm:p-6 lg:p-8 min-h-0">
+          <div className="max-w-7xl mx-auto space-y-8 pb-16">
             {children}
           </div>
         </main>

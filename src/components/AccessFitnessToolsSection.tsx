@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { ArrowRight } from 'lucide-react';
 
 export const AccessFitnessToolsSection: React.FC = () => {
-  const { setActiveTab } = useApp();
+  const { setActiveTab, openCalorieModal } = useApp();
 
   return (
     <section 
@@ -38,17 +38,24 @@ export const AccessFitnessToolsSection: React.FC = () => {
             </div>
           </div>
 
-          <div className="shrink-0">
+          <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button
+              id="cta-open-calorie-calculator"
+              onClick={openCalorieModal}
+              className="w-full sm:w-auto px-6 py-3.5 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-mono-num font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-colors shadow-[0_0_18px_rgba(216,255,56,0.25)]"
+            >
+              <span>CALCULATE CALORIES</span>
+              <ArrowRight size={15} strokeWidth={2.5} />
+            </button>
             <button
               id="cta-explore-fitness-tools"
               onClick={() => {
                 setActiveTab('tools');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="w-full sm:w-auto px-8 py-4 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-mono-num font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-3 transition-colors shadow-[0_0_20px_rgba(255,197,21,0.22)]"
+              className="w-full sm:w-auto px-6 py-3.5 border border-white/20 hover:border-white/50 text-white font-mono-num font-bold text-xs uppercase tracking-wider flex items-center justify-center transition-colors"
             >
-              <span>EXPLORE FITNESS TOOLS</span>
-              <ArrowRight size={16} strokeWidth={2.5} />
+              <span>ALL TOOLS →</span>
             </button>
           </div>
 

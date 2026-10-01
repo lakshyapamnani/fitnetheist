@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { useAdmin } from '../context/AdminContext';
 import { FitnessGoal, ExperienceLevel, EquipmentType, MuscleGroup, Exercise } from '../types';
 import { EXERCISE_DATABASE } from '../data/workoutDatabase';
+import { ExerciseVideoPlayer } from './ExerciseVideoPlayer';
 import { 
   Dumbbell, 
   Search, 
@@ -22,7 +23,8 @@ import {
   Volume2,
   TrendingUp,
   Sliders,
-  Layers
+  Layers,
+  Video
 } from 'lucide-react';
 
 export const WorkoutPlanner: React.FC = () => {
@@ -522,12 +524,17 @@ export const WorkoutPlanner: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* View Form Details Action */}
+                            {/* View Form / Watch Video Action */}
                             <button
                               onClick={() => setActiveExerciseModal(ex)}
-                              className="px-4 py-2.5 bg-zinc-800 hover:bg-white hover:text-black border border-white/15 text-xs font-mono-num font-bold uppercase tracking-wider shrink-0 transition-colors"
+                              className={`px-4 py-2.5 border text-xs font-mono-num font-bold uppercase tracking-wider shrink-0 transition-all flex items-center gap-1.5 ${
+                                ex.videoUrl
+                                  ? 'bg-[#d8ff38]/15 hover:bg-[#d8ff38] text-[#d8ff38] hover:text-black border-[#d8ff38]/50 shadow-[0_0_12px_rgba(216,255,56,0.15)]'
+                                  : 'bg-zinc-800 hover:bg-white hover:text-black border-white/15 text-white'
+                              }`}
                             >
-                              VIEW FORM
+                              {ex.videoUrl ? <Play size={12} fill="currentColor" /> : null}
+                              <span>{ex.videoUrl ? 'WATCH FORM' : 'VIEW FORM'}</span>
                             </button>
                           </div>
                         );
@@ -965,17 +972,35 @@ export const WorkoutPlanner: React.FC = () => {
                 </button>
               </div>
 
-              {/* Image & Key cue */}
-              <div className="relative h-48 w-full bg-zinc-900 overflow-hidden border border-white/10">
-                <img
-                  src={activeExerciseModal.videoThumbnail}
-                  alt={activeExerciseModal.name}
-                  className="w-full h-full object-cover filter grayscale contrast-125"
-                  referrerPolicy="no-referrer"
+              {/* Video Player & Form Demonstration */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono-num">
+                  <span className="text-zinc-400 uppercase font-bold flex items-center gap-1.5">
+                    <Video size={13} className="text-[#d8ff38]" />
+                    <span>PROPER FORM DEMONSTRATION</span>
+                  </span>
+                  {activeExerciseModal.videoUrl && (
+                    <span className="text-[10px] text-[#d8ff38] font-bold">
+                      COACH APPROVED FORM GUIDE
+                    </span>
+                  )}
+                </div>
+
+                <ExerciseVideoPlayer
+                  videoUrl={activeExerciseModal.videoUrl}
+                  thumbnailUrl={activeExerciseModal.videoThumbnail}
+                  exerciseName={activeExerciseModal.name}
+                  className="rounded-sm"
                 />
-                <div className="absolute bottom-0 inset-x-0 p-3 bg-black/80 backdrop-blur-sm border-t border-white/10 text-xs font-mono-num text-zinc-300">
-                  <span className="text-[#d8ff38] font-bold uppercase">PRIMARY MUSCLES: </span>
-                  {activeExerciseModal.targetMuscles}
+
+                <div className="p-2.5 bg-zinc-900/60 border border-white/5 text-xs font-mono-num text-zinc-300 flex items-center justify-between">
+                  <div>
+                    <span className="text-[#d8ff38] font-bold uppercase">PRIMARY TARGET: </span>
+                    <span>{activeExerciseModal.targetMuscles}</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-400 uppercase bg-black/40 px-2 py-0.5 border border-white/10">
+                    {activeExerciseModal.equipment.replace('_', ' ')}
+                  </span>
                 </div>
               </div>
 

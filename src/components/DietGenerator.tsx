@@ -14,7 +14,10 @@ export const DietGenerator: React.FC = () => {
     generateAndSetDiet, 
     swapDietMeal, 
     toggleGroceryItemCheck,
-    setActiveTab 
+    setActiveTab,
+    openAuthModal,
+    pendingAthleteDetails,
+    setPendingAthleteDetails 
   } = useApp();
   const { trackLeadEvent, captureLead } = useAdmin();
 
@@ -121,6 +124,21 @@ export const DietGenerator: React.FC = () => {
       );
     } finally {
       setIsGenerating(false);
+    }
+
+    if (!user) {
+      setPendingAthleteDetails({
+        source: 'DIET_PLAN',
+        title: `7-Day ${dietType} Nutrition Blueprint`,
+        summaryText: `${targetCalories} kcal · ${dietType} · ${mealsPerDay} meals/day`,
+        userMetrics: {
+          dietType,
+          cuisine,
+          mealsPerDay
+        },
+        timestamp: Date.now()
+      });
+      openAuthModal('signup', `Your 7-day ${dietType} plan (${targetCalories} kcal) has been generated! Sign in to save your meal schedule to your athlete account.`);
     }
 
     trackLeadEvent('DIET_GENERATED', {

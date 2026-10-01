@@ -13,6 +13,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   avatarUrl?: string;
   age: number;
   sex: 'male' | 'female';
@@ -31,6 +32,28 @@ export interface UserProfile {
   completedWorkoutsCount: number;
   joinedChallengeId?: string;
   joinedChallengeDay?: number;
+  
+  // Body & Health
+  bodyFatPercent?: number;
+  restingHeartRate?: number;
+  trainingExperience?: ExperienceLevel;
+  injuriesLimitations?: string;
+  
+  // Goals
+  targetWeightKg?: number;
+  targetDate?: string;
+  trainingObjective?: string;
+  
+  // Training
+  trainingDaysPerWeek?: number;
+  trainingLocation?: 'GYM' | 'HOME' | 'BOTH';
+  equipmentAvailable?: EquipmentType;
+  sessionDurationMinutes?: number;
+  
+  // Lifestyle
+  dailyStepGoal?: number;
+  sleepHoursTarget?: number;
+  allergiesIntolerances?: string[];
 }
 
 export interface CalorieResult {
@@ -127,6 +150,7 @@ export interface Exercise {
   instructions: string[];
   keyFormTip: string;
   videoThumbnail: string;
+  videoUrl?: string; // Video URL of proper form demonstration (YouTube, Vimeo, MP4, Loom, etc.)
   equipment: EquipmentType;
 }
 

@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
-  const { setActiveTab } = useApp();
+  const { setActiveTab, openCalorieModal } = useApp();
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -71,20 +71,20 @@ export const HeroSection: React.FC = () => {
           {/* Action CTAs */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 sm:gap-4 pt-4">
             <button
-              id="hero-cta-start-transformation"
-              onClick={() => scrollToSection('rate-cards-section')}
-              className="px-8 py-4 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-mono-num font-extrabold text-xs sm:text-sm tracking-wider uppercase transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,197,21,0.25)]"
+              id="hero-cta-calculate-calories"
+              onClick={openCalorieModal}
+              className="px-8 py-4 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-mono-num font-extrabold text-xs sm:text-sm tracking-wider uppercase transition-all flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(216,255,56,0.25)]"
             >
-              <span>START YOUR TRANSFORMATION</span>
+              <span>CALCULATE CALORIES & MACROS</span>
               <ArrowRight size={16} strokeWidth={2.5} />
             </button>
 
             <button
-              id="hero-cta-connect-with-us"
-              onClick={() => scrollToSection('connect-with-us-section')}
+              id="hero-cta-start-transformation"
+              onClick={() => scrollToSection('rate-cards-section')}
               className="px-8 py-4 bg-black/70 hover:bg-white/10 text-white border border-white/20 hover:border-white/50 font-mono-num font-bold text-xs sm:text-sm tracking-wider uppercase transition-colors text-center"
             >
-              CONNECT WITH US →
+              COACHING PACKAGES →
             </button>
           </div>
 

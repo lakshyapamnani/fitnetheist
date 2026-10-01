@@ -84,7 +84,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
   },
   {
     rank: 4,
-    name: 'Alex Mercer (You)',
+    name: 'You (Athlete Profile)',
     avatar: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
     streakDays: 12,
     challengeProgress: 'Day 12 / 21 (Ignite)',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { HeroSection } from './HeroSection';
+import { ClientHomeDashboard } from './ClientHomeDashboard';
 import { ConnectWithUsSection } from './ConnectWithUsSection';
 import { CoachStorySection } from './CoachStorySection';
 import { RealTransformationsSection } from './RealTransformationsSection';
@@ -14,25 +15,30 @@ export const HomePage: React.FC = () => {
       {/* 1. HERO */}
       <HeroSection />
 
-      {/* 2. CONNECT WITH US */}
+      {/* 2. ATHLETE STATUS DASHBOARD */}
+      <section id="athlete-status-overview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-10 relative z-20">
+        <ClientHomeDashboard />
+      </section>
+
+      {/* 3. CONNECT WITH US */}
       <ConnectWithUsSection />
 
-      {/* 3. COACH / BRAND STORY */}
+      {/* 4. COACH / BRAND STORY */}
       <CoachStorySection />
 
-      {/* 4. COACHING PHILOSOPHY */}
+      {/* 5. COACHING PHILOSOPHY */}
       <CoachingPhilosophySection />
 
-      {/* 5. RATE CARDS (MAIN FEATURE) */}
+      {/* 6. RATE CARDS (MAIN FEATURE) */}
       <RateCardsSection />
 
-      {/* 6. ACCESS FITNESS TOOLS & FEATURES */}
+      {/* 7. ACCESS FITNESS TOOLS & FEATURES */}
       <AccessFitnessToolsSection />
 
-      {/* 7. REAL CLIENT TRANSFORMATIONS & TESTIMONIALS */}
+      {/* 8. REAL CLIENT TRANSFORMATIONS & TESTIMONIALS */}
       <RealTransformationsSection />
 
-      {/* 8. FINAL CTA */}
+      {/* 9. FINAL CTA */}
       <FinalCtaSection />
     </div>
   );

@@ -25,6 +25,30 @@ import { FOOD_DATABASE, generateSevenDayDietPlan, generateGroceryList, getMealAl
 import { EXERCISE_DATABASE, generateWorkoutPlan } from '../data/workoutDatabase';
 import { CHALLENGES_DATA, TRANSFORMATIONS_DATA } from '../data/challengesData';
 import { COMMUNITY_POSTS_DATA, LEADERBOARD_DATA, COACH_DATA, PRICING_DATA, INITIAL_ADMIN_ANALYTICS } from '../data/communityData';
+import { getProfile, saveProfile, updateProfile } from '../services/profileStorage';
+import { 
+  auth, 
+  db, 
+  signInWithGoogle, 
+  signInWithEmail, 
+  registerWithEmail, 
+  logoutFirebase, 
+  onAuthChange, 
+  syncUserDataToRealtimeDb, 
+  getUserDataFromRealtimeDb,
+  getSavedFirebaseConfig
+} from '../services/firebase';
+
+export interface PendingAthleteDetails {
+  source: 'CALORIE_CALCULATOR' | 'DIET_PLAN' | 'WORKOUT_PLAN' | 'PROFILE_SETUP';
+  title?: string;
+  summaryText?: string;
+  calorieResult?: CalorieResult;
+  userMetrics?: Partial<UserProfile>;
+  dietPlan?: SevenDayDietPlan;
+  workoutPlan?: WorkoutPlan;
+  timestamp: number;
+}
 
 interface AppContextType {
   user: UserProfile | null;
@@ -46,15 +70,30 @@ interface AppContextType {
   adminHeroSubtitle: string;
   isAuthModalOpen: boolean;
   authModalMode: 'login' | 'signup' | 'forgot' | 'onboarding';
+  authPromptReason: string | null;
+  pendingAthleteDetails: PendingAthleteDetails | null;
+  setPendingAthleteDetails: (details: PendingAthleteDetails | null) => void;
   selectedChallenge: Challenge | null;
   selectedExerciseCategory: string;
   setSelectedExerciseCategory: (cat: string) => void;
   
+  // Firebase state & helpers
+  isFirebaseConnected: boolean;
+  isFirebaseModalOpen: boolean;
+  openFirebaseConfigModal: () => void;
+  closeFirebaseModal: () => void;
+  loginWithGoogle: () => Promise<void>;
+
+  // Calorie Feature Popup
+  isCalorieModalOpen: boolean;
+  openCalorieModal: () => void;
+  closeCalorieModal: () => void;
+
   // Actions
-  openAuthModal: (mode?: 'login' | 'signup' | 'forgot' | 'onboarding') => void;
+  openAuthModal: (mode?: 'login' | 'signup' | 'forgot' | 'onboarding', promptReason?: string) => void;
   closeAuthModal: () => void;
-  loginUser: (email: string, name?: string) => void;
-  signupUser: (name: string, email: string, password?: string, profile?: Partial<UserProfile>) => void;
+  loginUser: (email: string, password?: string, name?: string) => Promise<void>;
+  signupUser: (name: string, email: string, password?: string, profile?: Partial<UserProfile>) => Promise<void>;
   logoutUser: () => void;
   saveUserProfile: (profile: Partial<UserProfile>) => void;
   calculateAndSetCalories: (
@@ -63,7 +102,8 @@ interface AppContextType {
     heightCm: number, 
     weightKg: number, 
     activity: ActivityLevel, 
-    goal: 'MAINTAIN' | 'CUT' | 'BULK'
+    goal: 'MAINTAIN' | 'CUT' | 'BULK',
+    options?: { triggeredByUserAction?: boolean }
   ) => CalorieResult;
   generateAndSetDiet: (
     targetCalories: number, 
@@ -112,7 +152,9 @@ const getTabFromLocation = (): string => {
 
   const candidate = tabParam || path || hash;
   if (candidate) {
-    if (['admin', 'dashboard', 'tools', 'calculate', 'nutrition', 'train', 'challenges', 'transform', 'community', 'coach', 'pricing'].includes(candidate)) {
+    if (['admin', 'dashboard', 'tools', 'calculate', 'nutrition', 'train', 'challenges', 'transform', 'community', 'coach', 'pricing', 'plan', 'progress', 'me', 'results'].includes(candidate)) {
+      if (candidate === 'results') return 'progress';
+      if (candidate === 'dashboard') return 'me';
       return candidate;
     }
   }
@@ -161,39 +203,95 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup' | 'forgot' | 'onboarding'>('login');
+  const [authPromptReason, setAuthPromptReason] = useState<string | null>(null);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const [selectedExerciseCategory, setSelectedExerciseCategory] = useState<string>('ALL');
 
+  // Firebase Realtime DB & Config State
+  const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(() => {
+    const cfg = getSavedFirebaseConfig();
+    return Boolean(cfg.apiKey && (cfg.databaseURL || cfg.projectId));
+  });
+
+  const openFirebaseConfigModal = () => setIsFirebaseModalOpen(true);
+  const closeFirebaseModal = () => {
+    const cfg = getSavedFirebaseConfig();
+    setIsFirebaseConnected(Boolean(cfg.apiKey && (cfg.databaseURL || cfg.projectId)));
+    setIsFirebaseModalOpen(false);
+  };
+
+  // Calorie Feature Popup Modal State
+  const [isCalorieModalOpen, setIsCalorieModalOpen] = useState<boolean>(false);
+  const openCalorieModal = () => setIsCalorieModalOpen(true);
+  const closeCalorieModal = () => setIsCalorieModalOpen(false);
+
   // User Profile
   const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('fitnetheist_user');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return {
-      id: 'usr_default_demo',
-      name: 'Alex Mercer',
-      email: 'alex.mercer@fitnetheist.com',
-      avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
-      age: 27,
-      sex: 'male',
-      heightCm: 178,
-      weightKg: 78,
-      activityLevel: 'MODERATE',
-      goal: 'BUILD_MUSCLE',
-      dietType: 'NON-VEGETARIAN',
-      cuisine: 'INDIAN_INTERNATIONAL',
-      mealsPerDay: 4,
-      foodPreferences: ['Chicken', 'Oats', 'Eggs', 'Rice', 'Paneer'],
-      foodsToAvoid: ['Cilantro'],
-      budget: 'STANDARD',
-      cookingStyle: 'NORMAL',
-      streakDays: 12,
-      completedWorkoutsCount: 18,
-      joinedChallengeId: 'c_21_day_ignite',
-      joinedChallengeDay: 12
-    };
+    return getProfile();
   });
+
+  // Pending athlete details buffer (e.g. from unauthenticated calorie calculation or diet generation)
+  const [pendingAthleteDetails, setPendingAthleteDetailsState] = useState<PendingAthleteDetails | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem('fitnetheist_pending_details');
+        if (stored) return JSON.parse(stored);
+      } catch {}
+    }
+    return null;
+  });
+
+  const setPendingAthleteDetails = (details: PendingAthleteDetails | null) => {
+    setPendingAthleteDetailsState(details);
+    if (typeof window !== 'undefined') {
+      try {
+        if (details) {
+          sessionStorage.setItem('fitnetheist_pending_details', JSON.stringify(details));
+        } else {
+          sessionStorage.removeItem('fitnetheist_pending_details');
+        }
+      } catch {}
+    }
+  };
+
+  // Auto-prompt visitor to use the calorie calculator feature after a brief initial pause
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const alreadyShown = sessionStorage.getItem('fitnetheist_calorie_popup_shown');
+      if (!user && !alreadyShown) {
+        const timer = setTimeout(() => {
+          setIsCalorieModalOpen(true);
+          sessionStorage.setItem('fitnetheist_calorie_popup_shown', 'true');
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user]);
+
+  // Listen for Firebase Auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthChange(async (fbUser) => {
+      if (fbUser) {
+        setIsFirebaseConnected(true);
+        try {
+          const remoteData = await getUserDataFromRealtimeDb(fbUser.uid);
+          if (remoteData?.profile) {
+            setUser(remoteData.profile);
+            saveProfile(remoteData.profile);
+            if (remoteData.calorieResult) setCalorieResult(remoteData.calorieResult);
+            if (remoteData.dietPlan) setDietPlan(remoteData.dietPlan);
+            if (remoteData.workoutPlan) setWorkoutPlan(remoteData.workoutPlan);
+          }
+        } catch (err) {
+          console.warn('Could not sync user from Realtime DB:', err);
+        }
+      }
+    });
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   // Calorie & Nutrition State
   const [calorieResult, setCalorieResult] = useState<CalorieResult | null>(() => {
@@ -232,7 +330,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(LEADERBOARD_DATA);
   const [challenges, setChallenges] = useState<Challenge[]>(CHALLENGES_DATA);
   const [foodDatabase, setFoodDatabase] = useState<FoodItem[]>(FOOD_DATABASE);
-  const [exercises, setExercises] = useState<Exercise[]>(EXERCISE_DATABASE);
+  const [exercises, setExercises] = useState<Exercise[]>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_exercises_lib');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return EXERCISE_DATABASE;
+  });
+
+  // Persist exercises to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('fitnetheist_exercises_lib', JSON.stringify(exercises));
+    } catch {}
+  }, [exercises]);
   const [transformations, setTransformations] = useState<TransformationStory[]>(TRANSFORMATIONS_DATA);
 
   // Admin CMS
@@ -258,30 +372,106 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [user]);
 
-  const openAuthModal = (mode: 'login' | 'signup' | 'forgot' | 'onboarding' = 'login') => {
+  const openAuthModal = (mode: 'login' | 'signup' | 'forgot' | 'onboarding' = 'login', promptReason?: string) => {
     setAuthModalMode(mode);
+    setAuthPromptReason(promptReason || null);
     setIsAuthModalOpen(true);
   };
 
   const closeAuthModal = () => {
     setIsAuthModalOpen(false);
+    setAuthPromptReason(null);
   };
 
-  const loginUser = (email: string, name: string = 'Alex Mercer') => {
+  const loginWithGoogle = async () => {
+    try {
+      const cred = await signInWithGoogle();
+      const fbUser = cred.user;
+
+      const remoteData = await getUserDataFromRealtimeDb(fbUser.uid);
+      let finalProfile: UserProfile;
+
+      if (remoteData?.profile) {
+        finalProfile = {
+          ...remoteData.profile,
+          ...(pendingAthleteDetails?.userMetrics || {})
+        };
+      } else {
+        finalProfile = {
+          id: fbUser.uid,
+          name: fbUser.displayName || 'Alex Mercer',
+          email: fbUser.email || 'athlete@fitnetheist.com',
+          avatarUrl: fbUser.photoURL || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
+          age: pendingAthleteDetails?.userMetrics?.age || 26,
+          sex: pendingAthleteDetails?.userMetrics?.sex || 'male',
+          heightCm: pendingAthleteDetails?.userMetrics?.heightCm || 178,
+          weightKg: pendingAthleteDetails?.userMetrics?.weightKg || 78,
+          activityLevel: pendingAthleteDetails?.userMetrics?.activityLevel || 'MODERATE',
+          goal: pendingAthleteDetails?.userMetrics?.goal || 'BUILD_MUSCLE',
+          dietType: pendingAthleteDetails?.userMetrics?.dietType || 'NON-VEGETARIAN',
+          cuisine: pendingAthleteDetails?.userMetrics?.cuisine || 'INDIAN_INTERNATIONAL',
+          mealsPerDay: pendingAthleteDetails?.userMetrics?.mealsPerDay || 4,
+          foodPreferences: ['Chicken', 'Rice', 'Oats'],
+          foodsToAvoid: [],
+          budget: 'STANDARD',
+          cookingStyle: 'NORMAL',
+          streakDays: 1,
+          completedWorkoutsCount: 0,
+          joinedChallengeId: 'c_21_day_ignite',
+          joinedChallengeDay: 1
+        };
+      }
+
+      const finalCalorie = pendingAthleteDetails?.calorieResult || remoteData?.calorieResult || calorieResult;
+      const finalDiet = pendingAthleteDetails?.dietPlan || remoteData?.dietPlan || dietPlan;
+      const finalWorkout = pendingAthleteDetails?.workoutPlan || remoteData?.workoutPlan || workoutPlan;
+
+      setUser(finalProfile);
+      saveProfile(finalProfile);
+      if (finalCalorie) setCalorieResult(finalCalorie);
+      if (finalDiet) setDietPlan(finalDiet);
+      if (finalWorkout) setWorkoutPlan(finalWorkout);
+
+      await syncUserDataToRealtimeDb(fbUser.uid, {
+        profile: finalProfile,
+        calorieResult: finalCalorie,
+        dietPlan: finalDiet,
+        workoutPlan: finalWorkout
+      });
+
+      setPendingAthleteDetails(null);
+      closeAuthModal();
+    } catch (err) {
+      console.error('Google Sign-In notice:', err);
+      throw err;
+    }
+  };
+
+  const loginUser = async (email: string, password?: string, name: string = 'Alex Mercer') => {
+    let uid = `usr_${Date.now()}`;
+    if (password) {
+      try {
+        const cred = await signInWithEmail(email, password);
+        if (cred?.user?.uid) uid = cred.user.uid;
+      } catch (err) {
+        console.warn('Firebase login notice, proceeding with session:', err);
+      }
+    }
+
     const newUser: UserProfile = {
-      id: `usr_${Date.now()}`,
-      name,
+      id: uid,
+      name: name || email.split('@')[0] || 'Alex Mercer',
       email,
-      avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
-      age: user?.age || 26,
-      sex: user?.sex || 'male',
-      heightCm: user?.heightCm || 178,
-      weightKg: user?.weightKg || 78,
-      activityLevel: user?.activityLevel || 'MODERATE',
-      goal: user?.goal || 'BUILD_MUSCLE',
-      dietType: user?.dietType || 'NON-VEGETARIAN',
-      cuisine: user?.cuisine || 'INDIAN_INTERNATIONAL',
-      mealsPerDay: user?.mealsPerDay || 4,
+      avatarUrl: user?.avatarUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
+      age: pendingAthleteDetails?.userMetrics?.age || user?.age || 26,
+      sex: pendingAthleteDetails?.userMetrics?.sex || user?.sex || 'male',
+      heightCm: pendingAthleteDetails?.userMetrics?.heightCm || user?.heightCm || 178,
+      weightKg: pendingAthleteDetails?.userMetrics?.weightKg || user?.weightKg || 78,
+      activityLevel: pendingAthleteDetails?.userMetrics?.activityLevel || user?.activityLevel || 'MODERATE',
+      goal: pendingAthleteDetails?.userMetrics?.goal || user?.goal || 'BUILD_MUSCLE',
+      dietType: pendingAthleteDetails?.userMetrics?.dietType || user?.dietType || 'NON-VEGETARIAN',
+      cuisine: pendingAthleteDetails?.userMetrics?.cuisine || user?.cuisine || 'INDIAN_INTERNATIONAL',
+      mealsPerDay: pendingAthleteDetails?.userMetrics?.mealsPerDay || user?.mealsPerDay || 4,
       foodPreferences: user?.foodPreferences || ['Chicken', 'Rice', 'Oats'],
       foodsToAvoid: user?.foodsToAvoid || [],
       budget: 'STANDARD',
@@ -291,30 +481,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       joinedChallengeId: 'c_21_day_ignite',
       joinedChallengeDay: 12
     };
+
+    const finalCalorie = pendingAthleteDetails?.calorieResult || calorieResult;
+    const finalDiet = pendingAthleteDetails?.dietPlan || dietPlan;
+    const finalWorkout = pendingAthleteDetails?.workoutPlan || workoutPlan;
+
     setUser(newUser);
+    saveProfile(newUser);
+    if (finalCalorie) setCalorieResult(finalCalorie);
+    if (finalDiet) setDietPlan(finalDiet);
+    if (finalWorkout) setWorkoutPlan(finalWorkout);
+
+    await syncUserDataToRealtimeDb(newUser.id, {
+      profile: newUser,
+      calorieResult: finalCalorie,
+      dietPlan: finalDiet,
+      workoutPlan: finalWorkout
+    });
+
+    setPendingAthleteDetails(null);
     closeAuthModal();
   };
 
-  const signupUser = (
+  const signupUser = async (
     name: string,
     email: string,
-    _password?: string,
+    password?: string,
     profile?: Partial<UserProfile>
   ) => {
+    let uid = `usr_${Date.now()}`;
+    if (password) {
+      try {
+        const cred = await registerWithEmail(email, password);
+        if (cred?.user?.uid) uid = cred.user.uid;
+      } catch (err) {
+        console.warn('Firebase register notice, proceeding with session:', err);
+      }
+    }
+
+    const mergedMetrics = {
+      ...profile,
+      ...(pendingAthleteDetails?.userMetrics || {})
+    };
+
     const newUser: UserProfile = {
-      id: `usr_${Date.now()}`,
+      id: uid,
       name: name || 'Alex Mercer',
       email: email || 'alex.mercer@fitnetheist.com',
       avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
-      age: profile?.age || 26,
-      sex: profile?.sex || 'male',
-      heightCm: profile?.heightCm || 178,
-      weightKg: profile?.weightKg || 78,
-      activityLevel: profile?.activityLevel || 'MODERATE',
-      goal: profile?.goal || 'BUILD_MUSCLE',
-      dietType: profile?.dietType || 'NON-VEGETARIAN',
-      cuisine: profile?.cuisine || 'INDIAN_INTERNATIONAL',
-      mealsPerDay: profile?.mealsPerDay || 4,
+      age: mergedMetrics.age || 26,
+      sex: mergedMetrics.sex || 'male',
+      heightCm: mergedMetrics.heightCm || 178,
+      weightKg: mergedMetrics.weightKg || 78,
+      activityLevel: mergedMetrics.activityLevel || 'MODERATE',
+      goal: mergedMetrics.goal || 'BUILD_MUSCLE',
+      dietType: mergedMetrics.dietType || 'NON-VEGETARIAN',
+      cuisine: mergedMetrics.cuisine || 'INDIAN_INTERNATIONAL',
+      mealsPerDay: mergedMetrics.mealsPerDay || 4,
       foodPreferences: profile?.foodPreferences || ['Chicken', 'Rice', 'Oats', 'Paneer'],
       foodsToAvoid: profile?.foodsToAvoid || [],
       budget: profile?.budget || 'STANDARD',
@@ -324,19 +547,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       joinedChallengeId: profile?.joinedChallengeId || 'c_21_day_ignite',
       joinedChallengeDay: 1
     };
+
+    const finalCalorie = pendingAthleteDetails?.calorieResult || calorieResult;
+    const finalDiet = pendingAthleteDetails?.dietPlan || dietPlan;
+    const finalWorkout = pendingAthleteDetails?.workoutPlan || workoutPlan;
+
     setUser(newUser);
+    saveProfile(newUser);
+    if (finalCalorie) setCalorieResult(finalCalorie);
+    if (finalDiet) setDietPlan(finalDiet);
+    if (finalWorkout) setWorkoutPlan(finalWorkout);
+
+    await syncUserDataToRealtimeDb(newUser.id, {
+      profile: newUser,
+      calorieResult: finalCalorie,
+      dietPlan: finalDiet,
+      workoutPlan: finalWorkout
+    });
+
+    setPendingAthleteDetails(null);
     closeAuthModal();
   };
 
   const logoutUser = () => {
+    logoutFirebase().catch(() => {});
     setUser(null);
     localStorage.removeItem('fitnetheist_user');
   };
 
-  const saveUserProfile = (profile: Partial<UserProfile>) => {
-    if (!user) return;
-    const updated = { ...user, ...profile };
+  const saveUserProfile = (profileUpdates: Partial<UserProfile>) => {
+    const updated = updateProfile(profileUpdates);
     setUser(updated);
+
+    if (user?.id) {
+      syncUserDataToRealtimeDb(user.id, {
+        profile: updated
+      });
+    }
+
+    // Auto-recalculate calories and macros based on updated profile
+    const goalMode: 'MAINTAIN' | 'CUT' | 'BULK' = 
+      (updated.goal === 'LOSE_WEIGHT' || (updated.goal as string) === 'CUT')
+        ? 'CUT'
+        : (updated.goal === 'GAIN_WEIGHT' || updated.goal === 'BUILD_MUSCLE' || (updated.goal as string) === 'BULK')
+          ? 'BULK'
+          : 'MAINTAIN';
+
+    calculateAndSetCalories(
+      updated.age,
+      updated.sex,
+      updated.heightCm,
+      updated.weightKg,
+      updated.activityLevel,
+      goalMode
+    );
   };
 
   // Scientific Mifflin-St Jeor Calorie Calculation Engine
@@ -346,7 +610,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     heightCm: number,
     weightKg: number,
     activity: ActivityLevel,
-    goal: 'MAINTAIN' | 'CUT' | 'BULK'
+    goal: 'MAINTAIN' | 'CUT' | 'BULK',
+    options?: { triggeredByUserAction?: boolean }
   ): CalorieResult => {
     // Mifflin-St Jeor formula:
     // Men: BMR = (10 × weight in kg) + (6.25 × height in cm) - (5 × age) + 5
@@ -418,6 +683,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setCalorieResult(result);
+
+    // If user is already logged in, update profile and sync to Realtime DB
+    if (user) {
+      const updated = updateProfile({
+        age,
+        sex,
+        heightCm,
+        weightKg,
+        activityLevel: activity,
+        goal: goal === 'CUT' ? 'LOSE_WEIGHT' : goal === 'BULK' ? 'GAIN_WEIGHT' : 'MAINTAIN'
+      });
+      setUser(updated);
+      syncUserDataToRealtimeDb(user.id, {
+        profile: updated,
+        calorieResult: result
+      });
+    } else if (options?.triggeredByUserAction) {
+      // User is not logged in yet: manage & buffer state of details, then prompt login
+      const pending: PendingAthleteDetails = {
+        source: 'CALORIE_CALCULATOR',
+        title: 'Calorie & Macro Blueprint',
+        summaryText: `${result.currentTargetCalories} kcal (${goal}) · ${proteinMin}g Protein · ${weightKg}kg athlete`,
+        calorieResult: result,
+        userMetrics: {
+          age,
+          sex,
+          heightCm,
+          weightKg,
+          activityLevel: activity,
+          goal: goal === 'CUT' ? 'LOSE_WEIGHT' : goal === 'BULK' ? 'GAIN_WEIGHT' : 'MAINTAIN'
+        },
+        timestamp: Date.now()
+      };
+      setPendingAthleteDetails(pending);
+      openAuthModal('login', `Your targets (${result.currentTargetCalories} kcal · ${proteinMin}g protein) have been calculated! Sign in to save your targets to your account.`);
+    }
+
     return result;
   };
 
@@ -652,6 +954,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       adminHeroSubtitle,
       isAuthModalOpen,
       authModalMode,
+      authPromptReason,
+      pendingAthleteDetails,
+      setPendingAthleteDetails,
+      isFirebaseConnected,
+      isFirebaseModalOpen,
+      openFirebaseConfigModal,
+      closeFirebaseModal,
+      loginWithGoogle,
+      isCalorieModalOpen,
+      openCalorieModal,
+      closeCalorieModal,
       selectedChallenge,
       selectedExerciseCategory,
       setSelectedExerciseCategory,

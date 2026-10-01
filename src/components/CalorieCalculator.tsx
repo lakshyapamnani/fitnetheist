@@ -22,7 +22,17 @@ import {
 } from 'lucide-react';
 
 export const CalorieCalculator: React.FC = () => {
-  const { user, calorieResult, calculateAndSetCalories, setActiveTab, generateAndSetDiet, generateAndSetWorkout } = useApp();
+  const { 
+    user, 
+    calorieResult, 
+    calculateAndSetCalories, 
+    setActiveTab, 
+    generateAndSetDiet, 
+    generateAndSetWorkout, 
+    openAuthModal, 
+    pendingAthleteDetails,
+    isFirebaseConnected 
+  } = useApp();
   const { trackLeadEvent, captureLead } = useAdmin();
 
   // Unit Toggles
@@ -88,12 +98,14 @@ export const CalorieCalculator: React.FC = () => {
     return Math.round(base);
   };
 
-  const handleCalculate = (e?: React.FormEvent) => {
+  const handleCalculate = (e?: React.FormEvent, isExplicitAction: boolean = false) => {
     if (e) e.preventDefault();
     const effCm = getEffectiveCm();
     const effKg = getEffectiveKg();
 
-    const calc = calculateAndSetCalories(age, sex, effCm, effKg, activity, goalMode);
+    const calc = calculateAndSetCalories(age, sex, effCm, effKg, activity, goalMode, {
+      triggeredByUserAction: isExplicitAction
+    });
     setResult(calc);
 
     trackLeadEvent('CALCULATOR_COMPLETED', {
@@ -121,14 +133,16 @@ export const CalorieCalculator: React.FC = () => {
 
     const effCm = getEffectiveCm();
     const effKg = getEffectiveKg();
-    const calc = calculateAndSetCalories(age, sex, effCm, effKg, activity, newGoal);
+    const calc = calculateAndSetCalories(age, sex, effCm, effKg, activity, newGoal, {
+      triggeredByUserAction: !user
+    });
     setResult(calc);
   };
 
-  // Run calculation on initial load if no result
+  // Run calculation on initial load if no result (silent calculation)
   useEffect(() => {
     if (!result) {
-      handleCalculate();
+      handleCalculate(undefined, false);
     }
   }, []);
 
@@ -278,7 +292,7 @@ export const CalorieCalculator: React.FC = () => {
           
           {/* Form Inputs Module */}
           <form 
-            onSubmit={handleCalculate}
+            onSubmit={(e) => handleCalculate(e, true)}
             className="lg:col-span-6 bg-zinc-950 border border-white/10 p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
@@ -553,6 +567,40 @@ export const CalorieCalculator: React.FC = () => {
           {/* Results Screen Module */}
           <div className="lg:col-span-6 space-y-6">
             
+            {/* Realtime State Persistence Banner */}
+            {!user ? (
+              <div className="bg-zinc-950 border border-[#d8ff38]/30 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-[#d8ff38] animate-pulse"></span>
+                    <span className="font-mono-num font-bold text-white uppercase tracking-wider">
+                      TARGET METRICS BUFFERED
+                    </span>
+                  </div>
+                  <p className="text-zinc-400 text-[11px] leading-relaxed">
+                    {pendingAthleteDetails 
+                      ? 'Your customized targets are buffered in state. Sign in to sync your blueprint to Firebase & Realtime DB.' 
+                      : 'Sign in to persist your targets and generate synchronized meal plans.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => openAuthModal('signup', 'Save your computed targets to your personal athlete profile.')}
+                  className="shrink-0 px-3.5 py-2 bg-[#d8ff38] text-black font-mono-num font-bold text-xs uppercase tracking-wider hover:bg-[#c9f028] transition-colors"
+                >
+                  SAVE & SYNC
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between px-3.5 py-2 bg-zinc-950 border border-white/10 text-[11px] font-mono-num text-zinc-400">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[#d8ff38]"></span>
+                  <span>SYNCED TO ATHLETE PROFILE: <strong className="text-white">{user.name}</strong></span>
+                </span>
+                <span className="text-[#d8ff38] font-bold">REALTIME DB</span>
+              </div>
+            )}
+
             {result ? (
               <div className="bg-zinc-950 border border-white/15 p-6 sm:p-8 space-y-6 relative overflow-hidden">
                 

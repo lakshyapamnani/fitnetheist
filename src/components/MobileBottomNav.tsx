@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   Flame, 
-  Wrench, 
-  Sparkles, 
+  Calendar, 
+  TrendingUp, 
   User, 
   MoreHorizontal, 
   Trophy, 
   Users, 
   CreditCard, 
   Shield, 
-  X,
-  Zap,
-  PhoneCall
+  X, 
+  Zap, 
+  PhoneCall 
 } from 'lucide-react';
 
 export const MobileBottomNav: React.FC = () => {
@@ -21,9 +21,9 @@ export const MobileBottomNav: React.FC = () => {
 
   const primaryNavItems = [
     { id: 'home', label: 'HOME', icon: Flame },
-    { id: 'tools', label: 'TOOLS', icon: Wrench },
-    { id: 'transform', label: 'RESULTS', icon: Sparkles },
-    { id: 'dashboard', label: user ? 'ME' : 'LOGIN', icon: User },
+    { id: 'plan', label: 'PLAN', icon: Calendar },
+    { id: 'progress', label: 'PROGRESS', icon: TrendingUp },
+    { id: 'me', label: 'ME', icon: User },
   ];
 
   const secondaryNavItems = [
@@ -158,18 +158,18 @@ export const MobileBottomNav: React.FC = () => {
       >
         {primaryNavItems.map(item => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = 
+            activeTab === item.id ||
+            (item.id === 'plan' && ['tools', 'calculate', 'nutrition', 'train'].includes(activeTab)) ||
+            (item.id === 'progress' && ['transform', 'results'].includes(activeTab)) ||
+            (item.id === 'me' && activeTab === 'dashboard');
 
           return (
             <button
               key={item.id}
               id={`mobile-bottom-${item.id}`}
               onClick={() => {
-                if (item.id === 'dashboard' && !user) {
-                  openAuthModal('login');
-                } else {
-                  handleSelectTab(item.id);
-                }
+                handleSelectTab(item.id);
               }}
               className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] min-h-[46px] rounded-lg transition-all ${
                 isActive 

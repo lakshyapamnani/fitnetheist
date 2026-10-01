@@ -1,15 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { DietType, CuisineType, ActivityLevel, FitnessGoal } from '../types';
-import { X, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, ArrowRight, ShieldCheck, Database } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, authModalMode, closeAuthModal, loginUser, signupUser } = useApp();
+  const { 
+    isAuthModalOpen, 
+    authModalMode, 
+    authPromptReason, 
+    pendingAthleteDetails, 
+    closeAuthModal, 
+    loginUser, 
+    signupUser, 
+    loginWithGoogle,
+    openFirebaseConfigModal,
+    isFirebaseConnected 
+  } = useApp();
 
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(authModalMode);
-  const [step, setStep] = useState<'credentials' | 'profile'>(
-    authModalMode === 'signup' ? 'credentials' : 'credentials'
-  );
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [step, setStep] = useState<'credentials' | 'profile'>('credentials');
+  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Credentials
   const [email, setEmail] = useState('');
@@ -17,7 +28,7 @@ export const AuthModal: React.FC = () => {
   const [name, setName] = useState('');
 
   // Profile Onboarding variables
-  const [age, setAge] = useState(25);
+  const [age, setAge] = useState(26);
   const [sex, setSex] = useState<'male' | 'female'>('male');
   const [heightCm, setHeightCm] = useState(178);
   const [weightKg, setWeightKg] = useState(78);
@@ -26,59 +37,179 @@ export const AuthModal: React.FC = () => {
   const [cuisine, setCuisine] = useState<CuisineType>('INDIAN_INTERNATIONAL');
   const [goal, setGoal] = useState<FitnessGoal>('BUILD_MUSCLE');
 
+  // Synchronize initial mode and metrics whenever modal opens
+  useEffect(() => {
+    if (isAuthModalOpen) {
+      setMode(authModalMode === 'signup' ? 'signup' : 'login');
+      setStep('credentials');
+      setAuthError(null);
+
+      // Auto-populate from pending metrics if available
+      if (pendingAthleteDetails?.userMetrics) {
+        const m = pendingAthleteDetails.userMetrics;
+        if (m.age) setAge(m.age);
+        if (m.sex) setSex(m.sex);
+        if (m.heightCm) setHeightCm(m.heightCm);
+        if (m.weightKg) setWeightKg(m.weightKg);
+        if (m.activityLevel) setActivity(m.activityLevel);
+        if (m.goal) setGoal(m.goal as FitnessGoal);
+      }
+    }
+  }, [isAuthModalOpen, authModalMode, pendingAthleteDetails]);
+
   if (!isAuthModalOpen) return null;
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setAuthError(null);
+    try {
+      await loginWithGoogle();
+      closeAuthModal();
+    } catch (err: any) {
+      setAuthError(err?.message || 'Google authentication could not be completed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    loginUser(email || 'alex@fitnetheist.com', password || 'athlete123');
-    closeAuthModal();
+    if (!email.trim() || !password.trim()) {
+      setAuthError('Please enter your email and password.');
+      return;
+    }
+    setLoading(true);
+    setAuthError(null);
+    try {
+      await loginUser(email.trim(), password.trim());
+      closeAuthModal();
+    } catch (err: any) {
+      setAuthError(err?.message || 'Failed to sign in. Please verify your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignupFirstStep = (e: React.FormEvent) => {
     e.preventDefault();
-    setStep('profile');
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setAuthError('Please enter your full name, email, and password.');
+      return;
+    }
+    // If pending athlete details exist, proceed directly to complete signup!
+    if (pendingAthleteDetails?.userMetrics) {
+      handleCompleteSignup(e);
+    } else {
+      setStep('profile');
+    }
   };
 
-  const handleCompleteSignup = (e: React.FormEvent) => {
+  const handleCompleteSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    signupUser(
-      name || 'Alex Morgan',
-      email || 'athlete@fitnetheist.com',
-      password || 'secure123',
-      {
-        age,
-        sex,
-        heightCm,
-        weightKg,
-        activityLevel: activity,
-        dietType,
-        cuisine,
-        goal
-      }
-    );
-    closeAuthModal();
+    if (!email.trim() || !password.trim()) {
+      setAuthError('Please provide a valid email and password.');
+      return;
+    }
+    setLoading(true);
+    setAuthError(null);
+    try {
+      await signupUser(
+        name.trim() || email.split('@')[0],
+        email.trim(),
+        password.trim(),
+        {
+          age,
+          sex,
+          heightCm,
+          weightKg,
+          activityLevel: activity,
+          dietType,
+          cuisine,
+          goal
+        }
+      );
+      closeAuthModal();
+    } catch (err: any) {
+      setAuthError(err?.message || 'Failed to initialize athlete profile.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#0c0c0e] border border-white/20 max-w-lg w-full p-6 sm:p-8 space-y-6">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-[#0c0c0e] border border-white/20 max-w-md w-full p-6 sm:p-7 space-y-5 my-auto shadow-2xl">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div>
-            <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#FFC515] font-bold block">
-              ATHLETE SECURITY PROTOCOL
+            <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#d8ff38] font-bold block">
+              ATHLETE SECURITY & CLOUD SYNC
             </span>
-            <h3 className="text-2xl font-bold uppercase font-display text-white mt-0.5">
-              {mode === 'login' ? 'ACCESS PORTAL' : step === 'credentials' ? 'ATHLETE ENROLLMENT' : 'BIOMETRIC INITIALIZATION'}
+            <h3 className="text-xl font-bold uppercase font-display text-white mt-0.5 tracking-wide">
+              {mode === 'login' ? 'SIGN IN TO PROFILE' : step === 'credentials' ? 'SAVE & SYNC BLUEPRINT' : 'BIOMETRIC INITIALIZATION'}
             </h3>
           </div>
           <button
             onClick={closeAuthModal}
             className="text-white/60 hover:text-white p-1 transition-colors"
+            title="Close"
           >
             <X size={20} />
           </button>
+        </div>
+
+        {/* Auth Prompt Callout if triggered by calculator/plan */}
+        {authPromptReason && (
+          <div className="bg-[#d8ff38]/10 border border-[#d8ff38]/30 p-3 flex items-start gap-2.5">
+            <CheckCircle2 size={16} className="text-[#d8ff38] shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <span className="font-bold text-white block uppercase tracking-wider">Targets Calculated</span>
+              <p className="text-zinc-300 text-[11px] leading-relaxed mt-0.5">{authPromptReason}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Pending Details Summary Pill */}
+        {pendingAthleteDetails && (
+          <div className="bg-zinc-900/90 border border-white/10 px-3 py-2 flex items-center justify-between text-[11px] font-mono-num">
+            <span className="text-zinc-400">Buffered Blueprint:</span>
+            <span className="text-[#d8ff38] font-bold truncate max-w-[240px]">
+              {pendingAthleteDetails.summaryText || pendingAthleteDetails.title}
+            </span>
+          </div>
+        )}
+
+        {/* Error Notification */}
+        {authError && (
+          <div className="p-3 bg-red-950/40 border border-red-500/40 text-red-300 text-xs font-mono-num">
+            {authError}
+          </div>
+        )}
+
+        {/* One-Click Google Authentication */}
+        <div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full py-2.5 px-4 bg-white hover:bg-zinc-100 text-black font-mono-num font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-colors shadow-sm disabled:opacity-50"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <div className="relative flex items-center justify-center my-4">
+            <div className="border-t border-white/10 w-full"></div>
+            <span className="bg-[#0c0c0e] px-2 text-[10px] uppercase font-mono-num text-zinc-500 tracking-wider">
+              OR EMAIL & PASSWORD
+            </span>
+          </div>
         </div>
 
         {/* Login Form */}
@@ -91,8 +222,8 @@ export const AuthModal: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="athlete@fitnetheist.com"
-                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
+                placeholder="your.email@example.com"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
               />
             </div>
 
@@ -103,35 +234,28 @@ export const AuthModal: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
+                placeholder="Enter password"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase tracking-wider text-xs shadow-[0_0_15px_rgba(255,197,21,0.25)] transition-colors"
+                disabled={loading}
+                className="w-full py-3 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-extrabold uppercase tracking-wider text-xs transition-colors disabled:opacity-50"
               >
-                SIGN IN & ACCESS DASHBOARD
+                {loading ? 'SIGNING IN...' : 'SIGN IN & SYNC PROFILE'}
               </button>
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-white/60 text-[11px]">
+            <div className="pt-4 border-t border-white/10 flex items-center justify-center text-white/60 text-[11px]">
               <button
                 type="button"
                 onClick={() => { setMode('signup'); setStep('credentials'); }}
-                className="hover:text-[#FFC515] underline transition-colors"
+                className="hover:text-[#d8ff38] underline transition-colors"
               >
                 Need an account? Enroll here
-              </button>
-              <span className="text-white/30">|</span>
-              <button
-                type="button"
-                onClick={() => loginUser('demo@fitnetheist.com', 'demo')}
-                className="text-[#FFC515] hover:underline font-bold"
-              >
-                Instant Demo Access
               </button>
             </div>
           </form>
@@ -147,8 +271,8 @@ export const AuthModal: React.FC = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Alex Morgan"
-                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
+                placeholder="e.g. Alex Mercer"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
               />
             </div>
 
@@ -159,8 +283,8 @@ export const AuthModal: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="alex@athlete.com"
-                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
+                placeholder="athlete@fitnetheist.com"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
               />
             </div>
 
@@ -172,16 +296,17 @@ export const AuthModal: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#FFC515] focus:outline-none transition-colors"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,197,21,0.25)] transition-colors"
+                disabled={loading}
+                className="w-full py-3 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-extrabold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               >
-                <span>CONTINUE TO BIOMETRIC PROFILE</span>
+                <span>{pendingAthleteDetails ? 'SAVE BLUEPRINT & INITIALIZE' : 'CONTINUE TO BIOMETRIC PROFILE'}</span>
                 <ArrowRight size={14} />
               </button>
             </div>
@@ -190,7 +315,7 @@ export const AuthModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setMode('login')}
-                className="hover:text-[#FFC515] underline transition-colors"
+                className="hover:text-[#d8ff38] underline transition-colors"
               >
                 Already registered? Sign In
               </button>
@@ -210,7 +335,7 @@ export const AuthModal: React.FC = () => {
                     type="button"
                     onClick={() => setSex('male')}
                     className={`py-2 text-[10px] uppercase font-bold border transition-colors ${
-                      sex === 'male' ? 'bg-[#FFC515] text-black border-[#FFC515]' : 'border-white/15 text-white/70 bg-[#14141a] hover:text-white'
+                      sex === 'male' ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-white/15 text-white/70 bg-[#14141a] hover:text-white'
                     }`}
                   >
                     MALE
@@ -219,7 +344,7 @@ export const AuthModal: React.FC = () => {
                     type="button"
                     onClick={() => setSex('female')}
                     className={`py-2 text-[10px] uppercase font-bold border transition-colors ${
-                      sex === 'female' ? 'bg-[#FFC515] text-black border-[#FFC515]' : 'border-white/15 text-white/70 bg-[#14141a] hover:text-white'
+                      sex === 'female' ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-white/15 text-white/70 bg-[#14141a] hover:text-white'
                     }`}
                   >
                     FEMALE
@@ -233,7 +358,7 @@ export const AuthModal: React.FC = () => {
                   type="number"
                   value={age}
                   onChange={(e) => setAge(Number(e.target.value))}
-                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
+                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#d8ff38] focus:outline-none"
                 />
               </div>
             </div>
@@ -245,7 +370,7 @@ export const AuthModal: React.FC = () => {
                   type="number"
                   value={heightCm}
                   onChange={(e) => setHeightCm(Number(e.target.value))}
-                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
+                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#d8ff38] focus:outline-none"
                 />
               </div>
               <div>
@@ -254,7 +379,7 @@ export const AuthModal: React.FC = () => {
                   type="number"
                   value={weightKg}
                   onChange={(e) => setWeightKg(Number(e.target.value))}
-                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
+                  className="w-full bg-[#14141a] border border-white/15 px-3 py-2 text-white focus:border-[#d8ff38] focus:outline-none"
                 />
               </div>
             </div>
@@ -265,7 +390,7 @@ export const AuthModal: React.FC = () => {
                 <select
                   value={dietType}
                   onChange={(e) => setDietType(e.target.value as any)}
-                  className="w-full bg-[#14141a] border border-white/15 px-2 py-2 text-white text-[11px] focus:border-[#FFC515] focus:outline-none"
+                  className="w-full bg-[#14141a] border border-white/15 px-2 py-2 text-white text-[11px] focus:border-[#d8ff38] focus:outline-none"
                 >
                   <option value="NON-VEGETARIAN">NON-VEGETARIAN</option>
                   <option value="VEGETARIAN">VEGETARIAN</option>
@@ -278,7 +403,7 @@ export const AuthModal: React.FC = () => {
                 <select
                   value={goal}
                   onChange={(e) => setGoal(e.target.value as any)}
-                  className="w-full bg-[#14141a] border border-white/15 px-2 py-2 text-white text-[11px] focus:border-[#FFC515] focus:outline-none"
+                  className="w-full bg-[#14141a] border border-white/15 px-2 py-2 text-white text-[11px] focus:border-[#d8ff38] focus:outline-none"
                 >
                   <option value="BUILD_MUSCLE">BUILD MUSCLE</option>
                   <option value="LOSE_WEIGHT">FAT LOSS</option>
@@ -298,13 +423,33 @@ export const AuthModal: React.FC = () => {
               </button>
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-[#FFC515] hover:bg-[#E6AF0F] text-black font-extrabold uppercase tracking-wider shadow-[0_0_15px_rgba(255,197,21,0.25)] transition-colors"
+                disabled={loading}
+                className="px-6 py-2.5 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-extrabold uppercase tracking-wider transition-colors disabled:opacity-50"
               >
-                INITIALIZE ACCOUNT
+                {loading ? 'INITIALIZING...' : 'INITIALIZE ACCOUNT'}
               </button>
             </div>
           </form>
         )}
+
+        {/* Footer actions: Firebase Config & Guest continue */}
+        <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono-num">
+          <button
+            type="button"
+            onClick={() => { closeAuthModal(); openFirebaseConfigModal(); }}
+            className="text-zinc-500 hover:text-zinc-300 flex items-center gap-1.5 transition-colors"
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${isFirebaseConnected ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
+            <span>Firebase RTDB: {isFirebaseConnected ? 'Connected' : 'Configure'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={closeAuthModal}
+            className="text-zinc-400 hover:text-white underline transition-colors"
+          >
+            Continue as Guest
+          </button>
+        </div>
 
       </div>
     </div>

@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Menu, X, ArrowRight, Shield } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { user, activeTab, setActiveTab, openAuthModal, logoutUser } = useApp();
+  const { user, activeTab, setActiveTab, openAuthModal, logoutUser, openCalorieModal } = useApp();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -36,11 +36,10 @@ export const Navbar: React.FC = () => {
   };
 
   const navItems = [
-    { id: 'about', label: 'ABOUT', targetSection: 'coach-story-section' },
-    { id: 'coaching', label: 'COACHING', targetSection: 'coaching-philosophy-section' },
-    { id: 'pricing', label: 'PRICING', targetSection: 'rate-cards-section' },
-    { id: 'transformations', label: 'TRANSFORMATIONS', targetSection: 'real-transformations-section' },
-    { id: 'tools', label: 'TOOLS', isDirectTab: true, tabName: 'tools' },
+    { id: 'home', label: 'HOME', tabName: 'home' },
+    { id: 'plan', label: 'PLAN', tabName: 'plan' },
+    { id: 'progress', label: 'PROGRESS', tabName: 'progress' },
+    { id: 'me', label: 'ME', tabName: 'me' },
   ];
 
   return (
@@ -66,24 +65,20 @@ export const Navbar: React.FC = () => {
           <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full inline-block"></span>
         </button>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links: HOME, PLAN, PROGRESS, ME */}
         <nav id="desktop-navigation-links" className="hidden lg:flex items-center gap-8">
           {navItems.map((item) => {
-            const isToolsActive = item.id === 'tools' && activeTab === 'tools';
+            const isActive = activeTab === item.tabName || (item.id === 'plan' && ['tools', 'calculate', 'nutrition', 'train'].includes(activeTab));
             return (
               <button
                 key={item.id}
                 id={`nav-link-${item.id}`}
                 onClick={() => {
-                  if (item.isDirectTab) {
-                    setActiveTab(item.tabName);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else {
-                    handleNavClick(item.targetSection);
-                  }
+                  setActiveTab(item.tabName);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className={`text-xs font-mono-num font-semibold tracking-wider transition-all uppercase ${
-                  isToolsActive
+                  isActive
                     ? 'text-[#FFC515] border-b-2 border-[#FFC515] pb-0.5' 
                     : 'text-white/65 hover:text-[#FFC515]'
                 }`}
@@ -92,6 +87,14 @@ export const Navbar: React.FC = () => {
               </button>
             );
           })}
+
+          <button
+            id="nav-link-coaching"
+            onClick={() => handleNavClick('rate-cards-section')}
+            className="text-xs font-mono-num font-semibold tracking-wider text-white/50 hover:text-white uppercase transition-colors"
+          >
+            COACHING & PRICING
+          </button>
         </nav>
 
         {/* Right CTA Actions: ADMIN, CONNECT, LOGIN, START NOW */}
@@ -155,8 +158,14 @@ export const Navbar: React.FC = () => {
           {/* Primary Action: START NOW */}
           <button
             id="nav-start-now-button"
-            onClick={() => handleNavClick('rate-cards-section')}
-            className="px-4 py-2 text-xs font-mono-num font-extrabold tracking-wider text-black bg-[#FFC515] hover:bg-[#E6AF0F] transition-colors uppercase shadow-[0_0_15px_rgba(255,197,21,0.25)]"
+            onClick={() => {
+              if (!user) {
+                openCalorieModal();
+              } else {
+                handleNavClick('rate-cards-section');
+              }
+            }}
+            className="px-4 py-2 text-xs font-mono-num font-extrabold tracking-wider text-black bg-[#d8ff38] hover:bg-[#c9f028] transition-colors uppercase shadow-[0_0_15px_rgba(216,255,56,0.25)]"
           >
             START NOW
           </button>
@@ -165,8 +174,14 @@ export const Navbar: React.FC = () => {
         {/* Mobile menu toggle */}
         <div className="flex items-center gap-2.5 lg:hidden">
           <button
-            onClick={() => handleNavClick('rate-cards-section')}
-            className="px-3 py-1.5 text-[11px] font-mono-num font-extrabold text-black bg-[#FFC515] uppercase"
+            onClick={() => {
+              if (!user) {
+                openCalorieModal();
+              } else {
+                handleNavClick('rate-cards-section');
+              }
+            }}
+            className="px-3 py-1.5 text-[11px] font-mono-num font-extrabold text-black bg-[#d8ff38] uppercase"
           >
             START NOW
           </button>
@@ -191,13 +206,9 @@ export const Navbar: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => {
-                  if (item.isDirectTab) {
-                    setActiveTab(item.tabName);
-                    setIsMobileMenuOpen(false);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else {
-                    handleNavClick(item.targetSection);
-                  }
+                  setActiveTab(item.tabName);
+                  setIsMobileMenuOpen(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className="w-full text-left py-3 px-4 border border-white/10 bg-[#101014] text-white hover:border-[#FFC515] hover:text-[#FFC515] uppercase font-bold tracking-wider flex items-center justify-between"
               >
@@ -205,6 +216,15 @@ export const Navbar: React.FC = () => {
                 <ArrowRight size={14} className="text-[#FFC515]" />
               </button>
             ))}
+            <button
+              onClick={() => {
+                handleNavClick('rate-cards-section');
+              }}
+              className="w-full text-left py-3 px-4 border border-white/10 bg-[#101014] text-white/70 hover:border-[#FFC515] hover:text-[#FFC515] uppercase font-bold tracking-wider flex items-center justify-between"
+            >
+              <span>COACHING & PRICING</span>
+              <ArrowRight size={14} className="text-[#FFC515]" />
+            </button>
           </div>
 
           <div className="pt-3 border-t border-white/10 space-y-2">
