@@ -25,7 +25,10 @@ export type LeadSource =
   | 'WHATSAPP' 
   | 'INSTAGRAM' 
   | 'REFERRAL' 
-  | 'MANUAL_ENTRY';
+  | 'MANUAL_ENTRY'
+  | 'LOGIN_PORTAL'
+  | 'SIGNUP'
+  | 'WEBSITE_LOGIN';
 
 export type LeadStatus = 
   | 'NEW' 

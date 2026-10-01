@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAdmin } from '../../context/AdminContext';
+import { AdminLoginView } from './AdminLoginView';
 import { AdminLayout } from './AdminLayout';
 import { FullCmsManagerView } from './FullCmsManagerView';
 import { LeadManagementView } from './LeadManagementView';
@@ -13,10 +14,16 @@ import { ChallengesAdminView } from './ChallengesAdminView';
 import { FoodAndDietAdminView } from './FoodAndDietAdminView';
 import { TransformationsAndTestimonialsView } from './TransformationsAndTestimonialsView';
 import { UsersAndAuditLogsView } from './UsersAndAuditLogsView';
+import { AdminUsersView } from './AdminUsersView';
 import { AdminSettingsView } from './AdminSettingsView';
 
 export const AdminView: React.FC = () => {
-  const { activeSubtab } = useAdmin();
+  const { activeSubtab, isAdminAuthenticated } = useAdmin();
+
+  // If not authenticated as admin, show login gate
+  if (!isAdminAuthenticated) {
+    return <AdminLoginView />;
+  }
 
   const renderContent = () => {
     switch (activeSubtab) {
@@ -30,6 +37,9 @@ export const AdminView: React.FC = () => {
       case 'cms-seo':
         return <FullCmsManagerView />;
       
+      case 'users':
+        return <AdminUsersView />;
+
       case 'leads':
         return <LeadManagementView />;
       case 'leads-detail':

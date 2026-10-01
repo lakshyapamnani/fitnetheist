@@ -26,6 +26,7 @@ export const AuthModal: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
 
   // Profile Onboarding variables
   const [age, setAge] = useState(26);
@@ -63,7 +64,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     setAuthError(null);
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(phone.trim() || undefined);
       closeAuthModal();
     } catch (err: any) {
       setAuthError(err?.message || 'Google authentication could not be completed.');
@@ -78,10 +79,14 @@ export const AuthModal: React.FC = () => {
       setAuthError('Please enter your email and password.');
       return;
     }
+    if (!phone.trim()) {
+      setAuthError('Please enter your mobile phone number to connect and sync your profile.');
+      return;
+    }
     setLoading(true);
     setAuthError(null);
     try {
-      await loginUser(email.trim(), password.trim());
+      await loginUser(email.trim(), password.trim(), undefined, phone.trim());
       closeAuthModal();
     } catch (err: any) {
       setAuthError(err?.message || 'Failed to sign in. Please verify your credentials.');
@@ -94,6 +99,10 @@ export const AuthModal: React.FC = () => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !password.trim()) {
       setAuthError('Please enter your full name, email, and password.');
+      return;
+    }
+    if (!phone.trim()) {
+      setAuthError('Please enter your mobile/phone number.');
       return;
     }
     // If pending athlete details exist, proceed directly to complete signup!
@@ -110,6 +119,10 @@ export const AuthModal: React.FC = () => {
       setAuthError('Please provide a valid email and password.');
       return;
     }
+    if (!phone.trim()) {
+      setAuthError('Please enter your mobile phone number.');
+      return;
+    }
     setLoading(true);
     setAuthError(null);
     try {
@@ -118,6 +131,7 @@ export const AuthModal: React.FC = () => {
         email.trim(),
         password.trim(),
         {
+          phone: phone.trim(),
           age,
           sex,
           heightCm,
@@ -126,7 +140,8 @@ export const AuthModal: React.FC = () => {
           dietType,
           cuisine,
           goal
-        }
+        },
+        phone.trim()
       );
       closeAuthModal();
     } catch (err: any) {
@@ -216,7 +231,7 @@ export const AuthModal: React.FC = () => {
         {mode === 'login' && (
           <form onSubmit={handleLoginSubmit} className="space-y-4 font-mono-num text-xs">
             <div>
-              <label className="block text-white/70 uppercase mb-1">EMAIL ADDRESS</label>
+              <label className="block text-white/70 uppercase mb-1">EMAIL ADDRESS *</label>
               <input
                 type="email"
                 required
@@ -228,7 +243,25 @@ export const AuthModal: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-white/70 uppercase mb-1">PASSWORD</label>
+              <label className="block text-white/70 uppercase mb-1 flex items-center justify-between">
+                <span>MOBILE / PHONE NUMBER *</span>
+                <span className="text-[#d8ff38] text-[10px] font-bold">FEEDS TO REALTIME CRM</span>
+              </label>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
+              />
+              <p className="text-[10px] text-zinc-500 mt-1">
+                Your mobile number links your protocol & leads directly to the coach dashboard.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-white/70 uppercase mb-1">PASSWORD *</label>
               <input
                 type="password"
                 required
@@ -245,7 +278,7 @@ export const AuthModal: React.FC = () => {
                 disabled={loading}
                 className="w-full py-3 bg-[#d8ff38] hover:bg-[#c9f028] text-black font-extrabold uppercase tracking-wider text-xs transition-colors disabled:opacity-50"
               >
-                {loading ? 'SIGNING IN...' : 'SIGN IN & SYNC PROFILE'}
+                {loading ? 'SIGNING IN...' : 'SIGN IN & SYNC REALTIME'}
               </button>
             </div>
 
@@ -265,7 +298,7 @@ export const AuthModal: React.FC = () => {
         {mode === 'signup' && step === 'credentials' && (
           <form onSubmit={handleSignupFirstStep} className="space-y-4 font-mono-num text-xs">
             <div>
-              <label className="block text-white/70 uppercase mb-1">FULL ATHLETE NAME</label>
+              <label className="block text-white/70 uppercase mb-1">FULL ATHLETE NAME *</label>
               <input
                 type="text"
                 required
@@ -277,7 +310,22 @@ export const AuthModal: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-white/70 uppercase mb-1">EMAIL ADDRESS</label>
+              <label className="block text-white/70 uppercase mb-1 flex items-center justify-between">
+                <span>MOBILE / PHONE NUMBER *</span>
+                <span className="text-[#d8ff38] text-[10px] font-bold">REQUIRED</span>
+              </label>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-white/70 uppercase mb-1">EMAIL ADDRESS *</label>
               <input
                 type="email"
                 required
@@ -289,7 +337,7 @@ export const AuthModal: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-white/70 uppercase mb-1">CHOOSE PASSWORD</label>
+              <label className="block text-white/70 uppercase mb-1">CHOOSE PASSWORD *</label>
               <input
                 type="password"
                 required

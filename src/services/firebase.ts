@@ -14,7 +14,10 @@ import {
   getDatabase, 
   ref, 
   update, 
+  set,
   get, 
+  onValue,
+  remove,
   Database 
 } from 'firebase/database';
 import { 
@@ -22,6 +25,7 @@ import {
   doc, 
   setDoc, 
   getDoc, 
+  deleteDoc,
   Firestore 
 } from 'firebase/firestore';
 
@@ -281,4 +285,678 @@ export const getUserDataFromRealtimeDb = async (userId: string) => {
   }
 
   return null;
+};
+
+/**
+ * Realtime Database All Athletes / User Logins Listener
+ */
+export const listenToRealtimeAthletes = (callback: (athletes: any[]) => void) => {
+  if (!db) {
+    return () => {};
+  }
+
+  try {
+    const athletesRef = ref(db, 'athletes');
+    const unsubscribe = onValue(athletesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const athletesList = Object.keys(val).map(key => {
+          const item = val[key];
+          const profile = item.profile || item;
+          return {
+            id: key,
+            ...item,
+            ...profile,
+            userId: key
+          };
+        });
+        callback(athletesList);
+      } else {
+        callback([]);
+      }
+    }, (error) => {
+      console.warn('Realtime Database athletes listener notice:', error);
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  } catch (err) {
+    console.warn('Could not attach realtime athletes listener:', err);
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Leads Synchronization
+ */
+export const saveLeadToRealtimeDb = async (lead: Record<string, any>) => {
+  if (!lead || !lead.id) return;
+
+  const payload = {
+    ...lead,
+    lastSyncedAt: new Date().toISOString()
+  };
+
+  // 1. Push / set into Realtime Database
+  if (db) {
+    try {
+      const leadRef = ref(db, `leads/${lead.id}`);
+      await set(leadRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database lead sync notice:', err);
+    }
+  }
+
+  // 2. Mirror into Firestore
+  if (firestore) {
+    try {
+      const leadDoc = doc(firestore, 'leads', lead.id);
+      await setDoc(leadDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore lead sync notice:', err);
+    }
+  }
+};
+
+export const deleteLeadFromRealtimeDb = async (leadId: string) => {
+  if (!leadId) return;
+  if (db) {
+    try {
+      const leadRef = ref(db, `leads/${leadId}`);
+      await remove(leadRef);
+    } catch (err) {
+      console.warn('Realtime Database lead delete notice:', err);
+    }
+  }
+};
+
+export const listenToRealtimeLeads = (callback: (leads: any[]) => void) => {
+  if (!db) {
+    return () => {};
+  }
+
+  try {
+    const leadsRef = ref(db, 'leads');
+    const unsubscribe = onValue(leadsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const leadsList = Object.keys(val).map(key => ({
+          ...val[key],
+          id: val[key].id || key
+        }));
+        callback(leadsList);
+      } else {
+        callback([]);
+      }
+    }, (error) => {
+      console.warn('Realtime Database leads listener notice:', error);
+    });
+
+    return () => {
+      // Unsubscribe callback
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  } catch (err) {
+    console.warn('Could not attach realtime leads listener:', err);
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Customer Synchronization
+ */
+export const saveCustomerToRealtimeDb = async (customer: Record<string, any>) => {
+  if (!customer || !customer.id) return;
+
+  const payload = {
+    ...customer,
+    lastSyncedAt: new Date().toISOString()
+  };
+
+  if (db) {
+    try {
+      const custRef = ref(db, `customers/${customer.id}`);
+      await set(custRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database customer sync notice:', err);
+    }
+  }
+
+  if (firestore) {
+    try {
+      const custDoc = doc(firestore, 'customers', customer.id);
+      await setDoc(custDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore customer sync notice:', err);
+    }
+  }
+};
+
+export const listenToRealtimeCustomers = (callback: (customers: any[]) => void) => {
+  if (!db) {
+    return () => {};
+  }
+
+  try {
+    const custRef = ref(db, 'customers');
+    const unsubscribe = onValue(custRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const custList = Object.keys(val).map(key => ({
+          ...val[key],
+          id: val[key].id || key
+        }));
+        callback(custList);
+      } else {
+        callback([]);
+      }
+    }, (error) => {
+      console.warn('Realtime Database customers listener notice:', error);
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  } catch (err) {
+    console.warn('Could not attach realtime customers listener:', err);
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Diet Plans Synchronization
+ */
+export const saveDietPlanToRealtimeDb = async (userId: string, dietPlan: Record<string, any>) => {
+  if (!dietPlan) return;
+  const payload = {
+    ...dietPlan,
+    userId: userId || 'anonymous',
+    generatedAt: new Date().toISOString()
+  };
+
+  if (db) {
+    try {
+      const planRef = ref(db, `dietPlans/${userId}`);
+      await set(planRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database diet plan sync notice:', err);
+    }
+  }
+
+  if (firestore) {
+    try {
+      const planDoc = doc(firestore, 'dietPlans', userId);
+      await setDoc(planDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore diet plan sync notice:', err);
+    }
+  }
+};
+
+export const getDietPlanFromRealtimeDb = async (userId: string) => {
+  if (!userId) return null;
+  if (db) {
+    try {
+      const planRef = ref(db, `dietPlans/${userId}`);
+      const snap = await get(planRef);
+      if (snap.exists()) return snap.val();
+    } catch (e) {}
+  }
+  return null;
+};
+
+/**
+ * Realtime Database Workout Plans Synchronization
+ */
+export const saveWorkoutPlanToRealtimeDb = async (userId: string, workoutPlan: Record<string, any>) => {
+  if (!workoutPlan) return;
+  const payload = {
+    ...workoutPlan,
+    userId: userId || 'anonymous',
+    generatedAt: new Date().toISOString()
+  };
+
+  if (db) {
+    try {
+      const workoutRef = ref(db, `workoutPlans/${userId}`);
+      await set(workoutRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database workout plan sync notice:', err);
+    }
+  }
+
+  if (firestore) {
+    try {
+      const workoutDoc = doc(firestore, 'workoutPlans', userId);
+      await setDoc(workoutDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore workout plan sync notice:', err);
+    }
+  }
+};
+
+export const getWorkoutPlanFromRealtimeDb = async (userId: string) => {
+  if (!userId) return null;
+  if (db) {
+    try {
+      const workoutRef = ref(db, `workoutPlans/${userId}`);
+      const snap = await get(workoutRef);
+      if (snap.exists()) return snap.val();
+    } catch (e) {}
+  }
+  return null;
+};
+
+export const listenToRealtimeWorkoutPlans = (callback: (workoutPlans: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const workoutRef = ref(db, 'workoutPlans');
+    const unsubscribe = onValue(workoutRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const plansList = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(plansList);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+export const saveCustomWorkoutToRealtimeDb = async (workout: Record<string, any>) => {
+  if (!workout || !workout.id) return;
+  const payload = {
+    ...workout,
+    lastSyncedAt: new Date().toISOString()
+  };
+  if (db) {
+    try {
+      const wRef = ref(db, `workouts/${workout.id}`);
+      await set(wRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database workout sync notice:', err);
+    }
+  }
+  if (firestore) {
+    try {
+      const wDoc = doc(firestore, 'workouts', workout.id);
+      await setDoc(wDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore workout sync notice:', err);
+    }
+  }
+};
+
+export const deleteCustomWorkoutFromRealtimeDb = async (workoutId: string) => {
+  if (!workoutId) return;
+  if (db) {
+    try {
+      const wRef = ref(db, `workouts/${workoutId}`);
+      await remove(wRef);
+    } catch (err) {
+      console.warn('Realtime Database workout deletion notice:', err);
+    }
+  }
+  if (firestore) {
+    try {
+      const wDoc = doc(firestore, 'workouts', workoutId);
+      await deleteDoc(wDoc);
+    } catch (err) {
+      console.warn('Firestore workout deletion notice:', err);
+    }
+  }
+};
+
+export const listenToRealtimeWorkouts = (callback: (workouts: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const wRef = ref(db, 'workouts');
+    const unsubscribe = onValue(wRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Invoices Synchronization
+ */
+export const saveInvoiceToRealtimeDb = async (invoice: Record<string, any>) => {
+  if (!invoice || !invoice.id) return;
+  const payload = {
+    ...invoice,
+    lastSyncedAt: new Date().toISOString()
+  };
+  if (db) {
+    try {
+      const invRef = ref(db, `invoices/${invoice.id}`);
+      await set(invRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database invoice sync notice:', err);
+    }
+  }
+  if (firestore) {
+    try {
+      const invDoc = doc(firestore, 'invoices', invoice.id);
+      await setDoc(invDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore invoice sync notice:', err);
+    }
+  }
+};
+
+export const deleteInvoiceFromRealtimeDb = async (invoiceId: string) => {
+  if (!invoiceId) return;
+  if (db) {
+    try {
+      const invRef = ref(db, `invoices/${invoiceId}`);
+      await remove(invRef);
+    } catch (err) {
+      console.warn('Realtime Database invoice deletion notice:', err);
+    }
+  }
+  if (firestore) {
+    try {
+      const invDoc = doc(firestore, 'invoices', invoiceId);
+      await deleteDoc(invDoc);
+    } catch (err) {
+      console.warn('Firestore invoice deletion notice:', err);
+    }
+  }
+};
+
+export const listenToRealtimeInvoices = (callback: (invoices: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const invRef = ref(db, 'invoices');
+    const unsubscribe = onValue(invRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Calorie Target Calculations
+ */
+export const saveCalorieCalculationToRealtimeDb = async (userId: string, calculation: Record<string, any>) => {
+  if (!calculation) return;
+  const payload = {
+    ...calculation,
+    userId: userId || 'anonymous',
+    calculatedAt: new Date().toISOString()
+  };
+
+  if (db) {
+    try {
+      const calcRef = ref(db, `calorieCalculations/${userId}`);
+      await set(calcRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database calorie target sync notice:', err);
+    }
+  }
+};
+
+/**
+ * Realtime Database Daily Logs & Tracking
+ */
+export const saveDailyLogToRealtimeDb = async (userId: string, log: Record<string, any>) => {
+  if (!log || !log.id) return;
+  if (db) {
+    try {
+      const logRef = ref(db, `dailyLogs/${userId}/${log.id}`);
+      await set(logRef, log);
+    } catch (err) {
+      console.warn('Realtime Database daily log sync notice:', err);
+    }
+  }
+};
+
+export const listenToUserDailyLogs = (userId: string, callback: (logs: any[]) => void) => {
+  if (!db || !userId) return () => {};
+  try {
+    const logsRef = ref(db, `dailyLogs/${userId}`);
+    const unsubscribe = onValue(logsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const logsList = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(logsList);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Community Posts & Interactions
+ */
+export const saveCommunityPostToRealtimeDb = async (post: Record<string, any>) => {
+  if (!post || !post.id) return;
+  if (db) {
+    try {
+      const postRef = ref(db, `communityPosts/${post.id}`);
+      await set(postRef, post);
+    } catch (err) {
+      console.warn('Realtime Database post sync notice:', err);
+    }
+  }
+};
+
+export const listenToCommunityPosts = (callback: (posts: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const postsRef = ref(db, 'communityPosts');
+    const unsubscribe = onValue(postsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const postsList = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(postsList);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Exercise Database & Form Video Synchronization
+ */
+export const saveExerciseDatabaseToRealtimeDb = async (exercises: any[]) => {
+  if (!exercises || !Array.isArray(exercises)) return;
+  if (db) {
+    try {
+      const exercisesRef = ref(db, 'exercisesLibrary');
+      const dataObj: Record<string, any> = {};
+      exercises.forEach(ex => {
+        if (ex && ex.id) dataObj[ex.id] = ex;
+      });
+      await set(exercisesRef, dataObj);
+    } catch (err) {
+      console.warn('Realtime Database exercises sync notice:', err);
+    }
+  }
+};
+
+export const saveSingleExerciseToRealtimeDb = async (exercise: any) => {
+  if (!exercise || !exercise.id) return;
+  if (db) {
+    try {
+      const exRef = ref(db, `exercisesLibrary/${exercise.id}`);
+      await set(exRef, exercise);
+    } catch (err) {
+      console.warn('Realtime Database exercise sync notice:', err);
+    }
+  }
+};
+
+export const deleteSingleExerciseFromRealtimeDb = async (exerciseId: string) => {
+  if (!exerciseId) return;
+  if (db) {
+    try {
+      const exRef = ref(db, `exercisesLibrary/${exerciseId}`);
+      await remove(exRef);
+    } catch (err) {}
+  }
+};
+
+export const listenToRealtimeExercises = (callback: (exercises: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const exercisesRef = ref(db, 'exercisesLibrary');
+    const unsubscribe = onValue(exercisesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database Food & Nutrition Database Synchronization
+ */
+export const saveFoodDatabaseToRealtimeDb = async (foods: any[]) => {
+  if (!foods || !Array.isArray(foods)) return;
+  if (db) {
+    try {
+      const foodsRef = ref(db, 'foodDatabase');
+      const dataObj: Record<string, any> = {};
+      foods.forEach(f => {
+        if (f && f.id) dataObj[f.id] = f;
+      });
+      await set(foodsRef, dataObj);
+    } catch (err) {
+      console.warn('Realtime Database food database sync notice:', err);
+    }
+  }
+};
+
+export const saveSingleFoodToRealtimeDb = async (food: any) => {
+  if (!food || !food.id) return;
+  if (db) {
+    try {
+      const foodRef = ref(db, `foodDatabase/${food.id}`);
+      await set(foodRef, food);
+    } catch (err) {}
+  }
+};
+
+export const deleteSingleFoodFromRealtimeDb = async (foodId: string) => {
+  if (!foodId) return;
+  if (db) {
+    try {
+      const foodRef = ref(db, `foodDatabase/${foodId}`);
+      await remove(foodRef);
+    } catch (err) {}
+  }
+};
+
+export const listenToRealtimeFoods = (callback: (foods: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const foodsRef = ref(db, 'foodDatabase');
+    const unsubscribe = onValue(foodsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * Realtime Database CMS Synchronization
+ */
+export const saveCMSPagesToRealtimeDb = async (pages: any[]) => {
+  if (!pages || !Array.isArray(pages)) return;
+  if (db) {
+    try {
+      const pagesRef = ref(db, 'cmsPages');
+      const dataObj: Record<string, any> = {};
+      pages.forEach(p => {
+        if (p && p.id) dataObj[p.id] = p;
+      });
+      await set(pagesRef, dataObj);
+    } catch (err) {}
+  }
+};
+
+export const listenToRealtimeCMSPages = (callback: (pages: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const pagesRef = ref(db, 'cmsPages');
+    const unsubscribe = onValue(pagesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
 };

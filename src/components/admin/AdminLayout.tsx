@@ -6,6 +6,7 @@ import {
   LayoutDashboard, 
   Users, 
   UserCheck, 
+  UserPlus,
   Trophy, 
   Dumbbell, 
   Activity, 
@@ -29,7 +30,8 @@ import {
   ChevronDown,
   Menu,
   X,
-  Plus
+  Plus,
+  LogOut
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -48,7 +50,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     leads,
     customers,
     orders,
-    invoices
+    invoices,
+    adminLogout
   } = useAdmin();
   
   const { setActiveTab } = useApp();
@@ -76,7 +79,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       return ['cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
     }
     if (currentRole === 'SALES_LEAD_MANAGER') {
-      return ['leads', 'leads-detail', 'clients', 'clients-detail', 'invoices', 'orders'].includes(subtab);
+      return ['users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'invoices', 'orders'].includes(subtab);
     }
     return true;
   };
@@ -91,6 +94,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           desc: 'Pages, Blog, FAQs, Media & Proof',
           icon: Layers, 
           badge: 'Live' 
+        },
+        { 
+          id: 'users' as AdminSubtab, 
+          label: 'Users & Logins', 
+          desc: 'Athlete Logins & Portal Accounts',
+          icon: UserPlus, 
+          badge: 'Realtime' 
         },
         { 
           id: 'leads' as AdminSubtab, 
@@ -258,6 +268,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           >
             <span className="hidden sm:inline">LIVE SITE</span>
             <ExternalLink size={13} />
+          </button>
+
+          {/* Admin Logout / Lock Console */}
+          <button
+            onClick={adminLogout}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-red-950/40 hover:bg-red-600 hover:text-white border border-red-500/30 text-red-300 uppercase font-bold tracking-wider transition-colors"
+            title="Lock Admin Console & Sign Out"
+          >
+            <LogOut size={13} />
+            <span className="hidden sm:inline">LOGOUT</span>
           </button>
 
         </div>

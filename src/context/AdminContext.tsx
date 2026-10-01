@@ -41,6 +41,16 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_LEAD_SCORING_RULES
 } from '../data/adminInitialData';
+import {
+  saveLeadToRealtimeDb,
+  deleteLeadFromRealtimeDb,
+  listenToRealtimeLeads,
+  saveCustomerToRealtimeDb,
+  listenToRealtimeCustomers,
+  saveInvoiceToRealtimeDb,
+  deleteInvoiceFromRealtimeDb,
+  listenToRealtimeInvoices
+} from '../services/firebase';
 
 export type AdminSubtab = 
   | 'dashboard'
@@ -73,7 +83,10 @@ export type AdminSubtab =
   | 'settings';
 
 interface AdminContextType {
-  // Access control & navigation
+  // Authentication & Access control
+  isAdminAuthenticated: boolean;
+  adminLogin: (username: string, password: string, remember?: boolean) => boolean;
+  adminLogout: () => void;
   currentRole: AdminRole;
   setCurrentRole: (role: AdminRole) => void;
   activeSubtab: AdminSubtab;
@@ -131,6 +144,7 @@ interface AdminContextType {
   customers: Customer[];
   addCustomer: (data: Partial<Customer>) => Customer;
   convertLeadToCustomer: (leadId: string, clientDetails?: Partial<Customer>) => Customer;
+  convertLeadToClient: (leadId: string, clientDetails?: Partial<Customer>) => Customer;
   updateCustomer: (customerId: string, data: Partial<Customer>) => void;
   deleteCustomer: (customerId: string) => void;
   addClientCheckIn: (customerId: string, checkIn: Omit<ClientCheckIn, 'id'>) => void;
@@ -197,6 +211,43 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Admin Authentication State (default credentials: admin / admin123)
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const sessionAuth = sessionStorage.getItem('fitnetheist_admin_auth');
+      if (sessionAuth === 'true') return true;
+      const localAuth = localStorage.getItem('fitnetheist_admin_auth');
+      if (localAuth === 'true') return true;
+    } catch {}
+    return false;
+  });
+
+  const adminLogin = (username: string, password: string, remember: boolean = true): boolean => {
+    const normalizedUser = (username || '').trim().toLowerCase();
+    const normalizedPass = (password || '').trim();
+
+    if (normalizedUser === 'admin' && normalizedPass === 'admin123') {
+      setIsAdminAuthenticated(true);
+      try {
+        sessionStorage.setItem('fitnetheist_admin_auth', 'true');
+        if (remember) {
+          localStorage.setItem('fitnetheist_admin_auth', 'true');
+        }
+      } catch {}
+      return true;
+    }
+    return false;
+  };
+
+  const adminLogout = () => {
+    setIsAdminAuthenticated(false);
+    try {
+      sessionStorage.removeItem('fitnetheist_admin_auth');
+      localStorage.removeItem('fitnetheist_admin_auth');
+    } catch {}
+  };
+
   const [currentRole, setCurrentRole] = useState<AdminRole>('SUPER_ADMIN');
   const [activeSubtab, setActiveSubtab] = useState<AdminSubtab>('cms');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -420,6 +471,77 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('fitnetheist_invoices', JSON.stringify(invoices));
   }, [invoices]);
 
+  // Real-time Firebase database listeners for Leads & Customers
+  useEffect(() => {
+    const unsubLeads = listenToRealtimeLeads((remoteLeads) => {
+      if (Array.isArray(remoteLeads) && remoteLeads.length > 0) {
+        setLeads(prev => {
+          const map = new Map<string, Lead>();
+          (prev || []).forEach(l => {
+            if (l && l.id) map.set(l.id, l);
+          });
+          remoteLeads.forEach((rl: any) => {
+            if (rl && rl.id) {
+              const existing = map.get(rl.id);
+              map.set(rl.id, {
+                ...existing,
+                ...rl,
+                tags: Array.isArray(rl.tags) ? rl.tags : existing?.tags || [],
+                notes: Array.isArray(rl.notes) ? rl.notes : existing?.notes || [],
+                activities: Array.isArray(rl.activities) ? rl.activities : existing?.activities || []
+              });
+            }
+          });
+          return Array.from(map.values()).sort((a, b) => 
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          );
+        });
+      }
+    });
+
+    const unsubCust = listenToRealtimeCustomers((remoteCusts) => {
+      if (Array.isArray(remoteCusts) && remoteCusts.length > 0) {
+        setCustomers(prev => {
+          const map = new Map<string, Customer>();
+          (prev || []).forEach(c => {
+            if (c && c.id) map.set(c.id, c);
+          });
+          remoteCusts.forEach((rc: any) => {
+            if (rc && rc.id) {
+              const existing = map.get(rc.id);
+              map.set(rc.id, { ...existing, ...rc });
+            }
+          });
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    const unsubInvoices = listenToRealtimeInvoices((remoteInvoices) => {
+      if (Array.isArray(remoteInvoices) && remoteInvoices.length > 0) {
+        setInvoices(prev => {
+          const map = new Map<string, Invoice>();
+          (prev || []).forEach(inv => {
+            if (inv && inv.id) map.set(inv.id, inv);
+          });
+          remoteInvoices.forEach((ri: any) => {
+            if (ri && ri.id) {
+              const existing = map.get(ri.id);
+              map.set(ri.id, { ...existing, ...ri });
+            }
+          });
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    return () => {
+      unsubLeads();
+      unsubCust();
+      unsubInvoices();
+    };
+  }, []);
+
   // Log an audit action helper
   const logAuditAction = (action: string, targetResource: string, oldValue?: string, newValue?: string) => {
     const newLog: AuditLog = {
@@ -563,6 +685,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       updatedLeads[existingIndex] = updatedLead;
       setLeads(updatedLeads);
 
+      // Realtime Database Sync
+      saveLeadToRealtimeDb(updatedLead);
+
       // Notification
       const newNotif: AdminNotification = {
         id: `notif_${Date.now()}`,
@@ -638,6 +763,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       };
 
       setLeads(prev => [newLead, ...prev]);
+
+      // Realtime Database Sync
+      saveLeadToRealtimeDb(newLead);
 
       // Notification
       const newNotif: AdminNotification = {
@@ -820,6 +948,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteLead = (leadId: string) => {
     setLeads(prev => prev.filter(l => l.id !== leadId));
+    deleteLeadFromRealtimeDb(leadId);
     logAuditAction('DELETED_LEAD', leadId);
   };
 
@@ -904,6 +1033,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     setCustomers(prev => [newCustomer, ...(prev || [])]);
+    saveCustomerToRealtimeDb(newCustomer);
     logAuditAction('CREATED_NEW_CLIENT', newCustomer.name, undefined, `${newCustomer.programTier} (Assigned: ${newCustomer.assignedCoach})`);
 
     const newNotif: AdminNotification = {
@@ -1021,6 +1151,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return l;
     }));
 
+    // Realtime Database Sync
+    saveCustomerToRealtimeDb(newCustomer);
+    if (lead) {
+      saveLeadToRealtimeDb({
+        ...lead,
+        status: 'CONVERTED',
+        lastUpdated: new Date().toISOString()
+      });
+    }
+
     logAuditAction('CONVERTED_LEAD_TO_CLIENT', newCustomer.name, lead?.status, 'CONVERTED');
 
     const newNotif: AdminNotification = {
@@ -1096,16 +1236,28 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Invoice & Receipt operations
   const createInvoice = (invoice: Invoice) => {
     setInvoices(prev => [invoice, ...(prev || [])]);
+    saveInvoiceToRealtimeDb(invoice);
     logAuditAction('CREATED_INVOICE_RECEIPT', invoice.invoiceNumber, undefined, `₹${invoice.totalAmount} (${invoice.type}) for ${invoice.clientName}`);
   };
 
   const updateInvoiceStatus = (id: string, status: InvoiceStatus) => {
-    setInvoices(prev => (prev || []).map(inv => inv.id === id ? { ...inv, status } : inv));
+    let updatedInv: Invoice | undefined;
+    setInvoices(prev => (prev || []).map(inv => {
+      if (inv.id === id) {
+        updatedInv = { ...inv, status };
+        return updatedInv;
+      }
+      return inv;
+    }));
+    if (updatedInv) {
+      saveInvoiceToRealtimeDb(updatedInv);
+    }
     logAuditAction('UPDATED_INVOICE_STATUS', id, undefined, status);
   };
 
   const deleteInvoice = (id: string) => {
     setInvoices(prev => (prev || []).filter(inv => inv.id !== id));
+    deleteInvoiceFromRealtimeDb(id);
     logAuditAction('DELETED_INVOICE', id);
   };
 
@@ -1266,6 +1418,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   return (
     <AdminContext.Provider value={{
+      isAdminAuthenticated,
+      adminLogin,
+      adminLogout,
       currentRole,
       setCurrentRole,
       activeSubtab,
@@ -1292,6 +1447,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       customers,
       addCustomer,
       convertLeadToCustomer,
+      convertLeadToClient: convertLeadToCustomer,
       updateCustomer,
       deleteCustomer,
       addClientCheckIn,

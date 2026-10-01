@@ -16,7 +16,13 @@ import {
   MoreVertical,
   CheckCircle2,
   Clock,
-  IndianRupee
+  IndianRupee,
+  Sparkles,
+  Zap,
+  MessageSquare,
+  Database,
+  ExternalLink,
+  UserCheck
 } from 'lucide-react';
 
 export const LeadManagementView: React.FC = () => {
@@ -25,8 +31,10 @@ export const LeadManagementView: React.FC = () => {
     updateLeadStatus, 
     assignLead, 
     setSelectedLeadId, 
+    setSelectedCustomerId,
     setActiveSubtab, 
-    captureLead 
+    captureLead,
+    convertLeadToCustomer
   } = useAdmin();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +42,7 @@ export const LeadManagementView: React.FC = () => {
   const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('ALL');
   const [selectedScoreFilter, setSelectedScoreFilter] = useState<string>('ALL');
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  const [justConvertedLeadId, setJustConvertedLeadId] = useState<string | null>(null);
 
   // Form state for creating a new manual lead
   const [newLeadName, setNewLeadName] = useState('');
@@ -87,6 +96,15 @@ export const LeadManagementView: React.FC = () => {
     setNewLeadNote('');
   };
 
+  const handleConvertLeadClick = (e: React.MouseEvent, leadId: string) => {
+    e.stopPropagation();
+    const newCust = convertLeadToCustomer(leadId);
+    setJustConvertedLeadId(leadId);
+    setTimeout(() => {
+      setJustConvertedLeadId(null);
+    }, 4000);
+  };
+
   const statusTabs = [
     { key: 'ALL', label: 'All Inquiries', count: safeLeads.length },
     { key: 'NEW', label: 'New', count: safeLeads.filter(l => l?.status === 'NEW').length },
@@ -115,6 +133,29 @@ export const LeadManagementView: React.FC = () => {
   return (
     <div id="lead-management-crm-view" className="space-y-6 max-w-7xl mx-auto font-mono-num text-xs">
       
+      {/* Firebase Realtime Sync Status Banner */}
+      <div className="bg-[#14141c] border border-emerald-500/30 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-sm">
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <div className="flex items-center gap-2">
+            <Database size={13} className="text-emerald-400" />
+            <span className="text-[11px] font-extrabold text-white uppercase tracking-wider">
+              FIREBASE REALTIME DB LIVE SYNC: ACTIVE
+            </span>
+            <span className="text-[10px] text-zinc-400 font-mono hidden md:inline">
+              (fitnetheist-b553b-default-rtdb.firebaseio.com)
+            </span>
+          </div>
+        </div>
+
+        <span className="text-[10px] text-zinc-400 font-mono-num">
+          ⚡ All user logins & mobile numbers feed into this pipeline immediately in real-time.
+        </span>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
@@ -128,7 +169,7 @@ export const LeadManagementView: React.FC = () => {
             LEAD MANAGEMENT
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Website calculator submissions, diet plan exports, and challenge enrollments captured in real time.
+            User login portal sign-ins, website calculations, and mobile contacts synced live to Realtime DB.
           </p>
         </div>
 
@@ -184,7 +225,7 @@ export const LeadManagementView: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by Name, Phone (+91...), or Email..."
+            placeholder="Search by Name, Mobile (+91...), or Email..."
             className="w-full bg-zinc-950 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           />
         </div>
@@ -197,12 +238,13 @@ export const LeadManagementView: React.FC = () => {
             className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           >
             <option value="ALL">ALL SOURCES</option>
+            <option value="LOGIN_PORTAL">USER LOGIN PORTAL</option>
+            <option value="SIGNUP">SIGNUP REGISTRATION</option>
             <option value="CALORIE_CALCULATOR">CALORIE CALCULATOR</option>
             <option value="DIET_GENERATOR">DIET GENERATOR</option>
             <option value="WORKOUT_PLANNER">WORKOUT PLANNER</option>
             <option value="CHALLENGE">CHALLENGES</option>
             <option value="CONTACT_FORM">CONTACT FORM</option>
-            <option value="INSTAGRAM">INSTAGRAM</option>
             <option value="WHATSAPP">WHATSAPP</option>
           </select>
         </div>
@@ -221,12 +263,9 @@ export const LeadManagementView: React.FC = () => {
           </select>
         </div>
 
-        {/* Results summary */}
-        <div className="flex items-center justify-between px-3 py-2.5 bg-zinc-950 border border-white/10 text-zinc-400 rounded-sm">
-          <span>SHOWING:</span>
-          <span className="text-[#FFC515] font-bold">{filteredLeads.length} of {leads.length}</span>
+        <div className="flex items-center justify-end text-zinc-400 text-[11px] pr-2">
+          <span>Displaying <strong>{filteredLeads.length}</strong> inquiries</span>
         </div>
-
       </div>
 
       {/* Main Leads CRM Table */}
@@ -236,19 +275,18 @@ export const LeadManagementView: React.FC = () => {
             <thead>
               <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
                 <th className="p-3.5">ATHLETE NAME</th>
-                <th className="p-3.5">CONTACT INFO</th>
-                <th className="p-3.5">EST. VALUE</th>
+                <th className="p-3.5">MOBILE & CONTACT</th>
+                <th className="p-3.5">SOURCE</th>
                 <th className="p-3.5">INTENT SCORE</th>
-                <th className="p-3.5">STATUS</th>
-                <th className="p-3.5">ASSIGNED TO</th>
-                <th className="p-3.5">FOLLOW-UP</th>
+                <th className="p-3.5">STAGE STATUS</th>
+                <th className="p-3.5 text-center">CONVERT TO CLIENT</th>
                 <th className="p-3.5 text-right">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-zinc-500">
+                  <td colSpan={7} className="p-8 text-center text-zinc-500">
                     No leads matching current search & filter criteria.
                   </td>
                 </tr>
@@ -256,6 +294,8 @@ export const LeadManagementView: React.FC = () => {
                 filteredLeads.map(lead => {
                   const isHot = lead.scoreClassification === 'HOT';
                   const isWarm = lead.scoreClassification === 'WARM';
+                  const isConverted = lead.status === 'CONVERTED';
+                  const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '');
 
                   return (
                     <tr 
@@ -269,33 +309,51 @@ export const LeadManagementView: React.FC = () => {
                       {/* Name & Goal */}
                       <td className="p-3.5 font-bold text-white">
                         <div className="flex items-center gap-2">
-                          <span className="group-hover:text-[#FFC515] transition-colors">{lead.name}</span>
+                          <span className="group-hover:text-[#FFC515] transition-colors font-bold text-sm">{lead.name}</span>
                           {isHot && (
                             <span title="Hot Lead" className="text-[#FFC515]">
-                              <Flame size={13} />
+                              <Flame size={14} />
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-zinc-500 uppercase block mt-0.5">
-                          via {lead.source.replace(/_/g, ' ')}
+                        <span className="text-[10px] text-zinc-400 block mt-0.5 font-normal">
+                          Goal: <strong className="text-zinc-300">{lead.goal?.replace(/_/g, ' ') || 'Fat Loss / Muscle'}</strong>
                         </span>
                       </td>
 
                       {/* Contact Info */}
-                      <td className="p-3.5 text-zinc-300">
-                        <div className="flex items-center gap-1.5 text-zinc-200">
-                          <Phone size={11} className="text-zinc-500" />
-                          <span>{lead.phone}</span>
+                      <td className="p-3.5 text-zinc-300" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-[#FFC515] font-bold">
+                            <Phone size={12} className="text-[#FFC515]" />
+                            <span>{lead.phone || 'No phone captured'}</span>
+                          </div>
+                          {cleanPhone && (
+                            <a
+                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hi ${lead.name}, this is the Fitnetheist coaching desk regarding your fitness plan.`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="Direct WhatsApp"
+                              className="p-1 bg-emerald-950 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-400 rounded-xs transition-colors"
+                            >
+                              <MessageSquare size={11} />
+                            </a>
+                          )}
                         </div>
-                        <div className="flex items-center gap-1.5 text-zinc-500 text-[10px] mt-0.5">
+                        <div className="flex items-center gap-1.5 text-zinc-500 text-[10px] mt-1">
                           <Mail size={11} />
-                          <span className="truncate max-w-[140px]">{lead.email}</span>
+                          <span className="truncate max-w-[170px]">{lead.email}</span>
                         </div>
                       </td>
 
-                      {/* Est Value in INR */}
-                      <td className="p-3.5 font-extrabold text-white">
-                        ₹{lead.estimatedValue.toLocaleString('en-IN')}
+                      {/* Source */}
+                      <td className="p-3.5 text-zinc-300">
+                        <span className="px-2 py-0.5 bg-zinc-900 border border-white/10 text-zinc-300 text-[10px] font-bold rounded-xs uppercase">
+                          {lead.source.replace(/_/g, ' ')}
+                        </span>
+                        <span className="text-[10px] text-zinc-500 block mt-1">
+                          {new Date(lead.createdAt).toLocaleDateString()}
+                        </span>
                       </td>
 
                       {/* Score Badge */}
@@ -320,7 +378,7 @@ export const LeadManagementView: React.FC = () => {
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value as LeadStatus)}
                           className={`text-[10px] font-bold px-2 py-1 uppercase bg-zinc-900 border rounded-xs focus:outline-none ${
                             lead.status === 'CONVERTED' 
-                              ? 'text-[#FFC515] border-[#FFC515]' 
+                              ? 'text-emerald-400 border-emerald-500 bg-emerald-950/30' 
                               : lead.status === 'QUALIFIED' 
                                 ? 'text-amber-300 border-amber-500' 
                                 : lead.status === 'NEW' 
@@ -333,22 +391,37 @@ export const LeadManagementView: React.FC = () => {
                           <option value="QUALIFIED">QUALIFIED</option>
                           <option value="INTERESTED">INTERESTED</option>
                           <option value="FOLLOW_UP">FOLLOW-UP</option>
-                          <option value="CONVERTED">CONVERTED</option>
+                          <option value="CONVERTED">CONVERTED (CLIENT)</option>
                           <option value="LOST">LOST</option>
                         </select>
                       </td>
 
-                      {/* Assigned Staff */}
-                      <td className="p-3.5 text-zinc-400 text-[11px]">
-                        <span className="truncate max-w-[130px] block">{lead.assignedTo}</span>
-                      </td>
-
-                      {/* Next Follow-Up */}
-                      <td className="p-3.5 text-zinc-400 text-[11px]">
-                        {lead.nextFollowUpDate ? (
-                          <span className="text-[#FFC515] font-bold">{lead.nextFollowUpDate}</span>
+                      {/* Convert into Client Button */}
+                      <td className="p-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                        {isConverted || justConvertedLeadId === lead.id ? (
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 font-bold text-[10px] uppercase rounded-xs">
+                            <CheckCircle2 size={12} className="text-emerald-400" />
+                            <span>CLIENT CREATED</span>
+                            <button
+                              onClick={() => {
+                                setActiveSubtab('clients');
+                              }}
+                              className="ml-1 underline hover:text-white"
+                              title="View in Roster"
+                            >
+                              ROSTER →
+                            </button>
+                          </div>
                         ) : (
-                          <span className="text-zinc-600">None set</span>
+                          <button
+                            type="button"
+                            onClick={(e) => handleConvertLeadClick(e, lead.id)}
+                            className="px-3 py-1.5 bg-[#FFC515] hover:bg-[#e6b010] text-black font-extrabold uppercase text-[10px] tracking-wider inline-flex items-center gap-1.5 transition-transform active:scale-95 shadow-sm rounded-xs"
+                            title="Instantly convert this lead into an active coaching client in Realtime DB"
+                          >
+                            <Zap size={11} className="fill-black" />
+                            <span>CONVERT INTO CLIENT</span>
+                          </button>
                         )}
                       </td>
 
@@ -418,9 +491,10 @@ export const LeadManagementView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-zinc-400 uppercase mb-1">PHONE NUMBER</label>
+                  <label className="block text-zinc-400 uppercase mb-1">MOBILE NUMBER *</label>
                   <input
                     type="text"
+                    required
                     value={newLeadPhone}
                     onChange={(e) => setNewLeadPhone(e.target.value)}
                     placeholder="e.g. +91 98200 11223"
@@ -438,6 +512,7 @@ export const LeadManagementView: React.FC = () => {
                     className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   >
                     <option value="MANUAL_ENTRY">MANUAL ENTRY</option>
+                    <option value="LOGIN_PORTAL">LOGIN PORTAL</option>
                     <option value="WHATSAPP">WHATSAPP DESK</option>
                     <option value="INSTAGRAM">INSTAGRAM DM</option>
                     <option value="REFERRAL">ATHLETE REFERRAL</option>
@@ -450,22 +525,21 @@ export const LeadManagementView: React.FC = () => {
                     onChange={(e) => setNewLeadChallenge(e.target.value)}
                     className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   >
-                    <option value="7 Day Reset">7 DAY RESET</option>
-                    <option value="21 Day Ignite">21 DAY IGNITE</option>
-                    <option value="60 Day Transform">60 DAY TRANSFORM</option>
-                    <option value="90 Day Beast Mode">90 DAY BEAST MODE</option>
+                    <option value="21 Day Ignite">21 Day Ignite (Fat Loss)</option>
+                    <option value="60 Day Transform">60 Day Transform (Body Recomp)</option>
+                    <option value="90 Day Beast Mode">90 Day Beast Mode (Hypertrophy)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">INITIAL DISCOVERY NOTE</label>
+                <label className="block text-zinc-400 uppercase mb-1">INTAKE NOTES / REMARKS</label>
                 <textarea
                   rows={3}
                   value={newLeadNote}
                   onChange={(e) => setNewLeadNote(e.target.value)}
-                  placeholder="Notes from initial phone call or WhatsApp inquiry..."
-                  className="w-full bg-zinc-900 border border-zinc-800 p-3 text-white rounded-xs"
+                  placeholder="Goals, food preferences, current workout split, target timeline..."
+                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                 />
               </div>
 
@@ -481,7 +555,7 @@ export const LeadManagementView: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold uppercase rounded-xs"
                 >
-                  SAVE & SCORE LEAD
+                  SAVE LEAD TO REALTIME DB
                 </button>
               </div>
             </form>

@@ -36,7 +36,21 @@ import {
   onAuthChange, 
   syncUserDataToRealtimeDb, 
   getUserDataFromRealtimeDb,
-  getSavedFirebaseConfig
+  getSavedFirebaseConfig,
+  saveLeadToRealtimeDb,
+  saveDietPlanToRealtimeDb,
+  saveWorkoutPlanToRealtimeDb,
+  saveCalorieCalculationToRealtimeDb,
+  saveDailyLogToRealtimeDb,
+  listenToUserDailyLogs,
+  saveCommunityPostToRealtimeDb,
+  listenToCommunityPosts,
+  saveSingleExerciseToRealtimeDb,
+  deleteSingleExerciseFromRealtimeDb,
+  listenToRealtimeExercises,
+  saveSingleFoodToRealtimeDb,
+  deleteSingleFoodFromRealtimeDb,
+  listenToRealtimeFoods
 } from '../services/firebase';
 
 export interface PendingAthleteDetails {
@@ -82,7 +96,7 @@ interface AppContextType {
   isFirebaseModalOpen: boolean;
   openFirebaseConfigModal: () => void;
   closeFirebaseModal: () => void;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (phone?: string) => Promise<void>;
 
   // Calorie Feature Popup
   isCalorieModalOpen: boolean;
@@ -92,8 +106,8 @@ interface AppContextType {
   // Actions
   openAuthModal: (mode?: 'login' | 'signup' | 'forgot' | 'onboarding', promptReason?: string) => void;
   closeAuthModal: () => void;
-  loginUser: (email: string, password?: string, name?: string) => Promise<void>;
-  signupUser: (name: string, email: string, password?: string, profile?: Partial<UserProfile>) => Promise<void>;
+  loginUser: (email: string, password?: string, name?: string, phone?: string) => Promise<void>;
+  signupUser: (name: string, email: string, password?: string, profile?: Partial<UserProfile>, phone?: string) => Promise<void>;
   logoutUser: () => void;
   saveUserProfile: (profile: Partial<UserProfile>) => void;
   calculateAndSetCalories: (
@@ -347,6 +361,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('fitnetheist_exercises_lib', JSON.stringify(exercises));
     } catch {}
   }, [exercises]);
+
+  // Realtime Database sync listeners for Exercises, Foods, and Community
+  useEffect(() => {
+    const unsubEx = listenToRealtimeExercises((remoteExercises) => {
+      if (Array.isArray(remoteExercises) && remoteExercises.length > 0) {
+        setExercises(prev => {
+          const map = new Map<string, Exercise>();
+          (prev || []).forEach(ex => { if (ex && ex.id) map.set(ex.id, ex); });
+          remoteExercises.forEach(rex => { if (rex && rex.id) map.set(rex.id, { ...map.get(rex.id), ...rex }); });
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    const unsubFoods = listenToRealtimeFoods((remoteFoods) => {
+      if (Array.isArray(remoteFoods) && remoteFoods.length > 0) {
+        setFoodDatabase(prev => {
+          const map = new Map<string, FoodItem>();
+          (prev || []).forEach(f => { if (f && f.id) map.set(f.id, f); });
+          remoteFoods.forEach(rf => { if (rf && rf.id) map.set(rf.id, { ...map.get(rf.id), ...rf }); });
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    const unsubPosts = listenToCommunityPosts((remotePosts) => {
+      if (Array.isArray(remotePosts) && remotePosts.length > 0) {
+        setCommunityPosts(prev => {
+          const map = new Map<string, CommunityPost>();
+          (prev || []).forEach(p => { if (p && p.id) map.set(p.id, p); });
+          remotePosts.forEach(rp => { if (rp && rp.id) map.set(rp.id, { ...map.get(rp.id), ...rp }); });
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    return () => {
+      unsubEx();
+      unsubFoods();
+      unsubPosts();
+    };
+  }, []);
   const [transformations, setTransformations] = useState<TransformationStory[]>(TRANSFORMATIONS_DATA);
 
   // Admin CMS
@@ -383,7 +439,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setAuthPromptReason(null);
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (phone?: string) => {
     try {
       const cred = await signInWithGoogle();
       const fbUser = cred.user;
@@ -394,6 +450,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (remoteData?.profile) {
         finalProfile = {
           ...remoteData.profile,
+          phone: phone || remoteData.profile.phone || user?.phone || '',
           ...(pendingAthleteDetails?.userMetrics || {})
         };
       } else {
@@ -401,6 +458,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: fbUser.uid,
           name: fbUser.displayName || 'Alex Mercer',
           email: fbUser.email || 'athlete@fitnetheist.com',
+          phone: phone || user?.phone || '',
           avatarUrl: fbUser.photoURL || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
           age: pendingAthleteDetails?.userMetrics?.age || 26,
           sex: pendingAthleteDetails?.userMetrics?.sex || 'male',
@@ -439,6 +497,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         workoutPlan: finalWorkout
       });
 
+      // Feed into Leads in Firebase Realtime Database
+      const leadPayload = {
+        id: `lead_${fbUser.uid}`,
+        name: finalProfile.name,
+        email: finalProfile.email,
+        phone: finalProfile.phone || phone || 'Pending phone number',
+        source: 'LOGIN_PORTAL' as const,
+        goal: finalProfile.goal,
+        dietType: finalProfile.dietType,
+        preferredCuisine: finalProfile.cuisine,
+        age: finalProfile.age,
+        sex: finalProfile.sex,
+        heightCm: finalProfile.heightCm,
+        weightKg: finalProfile.weightKg,
+        calculatedCalories: finalCalorie?.totalCalories || undefined,
+        status: 'NEW',
+        createdAt: new Date().toISOString(),
+        estimatedValue: 149,
+        score: 85,
+        scoreClassification: 'HOT',
+        assignedTo: 'Vikram Mehta (Sales Lead)',
+        tags: ['HOT', 'LOGIN_PORTAL'],
+        activities: [
+          {
+            id: `act_${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            type: 'CREATED',
+            description: `Lead authenticated via Google Sign-In with Mobile: ${finalProfile.phone || 'N/A'}`,
+            performedBy: 'SYSTEM_BOT'
+          }
+        ]
+      };
+      await saveLeadToRealtimeDb(leadPayload);
+
+      // Save to local leads cache
+      try {
+        const savedLeads = JSON.parse(localStorage.getItem('fitnetheist_crm_leads') || '[]');
+        const filtered = Array.isArray(savedLeads) ? savedLeads.filter((l: any) => l.id !== leadPayload.id) : [];
+        localStorage.setItem('fitnetheist_crm_leads', JSON.stringify([leadPayload, ...filtered]));
+      } catch (e) {}
+
       setPendingAthleteDetails(null);
       closeAuthModal();
     } catch (err) {
@@ -447,7 +546,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const loginUser = async (email: string, password?: string, name: string = 'Alex Mercer') => {
+  const loginUser = async (email: string, password?: string, name: string = 'Alex Mercer', phone?: string) => {
     let uid = `usr_${Date.now()}`;
     if (password) {
       try {
@@ -462,6 +561,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: uid,
       name: name || email.split('@')[0] || 'Alex Mercer',
       email,
+      phone: phone || user?.phone || '',
       avatarUrl: user?.avatarUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
       age: pendingAthleteDetails?.userMetrics?.age || user?.age || 26,
       sex: pendingAthleteDetails?.userMetrics?.sex || user?.sex || 'male',
@@ -499,6 +599,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       workoutPlan: finalWorkout
     });
 
+    // Feed into Leads in Firebase Realtime Database
+    const leadPayload = {
+      id: `lead_${newUser.id}`,
+      name: newUser.name,
+      email: newUser.email,
+      phone: phone || newUser.phone || 'Pending phone number',
+      source: 'LOGIN_PORTAL' as const,
+      goal: newUser.goal,
+      dietType: newUser.dietType,
+      preferredCuisine: newUser.cuisine,
+      age: newUser.age,
+      sex: newUser.sex,
+      heightCm: newUser.heightCm,
+      weightKg: newUser.weightKg,
+      calculatedCalories: finalCalorie?.totalCalories || undefined,
+      status: 'NEW',
+      createdAt: new Date().toISOString(),
+      estimatedValue: 149,
+      score: 85,
+      scoreClassification: 'HOT',
+      assignedTo: 'Vikram Mehta (Sales Lead)',
+      tags: ['HOT', 'LOGIN_PORTAL'],
+      activities: [
+        {
+          id: `act_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          type: 'CREATED',
+          description: `Lead logged in via User Auth Portal with Mobile: ${phone || newUser.phone || 'N/A'}`,
+          performedBy: 'SYSTEM_BOT'
+        }
+      ]
+    };
+    await saveLeadToRealtimeDb(leadPayload);
+
+    // Save to local leads cache
+    try {
+      const savedLeads = JSON.parse(localStorage.getItem('fitnetheist_crm_leads') || '[]');
+      const filtered = Array.isArray(savedLeads) ? savedLeads.filter((l: any) => l.id !== leadPayload.id) : [];
+      localStorage.setItem('fitnetheist_crm_leads', JSON.stringify([leadPayload, ...filtered]));
+    } catch (e) {}
+
     setPendingAthleteDetails(null);
     closeAuthModal();
   };
@@ -507,7 +648,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     name: string,
     email: string,
     password?: string,
-    profile?: Partial<UserProfile>
+    profile?: Partial<UserProfile>,
+    phone?: string
   ) => {
     let uid = `usr_${Date.now()}`;
     if (password) {
@@ -528,6 +670,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: uid,
       name: name || 'Alex Mercer',
       email: email || 'alex.mercer@fitnetheist.com',
+      phone: phone || profile?.phone || '',
       avatarUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
       age: mergedMetrics.age || 26,
       sex: mergedMetrics.sex || 'male',
@@ -564,6 +707,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       dietPlan: finalDiet,
       workoutPlan: finalWorkout
     });
+
+    // Feed into Leads in Firebase Realtime Database
+    const leadPayload = {
+      id: `lead_${newUser.id}`,
+      name: newUser.name,
+      email: newUser.email,
+      phone: phone || newUser.phone || 'Pending phone number',
+      source: 'SIGNUP' as const,
+      goal: newUser.goal,
+      dietType: newUser.dietType,
+      preferredCuisine: newUser.cuisine,
+      age: newUser.age,
+      sex: newUser.sex,
+      heightCm: newUser.heightCm,
+      weightKg: newUser.weightKg,
+      calculatedCalories: finalCalorie?.totalCalories || undefined,
+      status: 'NEW',
+      createdAt: new Date().toISOString(),
+      estimatedValue: 149,
+      score: 90,
+      scoreClassification: 'HOT',
+      assignedTo: 'Vikram Mehta (Sales Lead)',
+      tags: ['HOT', 'SIGNUP'],
+      activities: [
+        {
+          id: `act_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          type: 'CREATED',
+          description: `New athlete enrolled via Signup Portal with Mobile: ${phone || newUser.phone || 'N/A'}`,
+          performedBy: 'SYSTEM_BOT'
+        }
+      ]
+    };
+    await saveLeadToRealtimeDb(leadPayload);
+
+    // Save to local leads cache
+    try {
+      const savedLeads = JSON.parse(localStorage.getItem('fitnetheist_crm_leads') || '[]');
+      const filtered = Array.isArray(savedLeads) ? savedLeads.filter((l: any) => l.id !== leadPayload.id) : [];
+      localStorage.setItem('fitnetheist_crm_leads', JSON.stringify([leadPayload, ...filtered]));
+    } catch (e) {}
 
     setPendingAthleteDetails(null);
     closeAuthModal();
@@ -744,6 +928,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDietPlan(newPlan);
     setGroceryList(generateGroceryList(newPlan));
     
+    // Sync to Realtime Database
+    if (user?.id) {
+      saveDietPlanToRealtimeDb(user.id, newPlan);
+    } else {
+      saveDietPlanToRealtimeDb('guest_session', newPlan);
+    }
+
     // Update admin stats
     setAdminAnalytics(prev => ({
       ...prev,
@@ -776,6 +967,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setDietPlan(updatedPlan);
     setGroceryList(generateGroceryList(updatedPlan));
+
+    if (user?.id) {
+      saveDietPlanToRealtimeDb(user.id, updatedPlan);
+    }
   };
 
   const generateAndSetWorkout = (
@@ -787,6 +982,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   ): WorkoutPlan => {
     const plan = generateWorkoutPlan(goal, experience, equipment, daysPerWeek, durationMinutes);
     setWorkoutPlan(plan);
+
+    // Sync to Realtime Database
+    if (user?.id) {
+      saveWorkoutPlanToRealtimeDb(user.id, plan);
+    } else {
+      saveWorkoutPlanToRealtimeDb('guest_session', plan);
+    }
 
     setAdminAnalytics(prev => ({
       ...prev,
@@ -802,11 +1004,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const enrollInChallenge = (challengeId: string) => {
     if (user) {
-      setUser({
+      const updatedUser = {
         ...user,
         joinedChallengeId: challengeId,
         joinedChallengeDay: 1
-      });
+      };
+      setUser(updatedUser);
+      syncUserDataToRealtimeDb(user.id, { profile: updatedUser });
     }
     setAdminAnalytics(prev => ({
       ...prev,
@@ -816,6 +1020,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logDailyProgress = (log: Partial<DailyLog>) => {
     const today = new Date().toISOString().split('T')[0];
+    const logItem: DailyLog = {
+      date: today,
+      waterLiters: log.waterLiters || 2.5,
+      caloriesConsumed: log.caloriesConsumed || 2050,
+      proteinConsumed: log.proteinConsumed || 155,
+      workoutDone: log.workoutDone !== undefined ? log.workoutDone : true,
+      weightKg: log.weightKg || user?.weightKg || 78,
+      ...log
+    };
+
     setDailyLogs(prev => {
       const existingIdx = prev.findIndex(l => l.date === today);
       if (existingIdx >= 0) {
@@ -823,27 +1037,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updated[existingIdx] = { ...updated[existingIdx], ...log };
         return updated;
       } else {
-        return [
-          ...prev,
-          {
-            date: today,
-            waterLiters: log.waterLiters || 2.5,
-            caloriesConsumed: log.caloriesConsumed || 2050,
-            proteinConsumed: log.proteinConsumed || 155,
-            workoutDone: log.workoutDone !== undefined ? log.workoutDone : true,
-            weightKg: log.weightKg || user?.weightKg || 78,
-            ...log
-          }
-        ];
+        return [...prev, logItem];
       }
     });
 
-    if (user && log.workoutDone) {
-      setUser(prev => prev ? {
-        ...prev,
-        completedWorkoutsCount: prev.completedWorkoutsCount + 1,
-        streakDays: prev.streakDays + 1
-      } : null);
+    if (user?.id) {
+      saveDailyLogToRealtimeDb(user.id, { ...logItem, id: today });
+      if (log.workoutDone) {
+        setUser(prev => {
+          if (!prev) return null;
+          const updated = {
+            ...prev,
+            completedWorkoutsCount: prev.completedWorkoutsCount + 1,
+            streakDays: prev.streakDays + 1
+          };
+          syncUserDataToRealtimeDb(user.id, { profile: updated });
+          return updated;
+        });
+      }
     }
   };
 
@@ -868,6 +1079,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setCommunityPosts([newPost, ...communityPosts]);
+    saveCommunityPostToRealtimeDb(newPost);
   };
 
   const toggleLikeCommunityPost = (postId: string) => {
