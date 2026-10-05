@@ -851,15 +851,15 @@ export const WorkoutPlanner: React.FC = () => {
                 </button>
               </div>
 
-              {/* 16:9 Clean Responsive Video Player */}
-              <div className="w-full">
+              {/* 9:16 Clean Responsive Vertical Video Player */}
+              <div className="w-full flex justify-center py-1">
                 <ExerciseVideoPlayer
                   videoUrl={activeExerciseModal.videoUrl}
                   thumbnailUrl={activeExerciseModal.videoThumbnail}
                   exerciseName={activeExerciseModal.name}
-                  aspectRatio="16/9"
+                  aspectRatio="9/16"
                   autoPlay={false}
-                  className="rounded-[4px]"
+                  className="rounded-[6px]"
                 />
               </div>
 

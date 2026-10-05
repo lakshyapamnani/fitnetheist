@@ -18,7 +18,7 @@ interface ExerciseVideoPlayerProps {
   exerciseName: string;
   className?: string;
   autoPlay?: boolean;
-  aspectRatio?: '16/9' | 'auto';
+  aspectRatio?: '9/16' | '16/9' | 'auto';
 }
 
 export function parseExerciseVideoEmbed(url?: string): {
@@ -112,7 +112,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   exerciseName,
   className = '',
   autoPlay = false,
-  aspectRatio = '16/9'
+  aspectRatio = '9/16'
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -130,6 +130,12 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   const [isEmbedActivated, setIsEmbedActivated] = useState<boolean>(autoPlay);
 
   const parsed = parseExerciseVideoEmbed(videoUrl);
+
+  const aspectClass = aspectRatio === '9/16' 
+    ? 'aspect-[9/16] max-w-[320px] sm:max-w-[360px] mx-auto w-full' 
+    : aspectRatio === '16/9' 
+    ? 'aspect-video w-full' 
+    : 'w-full';
 
   // Handle autohiding controls during playback
   const resetControlsTimer = () => {
@@ -257,7 +263,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   // Placeholder when no video
   if (parsed.type === 'none') {
     return (
-      <div className={`relative w-full aspect-video bg-[#0c0c0e] border border-white/10 rounded-[4px] overflow-hidden flex flex-col items-center justify-center text-center p-6 ${className}`}>
+      <div className={`relative ${aspectClass} bg-[#0c0c0e] border border-white/10 rounded-[6px] overflow-hidden flex flex-col items-center justify-center text-center p-6 ${className}`}>
         {thumbnailUrl ? (
           <>
             <img
@@ -274,24 +280,24 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
             <VideoIcon size={18} />
           </div>
           <p className="text-xs font-mono-num text-zinc-300">
-            Demonstration for <span className="text-white font-medium">{exerciseName}</span>
+            Form demo for <span className="text-white font-medium">{exerciseName}</span>
           </p>
           <span className="text-[10px] font-mono-num text-zinc-500 uppercase">
-            Form Guide
+            9:16 Video Guide
           </span>
         </div>
       </div>
     );
   }
 
-  // Embeddable Players (Google Drive / YouTube / Vimeo / Loom)
+  // Embeddable Players (Google Drive / YouTube / Vimeo / Loom) in 9:16 vertical container
   if (parsed.type === 'gdrive' || parsed.type === 'youtube' || parsed.type === 'vimeo' || parsed.type === 'loom') {
     if (!isEmbedActivated) {
       return (
         <div 
           ref={containerRef}
           onClick={() => { setIsEmbedActivated(true); setIsPlaying(true); }}
-          className={`relative w-full aspect-video bg-[#09090b] border border-white/10 rounded-[4px] overflow-hidden cursor-pointer group select-none ${className}`}
+          className={`relative ${aspectClass} bg-[#09090b] border border-white/10 rounded-[6px] overflow-hidden cursor-pointer group select-none shadow-lg ${className}`}
         >
           {thumbnailUrl ? (
             <img
@@ -312,7 +318,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
             <button
               type="button"
               className="w-14 h-14 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-1 shadow-lg group-hover:scale-105 active:scale-95 transition-transform"
-              aria-label={`Play demonstration video for ${exerciseName}`}
+              aria-label={`Play 9:16 demonstration video for ${exerciseName}`}
             >
               <Play size={22} fill="currentColor" />
             </button>
@@ -324,7 +330,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     return (
       <div 
         ref={containerRef}
-        className={`relative w-full aspect-video bg-black border border-white/10 rounded-[4px] overflow-hidden ${className}`}
+        className={`relative ${aspectClass} bg-black border border-white/10 rounded-[6px] overflow-hidden shadow-lg ${className}`}
       >
         <iframe
           src={parsed.embedUrl}
@@ -337,7 +343,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     );
   }
 
-  // HTML5 Native Video / Direct MP4 Stream with Minimal Custom Controls
+  // HTML5 Native Video / Direct MP4 Stream with Minimal Custom Controls in 9:16
   return (
     <div
       ref={containerRef}
@@ -349,7 +355,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
           handlePlayPause();
         }
       }}
-      className={`relative w-full aspect-video bg-black border border-white/10 rounded-[4px] overflow-hidden select-none group cursor-pointer ${className}`}
+      className={`relative ${aspectClass} bg-black border border-white/10 rounded-[6px] overflow-hidden select-none group cursor-pointer shadow-lg ${className}`}
     >
       <video
         ref={videoRef}
@@ -359,7 +365,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleVideoEnded}
-        className="w-full h-full object-contain bg-black"
+        className="w-full h-full object-cover bg-black"
       />
 
       {/* Center Play / Replay Button Overlay (Shown when Paused or Ended) */}
@@ -382,22 +388,22 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
 
       {/* Minimal 10s Skip Buttons (Subtle, Transparent, visible on interaction) */}
       {isPlaying && showControls && (
-        <div className="absolute inset-y-0 inset-x-6 flex items-center justify-between pointer-events-none">
+        <div className="absolute inset-y-0 inset-x-4 flex items-center justify-between pointer-events-none">
           <button
             type="button"
             onClick={(e) => handleSkip(-10, e)}
-            className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-zinc-300 hover:text-white flex items-center justify-center transition-colors opacity-70 hover:opacity-100"
+            className="pointer-events-auto w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-zinc-300 hover:text-white flex items-center justify-center transition-colors opacity-70 hover:opacity-100"
             title="Rewind 10s"
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={15} />
           </button>
           <button
             type="button"
             onClick={(e) => handleSkip(10, e)}
-            className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-zinc-300 hover:text-white flex items-center justify-center transition-colors opacity-70 hover:opacity-100"
+            className="pointer-events-auto w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-zinc-300 hover:text-white flex items-center justify-center transition-colors opacity-70 hover:opacity-100"
             title="Forward 10s"
           >
-            <RotateCw size={16} />
+            <RotateCw size={15} />
           </button>
         </div>
       )}
@@ -405,7 +411,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
       {/* Bottom Minimal Control Bar */}
       <div 
         onClick={(e) => e.stopPropagation()}
-        className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-6 pb-2 px-3 sm:px-4 transition-opacity duration-300 ${
+        className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-6 pb-2.5 px-3 transition-opacity duration-300 ${
           showControls || !isPlaying ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
@@ -425,28 +431,27 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
           />
         </div>
 
-        {/* Control Buttons Row: Play/Pause | Time | Speed | Mute | Fullscreen */}
+        {/* Control Buttons Row */}
         <div className="flex items-center justify-between text-white font-mono-num text-xs">
           
-          {/* Left: Play/Pause & Time Display */}
-          <div className="flex items-center gap-3">
+          {/* Left: Play/Pause & Time */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handlePlayPause}
               className="text-white hover:text-[#d8ff38] p-1 transition-colors"
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
-              {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+              {isPlaying ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" />}
             </button>
 
-            <span className="text-[11px] text-zinc-300 tracking-wider">
-              {formatTime(currentTime)} <span className="text-zinc-500">/</span> {formatTime(duration || 0)}
+            <span className="text-[10px] text-zinc-300 tracking-wider">
+              {formatTime(currentTime)} / {formatTime(duration || 0)}
             </span>
           </div>
 
           {/* Right: Speed, Mute, Fullscreen */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Speed Selector */}
+          <div className="flex items-center gap-1.5">
             <div className="relative">
               <button
                 type="button"
@@ -475,24 +480,22 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
               )}
             </div>
 
-            {/* Mute Button */}
             <button
               type="button"
               onClick={handleToggleMute}
               className="text-zinc-300 hover:text-white p-1 transition-colors"
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
-              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
 
-            {/* Fullscreen Button */}
             <button
               type="button"
               onClick={toggleFullscreen}
               className="text-zinc-300 hover:text-white p-1 transition-colors"
               aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             >
-              {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+              {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
             </button>
           </div>
 
