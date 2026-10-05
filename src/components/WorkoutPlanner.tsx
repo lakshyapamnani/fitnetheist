@@ -20,13 +20,13 @@ import {
   Award, 
   Zap, 
   Scale, 
-  Volume2,
-  TrendingUp,
-  Sliders,
-  Layers,
-  Video,
-  Settings2,
-  X,
+  Volume2, 
+  TrendingUp, 
+  Sliders, 
+  Layers, 
+  Video, 
+  Settings2, 
+  X, 
   Sparkles
 } from 'lucide-react';
 
@@ -55,7 +55,6 @@ export const WorkoutPlanner: React.FC = () => {
     if (typeof window !== 'undefined') {
       const alreadyPrompted = sessionStorage.getItem('fitnetheist_workout_popup_shown');
       if (!alreadyPrompted) {
-        // Automatically ask once on first visit
         setIsConfigModalOpen(true);
         sessionStorage.setItem('fitnetheist_workout_popup_shown', 'true');
       }
@@ -98,9 +97,7 @@ export const WorkoutPlanner: React.FC = () => {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.5);
-    } catch (err) {
-      // Audio context might be restricted before user interaction
-    }
+    } catch (err) {}
   };
 
   // Timer Tick
@@ -117,23 +114,6 @@ export const WorkoutPlanner: React.FC = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [isTimerRunning, timerSeconds]);
-
-  const handleStartTimer = (sec?: number) => {
-    if (sec !== undefined) {
-      setInitialTimerSeconds(sec);
-      setTimerSeconds(sec);
-    }
-    setIsTimerRunning(true);
-  };
-
-  const handlePauseTimer = () => {
-    setIsTimerRunning(false);
-  };
-
-  const handleResetTimer = () => {
-    setIsTimerRunning(false);
-    setTimerSeconds(initialTimerSeconds);
-  };
 
   const handleGenerateWorkout = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -187,9 +167,6 @@ export const WorkoutPlanner: React.FC = () => {
     { set: 'Work Sets', load: `${Math.round(estimated1RM * 0.80)} kg`, percent: '80% 1RM', reps: '4 sets × 6-8 reps', rest: '180s' },
   ];
 
-  const athleteWeightKg = user?.weightKg || 78;
-  const sessionCalorieBurn = Math.round(6.0 * athleteWeightKg * (durationMinutes / 60));
-
   // Filter Exercises
   const filteredExercises = EXERCISE_DATABASE.filter(ex => {
     if (selectedExerciseCategory !== 'ALL' && ex.category !== selectedExerciseCategory) {
@@ -220,32 +197,32 @@ export const WorkoutPlanner: React.FC = () => {
 
   return (
     <div id="workout-planner-page" className="min-h-screen bg-[#08080a] text-white pt-24 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         
         {/* Header Title */}
         <div className="border-b border-white/10 pb-6 mb-8 sm:mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-5">
           <div>
-            <div className="flex items-center gap-2 mb-2.5">
-              <span className="h-2 w-2 bg-[#d8ff38]"></span>
-              <span className="text-[11px] sm:text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#d8ff38]">
-                BIOMECHANICAL ENGINE // 03
+            <div className="flex items-center gap-2 mb-2">
+              <span className="h-1.5 w-1.5 bg-[#d8ff38] rounded-full"></span>
+              <span className="text-[11px] font-mono-num font-medium uppercase tracking-widest text-[#d8ff38]">
+                ATHLETIC PROTOCOL // 03
               </span>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold uppercase tracking-tight font-display leading-[1.05]">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight font-display">
               WORKOUT PLANNER & 1RM CALCULATOR
             </h1>
-            <p className="text-zinc-400 text-xs sm:text-sm max-w-2xl mt-2 font-mono-num leading-relaxed">
-              Periodized progressive overload splits, 9:16 vertical proper form video guides, 1RM algorithms, load matrices, and active rest timers.
+            <p className="text-zinc-400 text-xs sm:text-sm max-w-2xl mt-1.5 font-mono-num leading-relaxed">
+              Periodized progressive overload training splits, clean 16:9 form demonstrations, and clinical strength load matrices.
             </p>
           </div>
 
           {/* Toggle View Mode: GENERATED PROGRAM vs EXERCISE LIBRARY vs 1RM CALCULATOR */}
-          <div className="grid grid-cols-3 sm:flex items-center gap-1 p-1 bg-zinc-900 border border-white/10 font-mono-num text-[11px] sm:text-xs w-full lg:w-auto">
+          <div className="grid grid-cols-3 sm:flex items-center gap-1 p-1 bg-zinc-900/80 border border-white/10 rounded-[4px] font-mono-num text-[11px] sm:text-xs w-full lg:w-auto">
             <button
               id="tab-view-program"
               onClick={() => setViewMode('PROGRAM')}
-              className={`px-2.5 sm:px-4 py-2 uppercase font-bold text-center transition-colors mobile-tap-active ${
-                viewMode === 'PROGRAM' ? 'bg-[#d8ff38] text-black shadow-[0_0_10px_rgba(216,255,56,0.3)]' : 'text-zinc-400 hover:text-white'
+              className={`px-3 py-1.5 uppercase font-bold text-center transition-colors rounded-[2px] ${
+                viewMode === 'PROGRAM' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
               }`}
             >
               SPLIT
@@ -253,8 +230,8 @@ export const WorkoutPlanner: React.FC = () => {
             <button
               id="tab-view-calculator"
               onClick={() => setViewMode('CALCULATOR')}
-              className={`px-2.5 sm:px-4 py-2 uppercase font-bold text-center transition-colors flex items-center justify-center gap-1 mobile-tap-active ${
-                viewMode === 'CALCULATOR' ? 'bg-[#d8ff38] text-black shadow-[0_0_10px_rgba(216,255,56,0.3)]' : 'text-zinc-400 hover:text-white'
+              className={`px-3 py-1.5 uppercase font-bold text-center transition-colors rounded-[2px] flex items-center justify-center gap-1 ${
+                viewMode === 'CALCULATOR' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
               }`}
             >
               <Calculator size={12} className="shrink-0" />
@@ -263,8 +240,8 @@ export const WorkoutPlanner: React.FC = () => {
             <button
               id="tab-view-library"
               onClick={() => setViewMode('LIBRARY')}
-              className={`px-2.5 sm:px-4 py-2 uppercase font-bold text-center transition-colors mobile-tap-active ${
-                viewMode === 'LIBRARY' ? 'bg-[#d8ff38] text-black shadow-[0_0_10px_rgba(216,255,56,0.3)]' : 'text-zinc-400 hover:text-white'
+              className={`px-3 py-1.5 uppercase font-bold text-center transition-colors rounded-[2px] ${
+                viewMode === 'LIBRARY' ? 'bg-[#d8ff38] text-black' : 'text-zinc-400 hover:text-white'
               }`}
             >
               CATALOG ({EXERCISE_DATABASE.length})
@@ -274,31 +251,31 @@ export const WorkoutPlanner: React.FC = () => {
 
         {/* View Mode 1: PROGRAM & ACTIVE SPLIT ROUTINE */}
         {viewMode === 'PROGRAM' && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             
-            {/* Quick Action Top Split Bar */}
-            <div className="bg-zinc-950 border border-white/10 p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Minimal Program Header Bar */}
+            <div className="bg-[#0c0c0e] border border-white/10 rounded-[4px] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#d8ff38] animate-pulse" />
-                  <span className="text-[11px] font-mono-num font-bold text-[#d8ff38] uppercase tracking-widest">
-                    ACTIVE ATHLETIC ROUTINE
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#d8ff38]" />
+                  <span className="text-[10px] font-mono-num font-medium text-[#d8ff38] uppercase tracking-wider">
+                    CURRENT SPLIT
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
                   {workoutPlan?.name || 'Hypertrophy Muscle Engine Split'}
                 </h2>
-                <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono-num text-zinc-400 pt-1">
-                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-white">
-                    {workoutPlan?.daysPerWeek || daysPerWeek} DAYS / WEEK
+                <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono-num text-zinc-400 pt-0.5">
+                  <span className="bg-zinc-900 px-2 py-0.5 rounded-[2px] border border-white/5 text-zinc-300">
+                    {workoutPlan?.daysPerWeek || daysPerWeek} Days/Week
                   </span>
-                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-[#d8ff38]">
-                    {workoutPlan?.durationMinutes || durationMinutes} MIN SESSIONS
+                  <span className="bg-zinc-900 px-2 py-0.5 rounded-[2px] border border-white/5 text-zinc-300">
+                    {workoutPlan?.durationMinutes || durationMinutes} Min
                   </span>
-                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-zinc-300">
+                  <span className="bg-zinc-900 px-2 py-0.5 rounded-[2px] border border-white/5 text-zinc-300">
                     {equipment.replace('_', ' ')}
                   </span>
-                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-zinc-300">
+                  <span className="bg-zinc-900 px-2 py-0.5 rounded-[2px] border border-white/5 text-zinc-300">
                     {experience}
                   </span>
                 </div>
@@ -307,10 +284,10 @@ export const WorkoutPlanner: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsConfigModalOpen(true)}
-                className="px-4 py-2.5 bg-zinc-900 hover:bg-[#d8ff38] hover:text-black text-white border border-white/20 font-mono-num font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shrink-0 self-start md:self-auto"
+                className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-white/10 rounded-[3px] font-mono-num text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shrink-0 self-start md:self-auto min-h-[44px]"
               >
-                <Settings2 size={14} />
-                <span>CUSTOMIZE SPLIT</span>
+                <Settings2 size={13} className="text-[#d8ff38]" />
+                <span>Customize Split</span>
               </button>
             </div>
 
@@ -319,102 +296,102 @@ export const WorkoutPlanner: React.FC = () => {
               <div className="space-y-6">
                 
                 {/* Day Tabs */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
                   {workoutPlan.days.map((day, idx) => (
                     <button
                       key={day.dayName}
                       onClick={() => setSelectedDayIdx(idx)}
-                      className={`px-4 py-2.5 text-xs font-mono-num font-bold uppercase tracking-wider border transition-all shrink-0 ${
+                      className={`px-4 py-2 text-xs font-mono-num font-bold uppercase tracking-wider border rounded-[3px] transition-colors shrink-0 min-h-[40px] ${
                         selectedDayIdx === idx
-                          ? 'bg-[#d8ff38] text-black border-[#d8ff38] shadow-[0_0_15px_rgba(216,255,56,0.2)]'
-                          : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-950'
+                          ? 'bg-[#d8ff38] text-black border-[#d8ff38]'
+                          : 'border-zinc-800 text-zinc-400 hover:text-white bg-[#0c0c0e]'
                       }`}
                     >
-                      DAY 0{idx + 1}
+                      Day 0{idx + 1}
                     </button>
                   ))}
                 </div>
 
                 {/* Selected Workout Day Detail */}
                 {workoutPlan.days[selectedDayIdx] && (
-                  <div className="bg-zinc-950 border border-white/15 p-6 sm:p-8 space-y-6">
+                  <div className="bg-[#0c0c0e] border border-white/10 rounded-[4px] p-5 sm:p-6 space-y-6">
                     
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
                       <div>
-                        <h4 className="text-xl font-bold uppercase font-display text-white">
+                        <h3 className="text-lg font-bold uppercase font-display text-white">
                           {workoutPlan.days[selectedDayIdx].dayName}
-                        </h4>
-                        <p className="text-xs font-mono-num text-zinc-400 mt-1">
-                          FOCUS: <strong className="text-white">{workoutPlan.days[selectedDayIdx].focus}</strong>
+                        </h3>
+                        <p className="text-xs font-mono-num text-zinc-400 mt-0.5">
+                          Focus: <span className="text-zinc-200">{workoutPlan.days[selectedDayIdx].focus}</span>
                         </p>
                       </div>
-                      <span className="text-xs font-mono-num text-[#d8ff38] font-bold">
-                        {workoutPlan.days[selectedDayIdx].exercises.length} EXERCISES // {workoutPlan.days[selectedDayIdx].estimatedMinutes} MIN
+                      <span className="text-xs font-mono-num text-zinc-400">
+                        {workoutPlan.days[selectedDayIdx].exercises.length} Exercises · {workoutPlan.days[selectedDayIdx].estimatedMinutes} Min
                       </span>
                     </div>
 
                     {/* Exercises in This Routine */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {workoutPlan.days[selectedDayIdx].exercises.map((item, exIdx) => {
                         const ex = item.exercise;
                         return (
                           <div 
                             key={ex.id}
-                            className="border border-white/10 bg-zinc-900/30 p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-white/20 transition-all"
+                            onClick={() => setActiveExerciseModal(ex)}
+                            className="border border-white/5 bg-zinc-900/40 hover:bg-zinc-900/70 p-4 rounded-[4px] flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-white/15 transition-all cursor-pointer group"
                           >
                             {/* Left Info */}
-                            <div className="space-y-2 flex-1">
-                              <div className="flex items-center gap-3">
+                            <div className="space-y-1.5 flex-1">
+                              <div className="flex items-center gap-2.5">
                                 <span className="text-xs font-mono-num font-bold text-[#d8ff38]">
-                                  #{exIdx + 1}
+                                  0{exIdx + 1}
                                 </span>
-                                <h5 className="text-lg font-bold text-white font-mono-num">
+                                <h4 className="text-base font-semibold text-white font-mono-num group-hover:text-[#d8ff38] transition-colors">
                                   {ex.name}
-                                </h5>
-                                <span className="px-2 py-0.5 bg-zinc-800 text-[10px] font-mono-num text-zinc-400 uppercase">
+                                </h4>
+                                <span className="px-1.5 py-0.5 bg-zinc-800 rounded-[2px] text-[10px] font-mono-num text-zinc-400 uppercase">
                                   {ex.category}
                                 </span>
                               </div>
 
                               <p className="text-xs font-mono-num text-zinc-400">
-                                TARGET: <strong className="text-zinc-200">{ex.targetMuscles}</strong>
+                                Target: <span className="text-zinc-300">{ex.targetMuscles}</span>
                               </p>
 
-                              <p className="text-xs text-zinc-400 italic bg-black/40 border-l-2 border-[#d8ff38] pl-3 py-1 font-mono-num">
-                                CUE: {ex.keyFormTip}
+                              <p className="text-xs text-zinc-400 font-mono-num line-clamp-1">
+                                Cue: {ex.keyFormTip}
                               </p>
                             </div>
 
                             {/* Center Sets / Reps / Rest Stats */}
-                            <div className="flex items-center gap-4 sm:gap-6 bg-[#0c0c0e] border border-white/10 px-5 py-3 font-mono-num shrink-0">
+                            <div className="flex items-center gap-4 bg-black/50 border border-white/5 rounded-[3px] px-4 py-2 font-mono-num shrink-0 text-xs">
                               <div>
-                                <span className="text-[10px] text-zinc-500 uppercase block">SETS</span>
-                                <span className="text-base font-bold text-white block">{item.customSets || ex.sets}</span>
+                                <span className="text-[9px] text-zinc-500 uppercase block">SETS</span>
+                                <span className="font-bold text-white">{item.customSets || ex.sets}</span>
                               </div>
-                              <div className="h-5 w-px bg-white/10"></div>
+                              <div className="h-4 w-px bg-white/10" />
                               <div>
-                                <span className="text-[10px] text-zinc-500 uppercase block">REPS</span>
-                                <span className="text-base font-bold text-[#d8ff38] block">{item.customReps || ex.reps}</span>
+                                <span className="text-[9px] text-zinc-500 uppercase block">REPS</span>
+                                <span className="font-bold text-[#d8ff38]">{item.customReps || ex.reps}</span>
                               </div>
-                              <div className="h-5 w-px bg-white/10"></div>
+                              <div className="h-4 w-px bg-white/10" />
                               <div>
-                                <span className="text-[10px] text-zinc-500 uppercase block">REST</span>
-                                <span className="text-base font-bold text-white block">{ex.restSeconds}S</span>
+                                <span className="text-[9px] text-zinc-500 uppercase block">REST</span>
+                                <span className="font-bold text-white">{ex.restSeconds}s</span>
                               </div>
                             </div>
 
-                            {/* View Form / Watch 9:16 Video Action */}
-                            <button
-                              onClick={() => setActiveExerciseModal(ex)}
-                              className={`px-4 py-2.5 border text-xs font-mono-num font-bold uppercase tracking-wider shrink-0 transition-all flex items-center gap-1.5 ${
-                                ex.videoUrl
-                                  ? 'bg-[#d8ff38]/15 hover:bg-[#d8ff38] text-[#d8ff38] hover:text-black border-[#d8ff38]/50 shadow-[0_0_12px_rgba(216,255,56,0.15)]'
-                                  : 'bg-zinc-800 hover:bg-white hover:text-black border-white/15 text-white'
-                              }`}
-                            >
-                              {ex.videoUrl ? <Play size={12} fill="currentColor" /> : null}
-                              <span>{ex.videoUrl ? 'WATCH 9:16 VIDEO' : 'VIEW FORM'}</span>
-                            </button>
+                            {/* View Form Action Button */}
+                            <div className="shrink-0">
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setActiveExerciseModal(ex); }}
+                                className="px-3 py-1.5 bg-zinc-800 hover:bg-[#d8ff38] hover:text-black text-zinc-200 rounded-[2px] border border-white/10 text-xs font-mono-num font-medium flex items-center gap-1.5 transition-colors min-h-[36px]"
+                              >
+                                <Play size={11} fill="currentColor" />
+                                <span>Watch Form</span>
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
@@ -431,32 +408,30 @@ export const WorkoutPlanner: React.FC = () => {
 
         {/* View Mode 2: 1RM & STRENGTH CALCULATOR SUITE */}
         {viewMode === 'CALCULATOR' && (
-          <div className="space-y-10">
-            
-            {/* Top Row: 1RM Form & Main Output Banner */}
-            <div className="grid lg:grid-cols-12 gap-8 items-start">
+          <div className="space-y-8">
+            <div className="grid lg:grid-cols-12 gap-6 items-start">
               
               {/* Left Column: 1RM Inputs */}
-              <div className="lg:col-span-5 bg-zinc-950 border border-white/10 p-6 sm:p-8 space-y-6">
+              <div className="lg:col-span-5 bg-[#0c0c0e] border border-white/10 rounded-[4px] p-6 space-y-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
                   <div>
-                    <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#d8ff38] block">
-                      STRENGTH ENGINE
+                    <span className="text-[10px] font-mono-num uppercase tracking-wider text-[#d8ff38] block">
+                      STRENGTH ESTIMATION
                     </span>
-                    <h3 className="text-xl font-bold uppercase font-display text-white mt-0.5">
-                      1-REP MAX (1RM) ESTIMATOR
+                    <h3 className="text-lg font-bold uppercase font-display text-white mt-0.5">
+                      1-REP MAX (1RM)
                     </h3>
                   </div>
                   <div className="flex items-center gap-1 font-mono-num text-[10px]">
                     <button
                       onClick={() => setIs1rmMetric(true)}
-                      className={`px-2 py-1 uppercase border ${is1rmMetric ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400'}`}
+                      className={`px-2 py-1 uppercase border rounded-[2px] ${is1rmMetric ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400'}`}
                     >
                       KG
                     </button>
                     <button
                       onClick={() => setIs1rmMetric(false)}
-                      className={`px-2 py-1 uppercase border ${!is1rmMetric ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400'}`}
+                      className={`px-2 py-1 uppercase border rounded-[2px] ${!is1rmMetric ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400'}`}
                     >
                       LBS
                     </button>
@@ -465,13 +440,13 @@ export const WorkoutPlanner: React.FC = () => {
 
                 {/* Lift Name Selector */}
                 <div>
-                  <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-mono-num text-zinc-400 uppercase mb-1.5">
                     COMPOUND LIFT
                   </label>
                   <select
                     value={liftName}
                     onChange={(e) => setLiftName(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white font-mono-num text-xs focus:border-[#d8ff38] focus:outline-none uppercase"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-[3px] px-3 py-2 text-white font-mono-num text-xs focus:border-[#d8ff38] focus:outline-none uppercase"
                   >
                     <option value="BARBELL BENCH PRESS">BARBELL BENCH PRESS</option>
                     <option value="BARBELL BACK SQUAT">BARBELL BACK SQUAT</option>
@@ -487,7 +462,7 @@ export const WorkoutPlanner: React.FC = () => {
                 {/* Weight Lifted */}
                 <div>
                   <div className="flex justify-between text-xs font-mono-num text-zinc-400 mb-2">
-                    <span>WEIGHT LIFTED ({is1rmMetric ? 'KG' : 'LBS'})</span>
+                    <span>WEIGHT LIFTED</span>
                     <span className="text-white font-bold">{weightLifted} {is1rmMetric ? 'kg' : 'lbs'}</span>
                   </div>
                   <input
@@ -497,24 +472,21 @@ export const WorkoutPlanner: React.FC = () => {
                     step="2.5"
                     value={weightLifted}
                     onChange={(e) => setWeightLifted(Number(e.target.value))}
-                    className="w-full accent-[#d8ff38] bg-zinc-800 h-2 cursor-pointer mb-2"
+                    className="w-full accent-[#d8ff38] bg-zinc-800 h-1.5 rounded-full cursor-pointer mb-2"
                   />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={weightLifted}
-                      onChange={(e) => setWeightLifted(Number(e.target.value))}
-                      className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white font-mono-num text-sm focus:border-[#d8ff38] focus:outline-none"
-                    />
-                    <span className="text-xs font-mono-num text-zinc-400 shrink-0">{is1rmMetric ? 'KG' : 'LBS'}</span>
-                  </div>
+                  <input
+                    type="number"
+                    value={weightLifted}
+                    onChange={(e) => setWeightLifted(Number(e.target.value))}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-[3px] px-3 py-2 text-white font-mono-num text-xs focus:border-[#d8ff38] focus:outline-none"
+                  />
                 </div>
 
                 {/* Repetitions Completed */}
                 <div>
                   <div className="flex justify-between text-xs font-mono-num text-zinc-400 mb-2">
-                    <span>REPS COMPLETED (CLEAN FORM)</span>
-                    <span className="text-[#d8ff38] font-bold">{repsDone} REPS</span>
+                    <span>REPS COMPLETED</span>
+                    <span className="text-[#d8ff38] font-bold">{repsDone} Reps</span>
                   </div>
                   <div className="grid grid-cols-6 gap-1">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(r => (
@@ -522,7 +494,7 @@ export const WorkoutPlanner: React.FC = () => {
                         key={r}
                         type="button"
                         onClick={() => setRepsDone(r)}
-                        className={`py-2 text-xs font-mono-num font-bold border transition-all ${
+                        className={`py-1.5 text-xs font-mono-num font-bold rounded-[2px] border transition-all ${
                           repsDone === r ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white'
                         }`}
                       >
@@ -532,25 +504,17 @@ export const WorkoutPlanner: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Live Formula Comparison Breakdown */}
-                <div className="p-4 bg-zinc-900/40 border border-white/5 space-y-2 font-mono-num text-xs">
+                {/* Algorithmic Breakdown */}
+                <div className="p-3.5 bg-zinc-900/40 border border-white/5 rounded-[3px] space-y-1.5 font-mono-num text-xs">
                   <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">ALGORITHM COMPARISON:</span>
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
                     <div className="flex justify-between">
                       <span className="text-zinc-400">Brzycki:</span>
-                      <span className="text-white font-bold">{calcBrzycki} {is1rmMetric ? 'kg' : 'lbs'}</span>
+                      <span className="text-white font-medium">{calcBrzycki} {is1rmMetric ? 'kg' : 'lbs'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-zinc-400">Epley:</span>
-                      <span className="text-white font-bold">{calcEpley} {is1rmMetric ? 'kg' : 'lbs'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-400">Lombardi:</span>
-                      <span className="text-white font-bold">{calcLombardi} {is1rmMetric ? 'kg' : 'lbs'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-400">Wathan:</span>
-                      <span className="text-white font-bold">{calcWathan} {is1rmMetric ? 'kg' : 'lbs'}</span>
+                      <span className="text-white font-medium">{calcEpley} {is1rmMetric ? 'kg' : 'lbs'}</span>
                     </div>
                   </div>
                 </div>
@@ -560,72 +524,45 @@ export const WorkoutPlanner: React.FC = () => {
               <div className="lg:col-span-7 space-y-6">
                 
                 {/* Highlight 1RM Box */}
-                <div className="bg-zinc-950 border border-white/15 p-6 sm:p-8 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-[#d8ff38]/10 rounded-full blur-[80px] pointer-events-none" />
-                  
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-                    <div>
-                      <span className="text-xs font-mono-num uppercase tracking-widest text-zinc-400">
-                        {liftName}
-                      </span>
-                      <h4 className="text-sm font-bold uppercase font-mono-num text-[#d8ff38] mt-0.5">
-                        COMPOSITE 1-REP MAX (100% 1RM)
-                      </h4>
-                    </div>
-                    <span className="px-3 py-1 bg-zinc-900 border border-white/10 text-white font-mono-num text-xs uppercase">
+                <div className="bg-[#0c0c0e] border border-white/10 rounded-[4px] p-6 space-y-3">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <span className="text-xs font-mono-num uppercase tracking-wider text-zinc-400">
+                      {liftName}
+                    </span>
+                    <span className="text-xs font-mono-num text-[#d8ff38]">
                       BASED ON {repsDone} RM
                     </span>
                   </div>
 
-                  <div className="flex items-baseline gap-3 my-4">
-                    <span className="text-5xl sm:text-7xl font-extrabold font-display text-white tracking-tight">
+                  <div className="flex items-baseline gap-2 py-2">
+                    <span className="text-4xl sm:text-6xl font-extrabold font-display text-white">
                       {estimated1RM}
                     </span>
-                    <span className="text-xl sm:text-2xl font-bold font-mono-num text-[#d8ff38] uppercase">
+                    <span className="text-lg font-bold font-mono-num text-[#d8ff38]">
                       {is1rmMetric ? 'KG' : 'LBS'}
                     </span>
                   </div>
 
-                  <p className="text-xs font-mono-num text-zinc-400 leading-relaxed">
-                    Calculated composite score derived across the 5 primary sports science biomechanical models.
+                  <p className="text-xs font-mono-num text-zinc-400">
+                    Composite 1RM calculated from validated sports science formulas.
                   </p>
                 </div>
 
                 {/* Percentage Load Matrix */}
-                <div className="bg-zinc-950 border border-white/10 p-6 space-y-4">
-                  <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
-                    PERIODIZED LOAD SPECTRUM (% 1RM):
+                <div className="bg-[#0c0c0e] border border-white/10 rounded-[4px] p-5 space-y-3">
+                  <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-zinc-300">
+                    LOAD SPECTRUM (% 1RM):
                   </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono-num">
-                    {percentageTable.map(row => (
-                      <div key={row.percent} className="p-3 bg-zinc-900/60 border border-white/5 space-y-1">
+                  <div className="grid grid-cols-3 gap-2 font-mono-num">
+                    {percentageTable.slice(0, 6).map(row => (
+                      <div key={row.percent} className="p-2.5 bg-zinc-900/50 border border-white/5 rounded-[2px] space-y-0.5">
                         <div className="flex justify-between text-xs">
                           <span className="text-[#d8ff38] font-bold">{row.percent}%</span>
-                          <span className="text-zinc-400">{row.reps}</span>
+                          <span className="text-zinc-400 text-[10px]">{row.reps}</span>
                         </div>
-                        <div className="text-base font-bold text-white">
+                        <div className="text-sm font-bold text-white">
                           {row.load} {is1rmMetric ? 'kg' : 'lbs'}
                         </div>
-                        <div className="text-[10px] text-zinc-500 truncate">
-                          {row.desc}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Warmup Pyramid Calculator */}
-                <div className="bg-zinc-950 border border-white/10 p-6 space-y-4">
-                  <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
-                    OPTIMAL BARBELL WARM-UP PYRAMID:
-                  </h4>
-                  <div className="space-y-2 font-mono-num text-xs">
-                    {warmupPyramid.map((wp, wIdx) => (
-                      <div key={wIdx} className="flex items-center justify-between p-2.5 bg-zinc-900/40 border border-white/5">
-                        <span className="text-[#d8ff38] font-bold">{wp.set}</span>
-                        <span className="text-white font-medium">{wp.load}</span>
-                        <span className="text-zinc-400">{wp.reps}</span>
-                        <span className="text-zinc-500">Rest: {wp.rest}</span>
                       </div>
                     ))}
                   </div>
@@ -634,27 +571,24 @@ export const WorkoutPlanner: React.FC = () => {
               </div>
 
             </div>
-
           </div>
         )}
 
-        {/* View Mode 3: EXERCISE CATALOG & VIDEO REELS */}
+        {/* View Mode 3: EXERCISE CATALOG (16:9 VIDEO PREVIEWS) */}
         {viewMode === 'LIBRARY' && (
-          <div className="space-y-8">
+          <div className="space-y-6">
             
             {/* Category Filter & Search Bar */}
-            <div className="bg-zinc-950 border border-white/10 p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative flex-1 w-full">
-                  <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search exercise name, target muscle, or biomechanical cue..."
-                    className="w-full bg-zinc-900 border border-zinc-800 pl-10 pr-4 py-2.5 text-xs font-mono-num text-white focus:border-[#d8ff38] focus:outline-none"
-                  />
-                </div>
+            <div className="bg-[#0c0c0e] border border-white/10 rounded-[4px] p-4 space-y-3">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search exercise name or target muscle..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-[3px] pl-9 pr-3 py-2 text-xs font-mono-num text-white focus:border-[#d8ff38] focus:outline-none min-h-[44px]"
+                />
               </div>
 
               {/* Category Pills */}
@@ -663,10 +597,10 @@ export const WorkoutPlanner: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedExerciseCategory(cat.id as any)}
-                    className={`px-3 py-1.5 uppercase font-bold tracking-wider border transition-all shrink-0 ${
+                    className={`px-3 py-1.5 uppercase font-medium tracking-wider border rounded-[2px] transition-colors shrink-0 ${
                       selectedExerciseCategory === cat.id
-                        ? 'bg-[#d8ff38] text-black border-[#d8ff38]'
-                        : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-900/50'
+                        ? 'bg-[#d8ff38] text-black border-[#d8ff38] font-bold'
+                        : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-900/40'
                     }`}
                   >
                     {cat.label}
@@ -675,66 +609,58 @@ export const WorkoutPlanner: React.FC = () => {
               </div>
             </div>
 
-            {/* Exercise Grid */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Exercise Grid with 16:9 Thumbnails */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredExercises.map(ex => (
                 <div 
                   key={ex.id}
-                  className="bg-zinc-950 border border-white/10 overflow-hidden flex flex-col justify-between hover:border-white/20 transition-all group"
+                  onClick={() => setActiveExerciseModal(ex)}
+                  className="bg-[#0c0c0e] border border-white/10 rounded-[4px] overflow-hidden flex flex-col justify-between hover:border-white/20 transition-all cursor-pointer group"
                 >
                   <div>
-                    {/* 9:16 Video Thumbnail Container */}
-                    <div 
-                      onClick={() => setActiveExerciseModal(ex)}
-                      className="relative aspect-[9/16] max-h-[280px] w-full bg-zinc-900 overflow-hidden cursor-pointer"
-                    >
+                    {/* Standard 16:9 Video Preview */}
+                    <div className="relative aspect-video w-full bg-zinc-900 overflow-hidden">
                       {ex.videoThumbnail ? (
                         <img
                           src={ex.videoThumbnail}
                           alt={ex.name}
-                          className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-102 transition-transform duration-300"
                           referrerPolicy="no-referrer"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-600">
-                          <Video size={36} />
+                          <Video size={30} />
                         </div>
                       )}
+                      
+                      {/* Subtle Play Overlay */}
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-0.5 shadow-lg group-hover:scale-110 transition-transform">
-                          <Play size={18} fill="currentColor" />
+                        <div className="w-11 h-11 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-0.5 shadow-md group-hover:scale-105 transition-transform">
+                          <Play size={16} fill="currentColor" />
                         </div>
                       </div>
-                      <span className="absolute top-2 left-2 bg-black/80 px-2 py-0.5 text-[9px] font-mono-num font-bold text-[#d8ff38] uppercase border border-white/10">
+
+                      <span className="absolute top-2 left-2 bg-black/80 px-2 py-0.5 text-[9px] font-mono-num font-medium text-zinc-300 uppercase rounded-[2px] border border-white/10">
                         {ex.category}
-                      </span>
-                      <span className="absolute top-2 right-2 bg-black/80 px-2 py-0.5 text-[9px] font-mono-num text-zinc-300 uppercase border border-white/10">
-                        9:16 VIDEO
                       </span>
                     </div>
 
-                    <div className="p-5 space-y-3">
-                      <h4 className="text-base font-bold font-mono-num text-white">
+                    <div className="p-4 space-y-2">
+                      <h4 className="text-base font-semibold text-white group-hover:text-[#d8ff38] transition-colors font-mono-num">
                         {ex.name}
                       </h4>
-                      <p className="text-xs font-mono-num text-zinc-400">
-                        TARGET: <strong className="text-zinc-200">{ex.targetMuscles}</strong>
-                      </p>
-                      <p className="text-xs text-zinc-400 italic bg-black/40 border-l-2 border-[#d8ff38] pl-2.5 py-1 font-mono-num">
-                        {ex.keyFormTip}
+                      <p className="text-xs font-mono-num text-zinc-400 line-clamp-1">
+                        Target: <span className="text-zinc-300">{ex.targetMuscles}</span>
                       </p>
                     </div>
                   </div>
 
-                  <div className="p-5 pt-0 border-t border-white/5 flex items-center justify-between font-mono-num text-xs">
-                    <span className="text-zinc-500 uppercase">{ex.equipment.replace('_', ' ')}</span>
-                    <button
-                      onClick={() => setActiveExerciseModal(ex)}
-                      className="text-[#d8ff38] hover:underline font-bold uppercase flex items-center gap-1"
-                    >
-                      <span>WATCH FORM</span>
+                  <div className="p-4 pt-0 flex items-center justify-between font-mono-num text-xs border-t border-white/5">
+                    <span className="text-zinc-500 uppercase text-[10px]">{ex.equipment.replace('_', ' ')}</span>
+                    <span className="text-[#d8ff38] font-medium text-[11px] flex items-center gap-0.5 group-hover:underline">
+                      Watch Form
                       <ChevronRight size={12} />
-                    </button>
+                    </span>
                   </div>
                 </div>
               ))}
@@ -744,60 +670,52 @@ export const WorkoutPlanner: React.FC = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* ONE-TIME / ON-DEMAND PROGRAM CONFIGURATION POP-UP MODAL                   */}
+        {/* ONE-TIME POPUP MODAL: PROGRAM CONFIGURATION                               */}
         {/* ========================================================================= */}
         {isConfigModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-[#0b0b0e] border border-[#d8ff38]/30 max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-[#0e0e11] border border-white/15 rounded-[6px] max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
               
-              {/* Modal Top Header */}
-              <div className="flex items-start justify-between border-b border-white/10 pb-4">
+              <div className="flex items-start justify-between border-b border-white/10 pb-3">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Sparkles size={14} className="text-[#d8ff38]" />
-                    <span className="text-[10px] font-mono-num font-bold uppercase tracking-[0.2em] text-[#d8ff38]">
-                      TAILORED ATHLETIC SPLIT
-                    </span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
-                    CUSTOMIZE YOUR WORKOUT PROGRAM
+                  <h3 className="text-lg sm:text-xl font-bold uppercase font-display text-white">
+                    CUSTOMIZE TRAINING SPLIT
                   </h3>
-                  <p className="text-xs font-mono-num text-zinc-400 mt-1">
-                    Answer these quick parameters once to generate your periodized routine.
+                  <p className="text-xs font-mono-num text-zinc-400 mt-0.5">
+                    Set your parameters to generate your personalized routine.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsConfigModalOpen(false)}
-                  className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 hover:border-white/20 transition-colors shrink-0"
+                  className="p-1.5 text-zinc-400 hover:text-white rounded transition-colors"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              {/* Form Controls */}
-              <form onSubmit={handleGenerateWorkout} className="space-y-6">
+              <form onSubmit={handleGenerateWorkout} className="space-y-4 font-mono-num text-xs">
                 
-                {/* 1. Primary Goal */}
+                {/* 1. Goal */}
                 <div>
-                  <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
-                    1. PRIMARY ADAPTATION GOAL
+                  <label className="block text-zinc-300 font-medium uppercase mb-1.5">
+                    PRIMARY GOAL
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5">
                     {[
-                      { id: 'BUILD_MUSCLE', label: 'MUSCLE HYPERTROPHY' },
-                      { id: 'LOSE_WEIGHT', label: 'METABOLIC FAT LOSS' },
-                      { id: 'STRENGTH', label: 'PURE FORCE / STRENGTH' },
-                      { id: 'ENDURANCE', label: 'AEROBIC ENDURANCE' }
+                      { id: 'BUILD_MUSCLE', label: 'HYPERTROPHY' },
+                      { id: 'LOSE_WEIGHT', label: 'FAT LOSS' },
+                      { id: 'STRENGTH', label: 'STRENGTH' },
+                      { id: 'ENDURANCE', label: 'ENDURANCE' }
                     ].map(g => (
                       <button
                         key={g.id}
                         type="button"
                         onClick={() => setGoal(g.id as FitnessGoal)}
-                        className={`p-3 text-left text-xs font-mono-num font-bold uppercase border transition-all ${
+                        className={`p-2.5 text-left rounded-[3px] border font-bold uppercase transition-colors ${
                           goal === g.id 
-                            ? 'border-[#d8ff38] bg-[#d8ff38]/15 text-white shadow-[0_0_10px_rgba(216,255,56,0.15)]' 
-                            : 'border-zinc-800 text-zinc-400 hover:border-zinc-700 bg-zinc-900/40'
+                            ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white' 
+                            : 'border-zinc-800 text-zinc-400 bg-zinc-900/40 hover:border-zinc-700'
                         }`}
                       >
                         {g.label}
@@ -807,49 +725,44 @@ export const WorkoutPlanner: React.FC = () => {
                 </div>
 
                 {/* 2. Experience & Equipment */}
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
-                      2. TRAINING AGE / EXPERIENCE
+                    <label className="block text-zinc-300 font-medium uppercase mb-1.5">
+                      EXPERIENCE
                     </label>
-                    <div className="grid grid-cols-3 gap-1">
-                      {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map(exp => (
-                        <button
-                          key={exp}
-                          type="button"
-                          onClick={() => setExperience(exp as any)}
-                          className={`py-2 text-[11px] font-mono-num font-bold uppercase border ${
-                            experience === exp ? 'bg-white text-black border-white' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
-                          }`}
-                        >
-                          {exp.slice(0, 3)}
-                        </button>
-                      ))}
-                    </div>
+                    <select
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value as any)}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-[3px] p-2 text-white outline-none"
+                    >
+                      <option value="BEGINNER">BEGINNER</option>
+                      <option value="INTERMEDIATE">INTERMEDIATE</option>
+                      <option value="ADVANCED">ADVANCED</option>
+                    </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
-                      3. EQUIPMENT ACCESS
+                    <label className="block text-zinc-300 font-medium uppercase mb-1.5">
+                      EQUIPMENT
                     </label>
                     <select
                       value={equipment}
                       onChange={(e) => setEquipment(e.target.value as EquipmentType)}
-                      className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white font-mono-num text-xs focus:border-[#d8ff38] outline-none uppercase"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-[3px] p-2 text-white outline-none"
                     >
-                      <option value="FULL_GYM">FULL COMMERCIAL GYM</option>
-                      <option value="HOME_GYM">HOME GYM / SQUAT RACK</option>
+                      <option value="FULL_GYM">FULL GYM</option>
+                      <option value="HOME_GYM">HOME GYM / RACK</option>
                       <option value="DUMBBELLS">DUMBBELLS ONLY</option>
-                      <option value="NO_EQUIPMENT">BODYWEIGHT / CALISTHENICS</option>
+                      <option value="NO_EQUIPMENT">BODYWEIGHT</option>
                     </select>
                   </div>
                 </div>
 
-                {/* 3. Schedule & Duration */}
-                <div className="grid sm:grid-cols-2 gap-4">
+                {/* 3. Days & Duration */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
-                      4. DAYS PER WEEK
+                    <label className="block text-zinc-300 font-medium uppercase mb-1.5">
+                      DAYS / WEEK
                     </label>
                     <div className="grid grid-cols-4 gap-1">
                       {[3, 4, 5, 6].map(d => (
@@ -857,19 +770,19 @@ export const WorkoutPlanner: React.FC = () => {
                           key={d}
                           type="button"
                           onClick={() => setDaysPerWeek(d)}
-                          className={`py-2 text-xs font-mono-num font-bold uppercase border ${
+                          className={`py-1.5 font-bold uppercase rounded-[2px] border ${
                             daysPerWeek === d ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
                           }`}
                         >
-                          {d} DAYS
+                          {d}D
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
-                      5. SESSION DURATION
+                    <label className="block text-zinc-300 font-medium uppercase mb-1.5">
+                      DURATION
                     </label>
                     <div className="grid grid-cols-4 gap-1">
                       {[30, 45, 60, 75].map(m => (
@@ -877,32 +790,31 @@ export const WorkoutPlanner: React.FC = () => {
                           key={m}
                           type="button"
                           onClick={() => setDurationMinutes(m)}
-                          className={`py-2 text-xs font-mono-num font-bold uppercase border ${
+                          className={`py-1.5 font-bold uppercase rounded-[2px] border ${
                             durationMinutes === m ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
                           }`}
                         >
-                          {m} MIN
+                          {m}m
                         </button>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Submit CTA */}
-                <div className="pt-2 border-t border-white/10 flex items-center justify-end gap-3">
+                {/* CTA */}
+                <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setIsConfigModalOpen(false)}
-                    className="px-4 py-2.5 bg-zinc-900 text-zinc-400 uppercase font-mono-num font-bold text-xs hover:text-white border border-zinc-800"
+                    className="px-4 py-2 bg-zinc-900 text-zinc-400 uppercase font-medium hover:text-white rounded-[3px]"
                   >
-                    CANCEL
+                    Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_15px_rgba(216,255,56,0.3)] transition-all"
+                    className="px-5 py-2 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-bold uppercase tracking-wider rounded-[3px] transition-colors"
                   >
-                    <span>GENERATE & APPLY SPLIT</span>
-                    <ChevronRight size={14} />
+                    Apply Split
                   </button>
                 </div>
 
@@ -913,105 +825,94 @@ export const WorkoutPlanner: React.FC = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* 9:16 VERTICAL EXERCISE VIDEO & FORM MODAL                                 */}
+        {/* PREMIUM MINIMALIST EXERCISE VIDEO & EXECUTION PROTOCOL MODAL              */}
         {/* ========================================================================= */}
         {activeExerciseModal && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-[#0b0b0e] border border-white/20 max-w-4xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b0b0e] border border-white/10 rounded-[6px] max-w-2xl w-full p-5 sm:p-7 space-y-5 shadow-2xl relative my-auto">
               
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <span className="text-[10px] font-mono-num font-bold uppercase tracking-[0.2em] text-[#d8ff38]">
-                    {activeExerciseModal.category} // {activeExerciseModal.difficulty}
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white mt-1">
+              {/* Top Header: Exercise Name & Subtitle */}
+              <div className="flex items-start justify-between border-b border-white/10 pb-4">
+                <div className="space-y-0.5">
+                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white tracking-tight">
                     {activeExerciseModal.name}
                   </h3>
+                  <p className="text-xs font-mono-num text-zinc-400">
+                    {activeExerciseModal.category} · {activeExerciseModal.difficulty} · {activeExerciseModal.equipment.replace('_', ' ')}
+                  </p>
                 </div>
+                
                 <button
                   onClick={() => setActiveExerciseModal(null)}
-                  className="px-3 py-1.5 bg-zinc-900 text-zinc-400 hover:text-white text-xs font-mono-num uppercase border border-zinc-800"
+                  className="p-2 text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 rounded-[4px] transition-colors shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  aria-label="Close exercise modal"
                 >
-                  CLOSE
+                  <X size={16} />
                 </button>
               </div>
 
-              {/* 2-Column Responsive Layout: 9:16 Video on Left, Protocol on Right */}
-              <div className="grid md:grid-cols-12 gap-6 items-start">
-                
-                {/* 9:16 Vertical Video Player */}
-                <div className="md:col-span-5 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-mono-num">
-                    <span className="text-zinc-400 uppercase font-bold flex items-center gap-1.5">
-                      <Video size={13} className="text-[#d8ff38]" />
-                      <span>9:16 VIDEO FORM GUIDE</span>
-                    </span>
-                    {activeExerciseModal.videoUrl && (
-                      <span className="text-[10px] text-[#d8ff38] font-bold">
-                        COACH APPROVED
-                      </span>
-                    )}
-                  </div>
+              {/* 16:9 Clean Responsive Video Player */}
+              <div className="w-full">
+                <ExerciseVideoPlayer
+                  videoUrl={activeExerciseModal.videoUrl}
+                  thumbnailUrl={activeExerciseModal.videoThumbnail}
+                  exerciseName={activeExerciseModal.name}
+                  aspectRatio="16/9"
+                  autoPlay={false}
+                  className="rounded-[4px]"
+                />
+              </div>
 
-                  <ExerciseVideoPlayer
-                    videoUrl={activeExerciseModal.videoUrl}
-                    thumbnailUrl={activeExerciseModal.videoThumbnail}
-                    exerciseName={activeExerciseModal.name}
-                    aspectRatio="9/16"
-                    className="rounded-sm"
-                  />
+              {/* Compact Metadata Card: Target & Equipment */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-3.5 px-4 bg-zinc-900/40 border border-white/5 rounded-[4px] text-xs font-mono-num">
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mb-1">TARGET</span>
+                  <span className="text-zinc-200 font-medium">
+                    {activeExerciseModal.targetMuscles.split(',').map(m => m.trim()).join(' · ')}
+                  </span>
                 </div>
-
-                {/* Details / Protocol on Right */}
-                <div className="md:col-span-7 space-y-4">
-                  
-                  {/* Target Muscles & Equipment */}
-                  <div className="p-3 bg-zinc-900/60 border border-white/5 text-xs font-mono-num text-zinc-300 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-[#d8ff38] font-bold uppercase">TARGET: </span>
-                        <span>{activeExerciseModal.targetMuscles}</span>
-                      </div>
-                      <span className="text-[10px] text-zinc-400 uppercase bg-black/40 px-2 py-0.5 border border-white/10">
-                        {activeExerciseModal.equipment.replace('_', ' ')}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Execution Steps */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
-                      EXECUTION PROTOCOL:
-                    </h4>
-                    <div className="space-y-2 font-mono-num text-xs text-zinc-300">
-                      {activeExerciseModal.instructions.map((step, sIdx) => (
-                        <div key={sIdx} className="flex items-start gap-3 bg-zinc-950 p-2.5 border border-white/5">
-                          <span className="text-[#d8ff38] font-bold shrink-0">0{sIdx + 1}.</span>
-                          <p className="leading-relaxed">{step}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Golden Form Tip */}
-                  <div className="p-3.5 bg-zinc-900 border-l-2 border-[#d8ff38] text-xs font-mono-num text-zinc-200">
-                    <span className="text-[#d8ff38] font-bold uppercase block mb-1">COACH BIOMECHANICAL CUE</span>
-                    <p>{activeExerciseModal.keyFormTip}</p>
-                  </div>
-
-                  {/* Prescribed Rest & Got It Button */}
-                  <div className="flex items-center justify-between text-xs font-mono-num text-zinc-400 border-t border-white/10 pt-3">
-                    <span>PRESCRIBED REST: {activeExerciseModal.restSeconds}S</span>
-                    <button
-                      onClick={() => setActiveExerciseModal(null)}
-                      className="px-5 py-2 bg-[#d8ff38] text-black font-bold uppercase text-xs hover:bg-[#cbf425]"
-                    >
-                      GOT IT
-                    </button>
-                  </div>
-
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-widest block mb-1">EQUIPMENT</span>
+                  <span className="text-[#d8ff38] font-bold">
+                    {activeExerciseModal.equipment.replace('_', ' ')}
+                  </span>
                 </div>
+              </div>
 
+              {/* Execution Protocol (Clean Numbered List 01, 02, 03) */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-mono-num font-bold uppercase tracking-widest text-zinc-400">
+                  EXECUTION PROTOCOL
+                </h4>
+                <div className="space-y-3 font-mono-num">
+                  {activeExerciseModal.instructions.map((step, sIdx) => (
+                    <div key={sIdx} className="space-y-1 pb-3 border-b border-white/5 last:border-0 last:pb-0">
+                      <span className="text-xs font-bold text-[#d8ff38]">
+                        {sIdx < 9 ? `0${sIdx + 1}` : sIdx + 1}
+                      </span>
+                      <p className="text-sm text-zinc-200 leading-relaxed font-sans">{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Minimal Coaching Biomechanical Cue */}
+              {activeExerciseModal.keyFormTip && (
+                <div className="p-3.5 bg-zinc-900/60 border-l-2 border-[#d8ff38] rounded-[2px] space-y-1 font-mono-num">
+                  <span className="text-[10px] text-[#d8ff38] font-bold uppercase tracking-wider block">COACHING CUE</span>
+                  <p className="text-xs text-zinc-300 leading-relaxed font-sans">{activeExerciseModal.keyFormTip}</p>
+                </div>
+              )}
+
+              {/* Footer with Rest and Done Button */}
+              <div className="flex items-center justify-between text-xs font-mono-num text-zinc-400 border-t border-white/10 pt-3">
+                <span>Prescribed Rest: <strong className="text-white">{activeExerciseModal.restSeconds}s</strong></span>
+                <button
+                  onClick={() => setActiveExerciseModal(null)}
+                  className="px-5 py-2 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-bold uppercase text-xs rounded-[3px] transition-colors min-h-[40px]"
+                >
+                  Done
+                </button>
               </div>
 
             </div>

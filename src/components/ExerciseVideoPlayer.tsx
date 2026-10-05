@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { Play, ExternalLink, AlertCircle, Video } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  RotateCw, 
+  Maximize, 
+  Minimize, 
+  Volume2, 
+  VolumeX, 
+  Video as VideoIcon,
+  Check
+} from 'lucide-react';
 
 interface ExerciseVideoPlayerProps {
   videoUrl?: string;
@@ -7,7 +18,7 @@ interface ExerciseVideoPlayerProps {
   exerciseName: string;
   className?: string;
   autoPlay?: boolean;
-  aspectRatio?: '9/16' | '16/9' | 'auto';
+  aspectRatio?: '16/9' | 'auto';
 }
 
 export function parseExerciseVideoEmbed(url?: string): {
@@ -27,12 +38,12 @@ export function parseExerciseVideoEmbed(url?: string): {
     const videoId = ytMatch[1];
     return {
       type: 'youtube',
-      embedUrl: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`,
+      embedUrl: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1&autoplay=1`,
       rawUrl: cleanUrl
     };
   }
 
-  // 2. Google Drive video links (e.g., https://drive.google.com/file/d/ID/view, https://drive.google.com/open?id=ID)
+  // 2. Google Drive video links (https://drive.google.com/file/d/ID/view, open?id=ID, uc?id=ID)
   const gdriveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/([a-zA-Z0-9_-]+)|open\?(?:.*&)?id=([a-zA-Z0-9_-]+)|uc\?(?:.*&)?id=([a-zA-Z0-9_-]+))/i);
   if (gdriveMatch) {
     const fileId = gdriveMatch[1] || gdriveMatch[2] || gdriveMatch[3];
@@ -50,7 +61,7 @@ export function parseExerciseVideoEmbed(url?: string): {
   if (vimeoMatch && vimeoMatch[3]) {
     return {
       type: 'vimeo',
-      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}?title=0&byline=0&portrait=0`,
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}?title=0&byline=0&portrait=0&autoplay=1`,
       rawUrl: cleanUrl
     };
   }
@@ -61,7 +72,7 @@ export function parseExerciseVideoEmbed(url?: string): {
     if (loomId) {
       return {
         type: 'loom',
-        embedUrl: `https://www.loom.com/embed/${loomId}`,
+        embedUrl: `https://www.loom.com/embed/${loomId}?autoplay=1`,
         rawUrl: cleanUrl
       };
     }
@@ -87,141 +98,406 @@ export function parseExerciseVideoEmbed(url?: string): {
   return { type: 'none' };
 }
 
+// Format seconds into m:ss
+const formatTime = (seconds: number): string => {
+  if (isNaN(seconds) || seconds < 0) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+};
+
 export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   videoUrl,
   thumbnailUrl,
   exerciseName,
   className = '',
   autoPlay = false,
-  aspectRatio = '9/16'
+  aspectRatio = '16/9'
 }) => {
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [isPlaying, setIsPlaying] = useState<boolean>(autoPlay);
+  const [isEnded, setIsEnded] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const [showSpeedMenu, setShowSpeedMenu] = useState<boolean>(false);
+  const [showControls, setShowControls] = useState<boolean>(true);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isEmbedActivated, setIsEmbedActivated] = useState<boolean>(autoPlay);
+
   const parsed = parseExerciseVideoEmbed(videoUrl);
 
-  const aspectClass = aspectRatio === '9/16' 
-    ? 'aspect-[9/16] max-w-[340px] sm:max-w-[380px] mx-auto w-full' 
-    : aspectRatio === '16/9' 
-    ? 'aspect-video w-full' 
-    : 'w-full';
+  // Handle autohiding controls during playback
+  const resetControlsTimer = () => {
+    setShowControls(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false);
+        setShowSpeedMenu(false);
+      }, 2500);
+    }
+  };
 
+  useEffect(() => {
+    if (isPlaying) {
+      resetControlsTimer();
+    } else {
+      setShowControls(true);
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    }
+    return () => {
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    };
+  }, [isPlaying]);
+
+  // Handle Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // HTML5 Video Event Handlers
+  const handlePlayPause = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!videoRef.current) {
+      setIsEmbedActivated(true);
+      setIsPlaying(true);
+      return;
+    }
+
+    if (isEnded) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+      setIsPlaying(true);
+      setIsEnded(false);
+      return;
+    }
+
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return;
+    setCurrentTime(videoRef.current.currentTime);
+  };
+
+  const handleLoadedMetadata = () => {
+    if (!videoRef.current) return;
+    setDuration(videoRef.current.duration || 0);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = Number(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const handleSkip = (seconds: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = Math.max(0, Math.min(duration, videoRef.current.currentTime + seconds));
+    resetControlsTimer();
+  };
+
+  const handleToggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoRef.current.muted;
+    setIsMuted(videoRef.current.muted);
+  };
+
+  const handleChangeSpeed = (speed: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.playbackRate = speed;
+    }
+    setPlaybackSpeed(speed);
+    setShowSpeedMenu(false);
+  };
+
+  const handleVideoEnded = () => {
+    setIsPlaying(false);
+    setIsEnded(true);
+    setShowControls(true);
+  };
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : isEnded ? 100 : 0;
+
+  // Placeholder when no video
   if (parsed.type === 'none') {
     return (
-      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden flex flex-col items-center justify-center text-center p-6 ${aspectClass} ${className}`}>
+      <div className={`relative w-full aspect-video bg-[#0c0c0e] border border-white/10 rounded-[4px] overflow-hidden flex flex-col items-center justify-center text-center p-6 ${className}`}>
         {thumbnailUrl ? (
           <>
             <img
               src={thumbnailUrl}
               alt={exerciseName}
-              className="absolute inset-0 w-full h-full object-cover filter grayscale contrast-125 opacity-30"
+              className="absolute inset-0 w-full h-full object-cover filter grayscale contrast-125 opacity-25"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/60 to-transparent" />
           </>
         ) : null}
-        <div className="relative z-10 space-y-2 p-4">
-          <div className="w-12 h-12 mx-auto rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[#d8ff38]">
-            <Video size={20} />
+        <div className="relative z-10 space-y-2">
+          <div className="w-10 h-10 mx-auto rounded-full bg-zinc-900/80 border border-white/10 flex items-center justify-center text-zinc-400">
+            <VideoIcon size={18} />
           </div>
           <p className="text-xs font-mono-num text-zinc-300">
-            Form demo for <span className="text-white font-bold block mt-0.5">{exerciseName}</span>
+            Demonstration for <span className="text-white font-medium">{exerciseName}</span>
           </p>
-          <span className="inline-block text-[10px] font-mono-num text-zinc-500 uppercase tracking-wider bg-black/60 px-2 py-0.5 border border-white/5">
-            9:16 VERTICAL COACHING
+          <span className="text-[10px] font-mono-num text-zinc-500 uppercase">
+            Form Guide
           </span>
         </div>
       </div>
     );
   }
 
-  if (parsed.type === 'link') {
-    return (
-      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden ${aspectClass} ${className}`}>
-        {thumbnailUrl ? (
-          <img
-            src={thumbnailUrl}
-            alt={exerciseName}
-            className="w-full h-full object-cover filter grayscale contrast-125"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-            <Video size={36} className="text-zinc-600" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center">
-          <a
-            href={parsed.rawUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition-transform hover:scale-105"
-          >
-            <Play size={14} fill="currentColor" />
-            <span>WATCH 9:16 VIDEO</span>
-            <ExternalLink size={12} />
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (parsed.type === 'direct') {
-    return (
-      <div className={`relative bg-black border border-white/10 overflow-hidden ${aspectClass} ${className}`}>
-        <video
-          src={parsed.embedUrl}
-          controls
-          playsInline
-          poster={thumbnailUrl}
-          className="w-full h-full object-contain bg-black"
+  // Embeddable Players (Google Drive / YouTube / Vimeo / Loom)
+  if (parsed.type === 'gdrive' || parsed.type === 'youtube' || parsed.type === 'vimeo' || parsed.type === 'loom') {
+    if (!isEmbedActivated) {
+      return (
+        <div 
+          ref={containerRef}
+          onClick={() => { setIsEmbedActivated(true); setIsPlaying(true); }}
+          className={`relative w-full aspect-video bg-[#09090b] border border-white/10 rounded-[4px] overflow-hidden cursor-pointer group select-none ${className}`}
         >
-          Your browser does not support HTML5 video.
-        </video>
-      </div>
-    );
-  }
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={exerciseName}
+              className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-102 transition-transform duration-300"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#0e0e11] flex items-center justify-center">
+              <VideoIcon size={32} className="text-zinc-600" />
+            </div>
+          )}
 
-  // Embeddable preview before playing (YouTube, Google Drive, Vimeo, Loom)
-  if (!isPlaying && thumbnailUrl) {
+          {/* Minimal Dim Layer */}
+          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+            {/* Single Center Play Button (56px) */}
+            <button
+              type="button"
+              className="w-14 h-14 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-1 shadow-lg group-hover:scale-105 active:scale-95 transition-transform"
+              aria-label={`Play demonstration video for ${exerciseName}`}
+            >
+              <Play size={22} fill="currentColor" />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div 
-        className={`relative bg-zinc-950 border border-white/10 overflow-hidden group cursor-pointer ${aspectClass} ${className}`} 
-        onClick={() => setIsPlaying(true)}
+        ref={containerRef}
+        className={`relative w-full aspect-video bg-black border border-white/10 rounded-[4px] overflow-hidden ${className}`}
       >
-        <img
-          src={thumbnailUrl}
-          alt={exerciseName}
-          className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-500"
-          referrerPolicy="no-referrer"
+        <iframe
+          src={parsed.embedUrl}
+          title={`${exerciseName} form demonstration`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+          allowFullScreen
+          className="w-full h-full border-0 object-cover"
         />
-        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex flex-col items-center justify-center p-4 text-center">
-          <button
-            type="button"
-            className="w-14 h-14 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-1 shadow-[0_0_25px_rgba(216,255,56,0.6)] group-hover:scale-110 transition-transform"
-            aria-label={`Play 9:16 video for ${exerciseName}`}
-          >
-            <Play size={22} fill="currentColor" />
-          </button>
-          <div className="mt-4 px-3 py-1 bg-black/80 border border-white/10 text-[11px] font-mono-num font-bold uppercase tracking-wider text-white">
-            {parsed.type === 'gdrive' ? 'GOOGLE DRIVE 9:16 VIDEO' : 'PROPER FORM VIDEO'}
-          </div>
-          <span className="text-[10px] font-mono-num text-zinc-400 mt-1">
-            Click to play form demonstration
-          </span>
-        </div>
       </div>
     );
   }
 
-  // Embed Frame (Google Drive preview, YouTube, Vimeo, Loom in 9:16 orientation)
+  // HTML5 Native Video / Direct MP4 Stream with Minimal Custom Controls
   return (
-    <div className={`relative bg-black border border-white/10 overflow-hidden shadow-2xl ${aspectClass} ${className}`}>
-      <iframe
+    <div
+      ref={containerRef}
+      onMouseMove={resetControlsTimer}
+      onClick={() => {
+        if (isPlaying) {
+          setShowControls(prev => !prev);
+        } else {
+          handlePlayPause();
+        }
+      }}
+      className={`relative w-full aspect-video bg-black border border-white/10 rounded-[4px] overflow-hidden select-none group cursor-pointer ${className}`}
+    >
+      <video
+        ref={videoRef}
         src={parsed.embedUrl}
-        title={`${exerciseName} proper form demonstration video`}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-        allowFullScreen
-        className="w-full h-full border-0 object-cover"
+        poster={thumbnailUrl}
+        playsInline
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleVideoEnded}
+        className="w-full h-full object-contain bg-black"
       />
+
+      {/* Center Play / Replay Button Overlay (Shown when Paused or Ended) */}
+      {(!isPlaying || isEnded) && (
+        <div className="absolute inset-0 bg-black/35 flex items-center justify-center pointer-events-auto">
+          <button
+            type="button"
+            onClick={handlePlayPause}
+            className="w-14 h-14 rounded-full bg-[#d8ff38] hover:bg-[#cbf425] text-black flex items-center justify-center pl-0.5 shadow-lg hover:scale-105 active:scale-95 transition-transform"
+            aria-label={isEnded ? 'Replay video' : 'Play video'}
+          >
+            {isEnded ? (
+              <RotateCcw size={22} className="stroke-[2.5]" />
+            ) : (
+              <Play size={22} fill="currentColor" className="ml-0.5" />
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Minimal 10s Skip Buttons (Subtle, Transparent, visible on interaction) */}
+      {isPlaying && showControls && (
+        <div className="absolute inset-y-0 inset-x-6 flex items-center justify-between pointer-events-none">
+          <button
+            type="button"
+            onClick={(e) => handleSkip(-10, e)}
+            className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-zinc-300 hover:text-white flex items-center justify-center transition-colors opacity-70 hover:opacity-100"
+            title="Rewind 10s"
+          >
+            <RotateCcw size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleSkip(10, e)}
+            className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-zinc-300 hover:text-white flex items-center justify-center transition-colors opacity-70 hover:opacity-100"
+            title="Forward 10s"
+          >
+            <RotateCw size={16} />
+          </button>
+        </div>
+      )}
+
+      {/* Bottom Minimal Control Bar */}
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className={`absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-6 pb-2 px-3 sm:px-4 transition-opacity duration-300 ${
+          showControls || !isPlaying ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {/* Progress Bar */}
+        <div className="relative flex items-center group/scrub mb-2">
+          <input
+            type="range"
+            min="0"
+            max={duration || 100}
+            step="0.1"
+            value={currentTime}
+            onChange={handleSeek}
+            className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-[#d8ff38] focus:outline-none"
+            style={{
+              background: `linear-gradient(to right, #d8ff38 ${progressPercent}%, rgba(255,255,255,0.2) ${progressPercent}%)`
+            }}
+          />
+        </div>
+
+        {/* Control Buttons Row: Play/Pause | Time | Speed | Mute | Fullscreen */}
+        <div className="flex items-center justify-between text-white font-mono-num text-xs">
+          
+          {/* Left: Play/Pause & Time Display */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handlePlayPause}
+              className="text-white hover:text-[#d8ff38] p-1 transition-colors"
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+            >
+              {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+            </button>
+
+            <span className="text-[11px] text-zinc-300 tracking-wider">
+              {formatTime(currentTime)} <span className="text-zinc-500">/</span> {formatTime(duration || 0)}
+            </span>
+          </div>
+
+          {/* Right: Speed, Mute, Fullscreen */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Speed Selector */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setShowSpeedMenu(!showSpeedMenu); }}
+                className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[10px] text-zinc-300 hover:text-white transition-colors"
+              >
+                {playbackSpeed}x
+              </button>
+
+              {showSpeedMenu && (
+                <div className="absolute bottom-full right-0 mb-2 bg-[#121216] border border-white/10 rounded py-1 shadow-xl z-20">
+                  {[0.75, 1, 1.25, 1.5].map((speed) => (
+                    <button
+                      key={speed}
+                      type="button"
+                      onClick={(e) => handleChangeSpeed(speed, e)}
+                      className={`w-full px-3 py-1 text-left text-[11px] flex items-center justify-between gap-2 hover:bg-white/10 ${
+                        playbackSpeed === speed ? 'text-[#d8ff38] font-bold' : 'text-zinc-300'
+                      }`}
+                    >
+                      <span>{speed}x</span>
+                      {playbackSpeed === speed && <Check size={10} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Mute Button */}
+            <button
+              type="button"
+              onClick={handleToggleMute}
+              className="text-zinc-300 hover:text-white p-1 transition-colors"
+              aria-label={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            </button>
+
+            {/* Fullscreen Button */}
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="text-zinc-300 hover:text-white p-1 transition-colors"
+              aria-label={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            >
+              {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+            </button>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 };
