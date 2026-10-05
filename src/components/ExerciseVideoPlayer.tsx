@@ -7,10 +7,11 @@ interface ExerciseVideoPlayerProps {
   exerciseName: string;
   className?: string;
   autoPlay?: boolean;
+  aspectRatio?: '9/16' | '16/9' | 'auto';
 }
 
 export function parseExerciseVideoEmbed(url?: string): {
-  type: 'youtube' | 'vimeo' | 'loom' | 'direct' | 'link' | 'none';
+  type: 'youtube' | 'vimeo' | 'loom' | 'gdrive' | 'direct' | 'link' | 'none';
   embedUrl?: string;
   rawUrl?: string;
 } {
@@ -31,7 +32,20 @@ export function parseExerciseVideoEmbed(url?: string): {
     };
   }
 
-  // 2. Vimeo
+  // 2. Google Drive video links (e.g., https://drive.google.com/file/d/ID/view, https://drive.google.com/open?id=ID)
+  const gdriveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/([a-zA-Z0-9_-]+)|open\?(?:.*&)?id=([a-zA-Z0-9_-]+)|uc\?(?:.*&)?id=([a-zA-Z0-9_-]+))/i);
+  if (gdriveMatch) {
+    const fileId = gdriveMatch[1] || gdriveMatch[2] || gdriveMatch[3];
+    if (fileId) {
+      return {
+        type: 'gdrive',
+        embedUrl: `https://drive.google.com/file/d/${fileId}/preview`,
+        rawUrl: cleanUrl
+      };
+    }
+  }
+
+  // 3. Vimeo
   const vimeoMatch = cleanUrl.match(/(?:vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+))/i);
   if (vimeoMatch && vimeoMatch[3]) {
     return {
@@ -41,7 +55,7 @@ export function parseExerciseVideoEmbed(url?: string): {
     };
   }
 
-  // 3. Loom
+  // 4. Loom
   if (cleanUrl.includes('loom.com/share/')) {
     const loomId = cleanUrl.split('loom.com/share/')[1]?.split('?')[0];
     if (loomId) {
@@ -53,7 +67,7 @@ export function parseExerciseVideoEmbed(url?: string): {
     }
   }
 
-  // 4. Direct video files
+  // 5. Direct video files (.mp4, .webm, .mov, etc.)
   if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(cleanUrl)) {
     return {
       type: 'direct',
@@ -62,7 +76,7 @@ export function parseExerciseVideoEmbed(url?: string): {
     };
   }
 
-  // 5. Generic URL
+  // 6. Generic Link
   if (/^https?:\/\//i.test(cleanUrl)) {
     return {
       type: 'link',
@@ -78,14 +92,21 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   thumbnailUrl,
   exerciseName,
   className = '',
-  autoPlay = false
+  autoPlay = false,
+  aspectRatio = '9/16'
 }) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const parsed = parseExerciseVideoEmbed(videoUrl);
 
+  const aspectClass = aspectRatio === '9/16' 
+    ? 'aspect-[9/16] max-w-[340px] sm:max-w-[380px] mx-auto w-full' 
+    : aspectRatio === '16/9' 
+    ? 'aspect-video w-full' 
+    : 'w-full';
+
   if (parsed.type === 'none') {
     return (
-      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden flex flex-col items-center justify-center text-center p-6 min-h-[220px] ${className}`}>
+      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden flex flex-col items-center justify-center text-center p-6 ${aspectClass} ${className}`}>
         {thumbnailUrl ? (
           <>
             <img
@@ -97,16 +118,16 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30" />
           </>
         ) : null}
-        <div className="relative z-10 space-y-2">
-          <div className="w-10 h-10 mx-auto rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-500">
-            <Video size={18} />
+        <div className="relative z-10 space-y-2 p-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[#d8ff38]">
+            <Video size={20} />
           </div>
-          <p className="text-xs font-mono-num text-zinc-400">
-            Proper form demonstration for <span className="text-white font-bold">{exerciseName}</span>
+          <p className="text-xs font-mono-num text-zinc-300">
+            Form demo for <span className="text-white font-bold block mt-0.5">{exerciseName}</span>
           </p>
-          <p className="text-[10px] font-mono-num text-zinc-600">
-            Coach can add video link in the Exercise Admin
-          </p>
+          <span className="inline-block text-[10px] font-mono-num text-zinc-500 uppercase tracking-wider bg-black/60 px-2 py-0.5 border border-white/5">
+            9:16 VERTICAL COACHING
+          </span>
         </div>
       </div>
     );
@@ -114,17 +135,17 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
 
   if (parsed.type === 'link') {
     return (
-      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden ${className}`}>
+      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden ${aspectClass} ${className}`}>
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
             alt={exerciseName}
-            className="w-full h-48 sm:h-56 object-cover filter grayscale contrast-125"
+            className="w-full h-full object-cover filter grayscale contrast-125"
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="h-48 sm:h-56 bg-zinc-900 flex items-center justify-center">
-            <Video size={32} className="text-zinc-600" />
+          <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
+            <Video size={36} className="text-zinc-600" />
           </div>
         )}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center">
@@ -135,12 +156,9 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
             className="px-5 py-2.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition-transform hover:scale-105"
           >
             <Play size={14} fill="currentColor" />
-            <span>WATCH PROPER FORM VIDEO</span>
+            <span>WATCH 9:16 VIDEO</span>
             <ExternalLink size={12} />
           </a>
-          <span className="text-[10px] font-mono-num text-zinc-400 mt-2 truncate max-w-xs">
-            External demonstration guide
-          </span>
         </div>
       </div>
     );
@@ -148,13 +166,13 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
 
   if (parsed.type === 'direct') {
     return (
-      <div className={`relative bg-black border border-white/10 overflow-hidden ${className}`}>
+      <div className={`relative bg-black border border-white/10 overflow-hidden ${aspectClass} ${className}`}>
         <video
           src={parsed.embedUrl}
           controls
           playsInline
           poster={thumbnailUrl}
-          className="w-full h-full max-h-[360px] object-contain bg-black"
+          className="w-full h-full object-contain bg-black"
         >
           Your browser does not support HTML5 video.
         </video>
@@ -162,28 +180,31 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     );
   }
 
-  // Embeddable (YouTube, Vimeo, Loom)
+  // Embeddable preview before playing (YouTube, Google Drive, Vimeo, Loom)
   if (!isPlaying && thumbnailUrl) {
     return (
-      <div className={`relative bg-zinc-950 border border-white/10 overflow-hidden group cursor-pointer ${className}`} onClick={() => setIsPlaying(true)}>
+      <div 
+        className={`relative bg-zinc-950 border border-white/10 overflow-hidden group cursor-pointer ${aspectClass} ${className}`} 
+        onClick={() => setIsPlaying(true)}
+      >
         <img
           src={thumbnailUrl}
           alt={exerciseName}
-          className="w-full h-52 sm:h-64 object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-500"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors flex flex-col items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex flex-col items-center justify-center p-4 text-center">
           <button
             type="button"
-            className="w-14 h-14 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-1 shadow-[0_0_25px_rgba(216,255,56,0.5)] group-hover:scale-110 transition-transform"
-            aria-label={`Play proper form video for ${exerciseName}`}
+            className="w-14 h-14 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-1 shadow-[0_0_25px_rgba(216,255,56,0.6)] group-hover:scale-110 transition-transform"
+            aria-label={`Play 9:16 video for ${exerciseName}`}
           >
             <Play size={22} fill="currentColor" />
           </button>
-          <div className="mt-3 px-3 py-1 bg-black/80 border border-white/10 text-xs font-mono-num font-bold uppercase tracking-wider text-white">
-            PROPER FORM VIDEO
+          <div className="mt-4 px-3 py-1 bg-black/80 border border-white/10 text-[11px] font-mono-num font-bold uppercase tracking-wider text-white">
+            {parsed.type === 'gdrive' ? 'GOOGLE DRIVE 9:16 VIDEO' : 'PROPER FORM VIDEO'}
           </div>
-          <span className="text-[10px] font-mono-num text-zinc-300 mt-1">
+          <span className="text-[10px] font-mono-num text-zinc-400 mt-1">
             Click to play form demonstration
           </span>
         </div>
@@ -191,14 +212,15 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     );
   }
 
+  // Embed Frame (Google Drive preview, YouTube, Vimeo, Loom in 9:16 orientation)
   return (
-    <div className={`relative w-full aspect-video bg-black border border-white/10 overflow-hidden ${className}`}>
+    <div className={`relative bg-black border border-white/10 overflow-hidden shadow-2xl ${aspectClass} ${className}`}>
       <iframe
         src={parsed.embedUrl}
         title={`${exerciseName} proper form demonstration video`}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
         allowFullScreen
-        className="w-full h-full border-0"
+        className="w-full h-full border-0 object-cover"
       />
     </div>
   );

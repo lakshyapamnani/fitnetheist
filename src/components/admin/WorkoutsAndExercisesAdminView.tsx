@@ -337,12 +337,12 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
                 />
               </div>
 
-              {/* VIDEO URL INPUT FIELD (User Request) */}
+              {/* VIDEO URL INPUT FIELD (Google Drive, YouTube, Vimeo, MP4, Loom) */}
               <div className="p-3.5 bg-black/60 border border-[#d8ff38]/40 rounded-sm space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="block text-[#d8ff38] uppercase font-extrabold text-[11px] flex items-center gap-1.5">
                     <Video size={13} />
-                    <span>PROPER FORM VIDEO URL (YOUTUBE / VIMEO / MP4 / LOOM)</span>
+                    <span>PROPER FORM VIDEO URL (GOOGLE DRIVE / YOUTUBE / VIMEO / MP4 / LOOM)</span>
                   </label>
                   {videoUrl && (
                     <span className="text-[10px] text-green-400 font-bold flex items-center gap-1">
@@ -354,11 +354,11 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
                   type="url"
                   value={videoUrl}
                   onChange={(e) => setVideoUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  placeholder="https://drive.google.com/file/d/.../view or https://youtu.be/..."
                   className="w-full bg-zinc-950 border border-zinc-700 p-2.5 text-white font-mono text-xs focus:border-[#d8ff38] outline-none"
                 />
                 <p className="text-[10px] text-zinc-400 leading-relaxed">
-                  Paste the URL of the proper exercise form demonstration video. The client will be able to watch it directly in their active workout plan and exercise guides.
+                  Paste the URL of the proper form demo video. <strong>Google Drive links work seamlessly</strong> (make sure file sharing is set to <em>"Anyone with the link can view"</em>). Clients can play the video directly inside their workout plan.
                 </p>
               </div>
 

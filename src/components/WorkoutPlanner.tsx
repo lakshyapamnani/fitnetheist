@@ -9,8 +9,8 @@ import {
   Search, 
   Filter, 
   Play, 
-  Pause,
-  RotateCcw,
+  Pause, 
+  RotateCcw, 
   CheckCircle2, 
   ChevronRight, 
   RefreshCw, 
@@ -24,7 +24,10 @@ import {
   TrendingUp,
   Sliders,
   Layers,
-  Video
+  Video,
+  Settings2,
+  X,
+  Sparkles
 } from 'lucide-react';
 
 export const WorkoutPlanner: React.FC = () => {
@@ -37,12 +40,27 @@ export const WorkoutPlanner: React.FC = () => {
   } = useApp();
   const { trackLeadEvent, captureLead } = useAdmin();
 
-  // Wizard State
+  // Wizard / Split Parameters State
   const [goal, setGoal] = useState<FitnessGoal>(user?.goal || 'BUILD_MUSCLE');
   const [experience, setExperience] = useState<ExperienceLevel>('INTERMEDIATE');
   const [equipment, setEquipment] = useState<EquipmentType>('FULL_GYM');
   const [daysPerWeek, setDaysPerWeek] = useState<number>(4);
   const [durationMinutes, setDurationMinutes] = useState<number>(45);
+
+  // Popup Modal State for Program Configuration (ask once like a pop-up)
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
+
+  // Check if first-time visitor to pop up once
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const alreadyPrompted = sessionStorage.getItem('fitnetheist_workout_popup_shown');
+      if (!alreadyPrompted) {
+        // Automatically ask once on first visit
+        setIsConfigModalOpen(true);
+        sessionStorage.setItem('fitnetheist_workout_popup_shown', 'true');
+      }
+    }
+  }, []);
 
   // Active Tab: Split Program vs Exercise Library vs 1RM & Biomechanics
   const [viewMode, setViewMode] = useState<'PROGRAM' | 'LIBRARY' | 'CALCULATOR'>('PROGRAM');
@@ -120,6 +138,8 @@ export const WorkoutPlanner: React.FC = () => {
   const handleGenerateWorkout = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     generateAndSetWorkout(goal, experience, equipment, daysPerWeek, durationMinutes);
+    setIsConfigModalOpen(false);
+    sessionStorage.setItem('fitnetheist_workout_popup_shown', 'true');
     setViewMode('PROGRAM');
     trackLeadEvent('WORKOUT_GENERATED', {
       source: 'WORKOUT_PLANNER',
@@ -137,12 +157,6 @@ export const WorkoutPlanner: React.FC = () => {
   };
 
   // 1-Rep Max Calculations
-  // Formulas:
-  // Brzycki: W * (36 / (37 - r))
-  // Epley: W * (1 + 0.0333 * r)
-  // Lombardi: W * (r ^ 0.10)
-  // O'Conner: W * (1 + 0.025 * r)
-  // Wathan: (100 * W) / (48.8 + (53.8 * Math.exp(-0.075 * r)))
   const calcBrzycki = repsDone === 1 ? weightLifted : Math.round(weightLifted * (36 / (37 - repsDone)));
   const calcEpley = repsDone === 1 ? weightLifted : Math.round(weightLifted * (1 + 0.0333 * repsDone));
   const calcLombardi = repsDone === 1 ? weightLifted : Math.round(weightLifted * Math.pow(repsDone, 0.10));
@@ -173,8 +187,6 @@ export const WorkoutPlanner: React.FC = () => {
     { set: 'Work Sets', load: `${Math.round(estimated1RM * 0.80)} kg`, percent: '80% 1RM', reps: '4 sets × 6-8 reps', rest: '180s' },
   ];
 
-  // Estimated Training Energy Burn (kcal = MET * kg * (duration / 60))
-  // Weight training moderate MET = 5.0, vigorous MET = 6.5
   const athleteWeightKg = user?.weightKg || 78;
   const sessionCalorieBurn = Math.round(6.0 * athleteWeightKg * (durationMinutes / 60));
 
@@ -223,7 +235,7 @@ export const WorkoutPlanner: React.FC = () => {
               WORKOUT PLANNER & 1RM CALCULATOR
             </h1>
             <p className="text-zinc-400 text-xs sm:text-sm max-w-2xl mt-2 font-mono-num leading-relaxed">
-              Periodized progressive overload splits, 1-Rep Max estimation algorithms, load matrices, warmup pyramid solvers, and active training timers.
+              Periodized progressive overload splits, 9:16 vertical proper form video guides, 1RM algorithms, load matrices, and active rest timers.
             </p>
           </div>
 
@@ -260,185 +272,52 @@ export const WorkoutPlanner: React.FC = () => {
           </div>
         </div>
 
-        {/* View Mode 1: PROGRAM GENERATOR & ACTIVE SPLIT */}
+        {/* View Mode 1: PROGRAM & ACTIVE SPLIT ROUTINE */}
         {viewMode === 'PROGRAM' && (
-          <div className="space-y-12">
+          <div className="space-y-8">
             
-            {/* Customizer Controls Wizard */}
-            <div className="bg-zinc-950 border border-white/10 p-6 sm:p-8">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-                <h2 className="text-xs font-mono-num font-bold text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="text-[#d8ff38]">STRUCTURED</span> TRAINING PARAMETERS
+            {/* Quick Action Top Split Bar */}
+            <div className="bg-zinc-950 border border-white/10 p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#d8ff38] animate-pulse" />
+                  <span className="text-[11px] font-mono-num font-bold text-[#d8ff38] uppercase tracking-widest">
+                    ACTIVE ATHLETIC ROUTINE
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
+                  {workoutPlan?.name || 'Hypertrophy Muscle Engine Split'}
                 </h2>
-                <span className="text-[11px] font-mono-num text-zinc-500">PROGRAM GENERATOR</span>
+                <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono-num text-zinc-400 pt-1">
+                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-white">
+                    {workoutPlan?.daysPerWeek || daysPerWeek} DAYS / WEEK
+                  </span>
+                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-[#d8ff38]">
+                    {workoutPlan?.durationMinutes || durationMinutes} MIN SESSIONS
+                  </span>
+                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-zinc-300">
+                    {equipment.replace('_', ' ')}
+                  </span>
+                  <span className="bg-zinc-900 px-2 py-0.5 border border-white/10 text-zinc-300">
+                    {experience}
+                  </span>
+                </div>
               </div>
 
-              <form onSubmit={handleGenerateWorkout} className="space-y-6">
-                <div className="grid md:grid-cols-3 gap-6">
-                  
-                  {/* Goal */}
-                  <div>
-                    <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
-                      PRIMARY ADAPTATION GOAL
-                    </label>
-                    <div className="space-y-1.5">
-                      {[
-                        { id: 'BUILD_MUSCLE', label: 'MUSCLE HYPERTROPHY' },
-                        { id: 'LOSE_WEIGHT', label: 'METABOLIC FAT LOSS' },
-                        { id: 'STRENGTH', label: 'PURE FORCE / STRENGTH' },
-                        { id: 'ENDURANCE', label: 'AEROBIC ENDURANCE' }
-                      ].map(g => (
-                        <button
-                          key={g.id}
-                          type="button"
-                          onClick={() => setGoal(g.id as FitnessGoal)}
-                          className={`w-full text-left p-2.5 text-xs font-mono-num font-bold uppercase border transition-all ${
-                            goal === g.id 
-                              ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white' 
-                              : 'border-zinc-800 text-zinc-400 hover:border-zinc-700 bg-zinc-900/30'
-                          }`}
-                        >
-                          {g.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Experience & Equipment */}
-                  <div>
-                    <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
-                      EXPERIENCE & EQUIPMENT
-                    </label>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <span className="text-[10px] font-mono-num text-zinc-500 block mb-1 uppercase">TRAINING AGE</span>
-                        <div className="grid grid-cols-3 gap-1">
-                          {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map(exp => (
-                            <button
-                              key={exp}
-                              type="button"
-                              onClick={() => setExperience(exp as any)}
-                              className={`py-2 text-[10px] font-mono-num font-bold uppercase border ${
-                                experience === exp ? 'bg-white text-black border-white' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
-                              }`}
-                            >
-                              {exp.slice(0, 3)}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="text-[10px] font-mono-num text-zinc-500 block mb-1 uppercase">EQUIPMENT ACCESS</span>
-                        <div className="space-y-1">
-                          {[
-                            { id: 'FULL_GYM', label: 'FULL COMMERCIAL GYM' },
-                            { id: 'HOME_GYM', label: 'HOME GYM / RACK' },
-                            { id: 'DUMBBELLS', label: 'DUMBBELLS ONLY' },
-                            { id: 'NO_EQUIPMENT', label: 'BODYWEIGHT / CALISTHENICS' }
-                          ].map(eq => (
-                            <button
-                              key={eq.id}
-                              type="button"
-                              onClick={() => setEquipment(eq.id as EquipmentType)}
-                              className={`w-full text-left p-2 text-xs font-mono-num uppercase border ${
-                                equipment === eq.id ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white font-bold' : 'border-zinc-800 text-zinc-400 bg-zinc-900/30'
-                              }`}
-                            >
-                              {eq.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Frequency & Duration */}
-                  <div>
-                    <label className="block text-xs font-mono-num text-zinc-400 uppercase tracking-wider mb-2">
-                      SCHEDULE & VOLUME
-                    </label>
-
-                    <div className="space-y-4">
-                      <div>
-                        <span className="text-[10px] font-mono-num text-zinc-500 block mb-1 uppercase">DAYS PER WEEK</span>
-                        <div className="grid grid-cols-4 gap-1">
-                          {[3, 4, 5, 6].map(d => (
-                            <button
-                              key={d}
-                              type="button"
-                              onClick={() => setDaysPerWeek(d)}
-                              className={`py-2 text-xs font-mono-num font-bold uppercase border ${
-                                daysPerWeek === d ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
-                              }`}
-                            >
-                              {d} DAYS
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="text-[10px] font-mono-num text-zinc-500 block mb-1 uppercase">SESSION DURATION</span>
-                        <div className="grid grid-cols-4 gap-1">
-                          {[30, 45, 60, 75].map(m => (
-                            <button
-                              key={m}
-                              type="button"
-                              onClick={() => setDurationMinutes(m)}
-                              className={`py-2 text-xs font-mono-num font-bold uppercase border ${
-                                durationMinutes === m ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
-                              }`}
-                            >
-                              {m} MIN
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="pt-2">
-                        <button
-                          id="generate-workout-btn"
-                          type="submit"
-                          className="w-full py-3 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all glow-accent-subtle"
-                        >
-                          <span>GENERATE WORKOUT SPLIT</span>
-                          <RefreshCw size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </form>
+              <button
+                type="button"
+                onClick={() => setIsConfigModalOpen(true)}
+                className="px-4 py-2.5 bg-zinc-900 hover:bg-[#d8ff38] hover:text-black text-white border border-white/20 font-mono-num font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shrink-0 self-start md:self-auto"
+              >
+                <Settings2 size={14} />
+                <span>CUSTOMIZE SPLIT</span>
+              </button>
             </div>
 
-            {/* Generated Program Routine View */}
+            {/* Program Routine View */}
             {workoutPlan && (
               <div className="space-y-6">
                 
-                {/* Program Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                  <div>
-                    <span className="text-xs font-mono-num uppercase tracking-[0.25em] text-[#d8ff38]">
-                      ACTIVE TRAINING SPLIT
-                    </span>
-                    <h3 className="text-2xl sm:text-3xl font-extrabold uppercase font-display text-white mt-1">
-                      {workoutPlan.name}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-xs font-mono-num">
-                    <span className="px-3 py-1 bg-zinc-900 border border-white/10 text-white">
-                      {workoutPlan.daysPerWeek} DAYS / WEEK
-                    </span>
-                    <span className="px-3 py-1 bg-zinc-900 border border-white/10 text-[#d8ff38]">
-                      {workoutPlan.durationMinutes} MIN (~{sessionCalorieBurn} KCAL BURN)
-                    </span>
-                  </div>
-                </div>
-
                 {/* Day Tabs */}
                 <div className="flex items-center gap-2 overflow-x-auto pb-2">
                   {workoutPlan.days.map((day, idx) => (
@@ -447,7 +326,7 @@ export const WorkoutPlanner: React.FC = () => {
                       onClick={() => setSelectedDayIdx(idx)}
                       className={`px-4 py-2.5 text-xs font-mono-num font-bold uppercase tracking-wider border transition-all shrink-0 ${
                         selectedDayIdx === idx
-                          ? 'bg-[#d8ff38] text-black border-[#d8ff38]'
+                          ? 'bg-[#d8ff38] text-black border-[#d8ff38] shadow-[0_0_15px_rgba(216,255,56,0.2)]'
                           : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-950'
                       }`}
                     >
@@ -524,7 +403,7 @@ export const WorkoutPlanner: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* View Form / Watch Video Action */}
+                            {/* View Form / Watch 9:16 Video Action */}
                             <button
                               onClick={() => setActiveExerciseModal(ex)}
                               className={`px-4 py-2.5 border text-xs font-mono-num font-bold uppercase tracking-wider shrink-0 transition-all flex items-center gap-1.5 ${
@@ -534,7 +413,7 @@ export const WorkoutPlanner: React.FC = () => {
                               }`}
                             >
                               {ex.videoUrl ? <Play size={12} fill="currentColor" /> : null}
-                              <span>{ex.videoUrl ? 'WATCH FORM' : 'VIEW FORM'}</span>
+                              <span>{ex.videoUrl ? 'WATCH 9:16 VIDEO' : 'VIEW FORM'}</span>
                             </button>
                           </div>
                         );
@@ -698,154 +577,58 @@ export const WorkoutPlanner: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-baseline gap-4 my-2">
-                    <span className="text-6xl font-mono-num font-extrabold text-white tracking-tight">
+                  <div className="flex items-baseline gap-3 my-4">
+                    <span className="text-5xl sm:text-7xl font-extrabold font-display text-white tracking-tight">
                       {estimated1RM}
                     </span>
-                    <span className="text-2xl font-mono-num font-bold text-[#d8ff38]">
+                    <span className="text-xl sm:text-2xl font-bold font-mono-num text-[#d8ff38] uppercase">
                       {is1rmMetric ? 'KG' : 'LBS'}
                     </span>
-                    <span className="text-xs font-mono-num text-zinc-500 ml-auto">
-                      ({is1rmMetric ? `${Math.round(estimated1RM * 2.20462)} LBS` : `${Math.round(estimated1RM * 0.453592)} KG`})
-                    </span>
                   </div>
+
+                  <p className="text-xs font-mono-num text-zinc-400 leading-relaxed">
+                    Calculated composite score derived across the 5 primary sports science biomechanical models.
+                  </p>
                 </div>
 
-                {/* % 1RM Training Load Matrix */}
+                {/* Percentage Load Matrix */}
                 <div className="bg-zinc-950 border border-white/10 p-6 space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                    <span className="text-xs font-mono-num font-bold uppercase text-white tracking-wider flex items-center gap-2">
-                      <Layers size={14} className="text-[#d8ff38]" />
-                      % 1RM TRAINING LOAD MATRIX
-                    </span>
-                    <span className="text-[10px] font-mono-num text-zinc-500">PROGRAMMING TARGETS</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono-num text-xs">
-                    {percentageTable.map(item => (
-                      <div key={item.percent} className="p-3 bg-zinc-900/40 border border-white/5 flex flex-col justify-between hover:border-[#d8ff38]/40 transition-colors">
-                        <div className="flex items-center justify-between text-zinc-400">
-                          <span className="font-bold text-white">{item.percent}%</span>
-                          <span className="text-[#d8ff38] font-bold">{item.reps}</span>
+                  <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
+                    PERIODIZED LOAD SPECTRUM (% 1RM):
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono-num">
+                    {percentageTable.map(row => (
+                      <div key={row.percent} className="p-3 bg-zinc-900/60 border border-white/5 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-[#d8ff38] font-bold">{row.percent}%</span>
+                          <span className="text-zinc-400">{row.reps}</span>
                         </div>
-                        <div className="mt-2">
-                          <span className="text-xl font-bold text-white block">
-                            {item.load} <span className="text-[10px] text-zinc-400 font-normal">{is1rmMetric ? 'kg' : 'lbs'}</span>
-                          </span>
-                          <span className="text-[10px] text-zinc-500 block truncate mt-0.5">{item.desc}</span>
+                        <div className="text-base font-bold text-white">
+                          {row.load} {is1rmMetric ? 'kg' : 'lbs'}
+                        </div>
+                        <div className="text-[10px] text-zinc-500 truncate">
+                          {row.desc}
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-              </div>
-
-            </div>
-
-            {/* Bottom Row: Warm-up Pyramid Progression & Interactive Rest Timer */}
-            <div className="grid lg:grid-cols-12 gap-8 items-stretch">
-              
-              {/* Warm-Up Barbell Pyramid */}
-              <div className="lg:col-span-7 bg-zinc-950 border border-white/10 p-6 sm:p-8 space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <div>
-                    <span className="text-[10px] font-mono-num uppercase tracking-widest text-zinc-400 block">
-                      INJURY PREVENTION & CNS POTENTIATION
-                    </span>
-                    <h4 className="text-lg font-bold uppercase font-display text-white mt-0.5">
-                      BARBELL WARM-UP PYRAMID GENERATOR
-                    </h4>
-                  </div>
-                  <span className="text-xs font-mono-num text-[#d8ff38] font-bold">5-STAGE PROGRESSION</span>
-                </div>
-
-                <div className="space-y-2 font-mono-num text-xs">
-                  {warmupPyramid.map((w, idx) => (
-                    <div key={idx} className="p-3 bg-zinc-900/30 border border-white/5 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="w-6 text-center text-[#d8ff38] font-bold">#{idx + 1}</span>
-                        <div>
-                          <span className="text-white font-bold block">{w.set}</span>
-                          <span className="text-[10px] text-zinc-500 block">{w.percent}</span>
-                        </div>
+                {/* Warmup Pyramid Calculator */}
+                <div className="bg-zinc-950 border border-white/10 p-6 space-y-4">
+                  <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
+                    OPTIMAL BARBELL WARM-UP PYRAMID:
+                  </h4>
+                  <div className="space-y-2 font-mono-num text-xs">
+                    {warmupPyramid.map((wp, wIdx) => (
+                      <div key={wIdx} className="flex items-center justify-between p-2.5 bg-zinc-900/40 border border-white/5">
+                        <span className="text-[#d8ff38] font-bold">{wp.set}</span>
+                        <span className="text-white font-medium">{wp.load}</span>
+                        <span className="text-zinc-400">{wp.reps}</span>
+                        <span className="text-zinc-500">Rest: {wp.rest}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-white font-bold block">{w.load} × {w.reps}</span>
-                        <span className="text-[10px] text-zinc-400 block">Rest: {w.rest}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Interactive Rest Countdown Timer */}
-              <div className="lg:col-span-5 bg-zinc-950 border border-white/10 p-6 sm:p-8 flex flex-col justify-between space-y-6">
-                <div>
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-6">
-                    <span className="text-xs font-mono-num font-bold uppercase text-white tracking-wider flex items-center gap-2">
-                      <Clock size={14} className="text-[#d8ff38]" />
-                      INTRA-SET REST TIMER
-                    </span>
-                    <span className="text-[10px] font-mono-num text-zinc-400">AUDIO CUE ACTIVE</span>
-                  </div>
-
-                  {/* Preset Timer Buttons */}
-                  <div className="grid grid-cols-5 gap-1 font-mono-num text-xs mb-6">
-                    {[30, 60, 90, 120, 180].map(s => (
-                      <button
-                        key={s}
-                        onClick={() => handleStartTimer(s)}
-                        className={`py-2 text-center border font-bold ${
-                          initialTimerSeconds === s 
-                            ? 'border-[#d8ff38] bg-[#d8ff38]/10 text-white' 
-                            : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-900/40'
-                        }`}
-                      >
-                        {s}S
-                      </button>
                     ))}
                   </div>
-
-                  {/* Timer Circular / Big Display */}
-                  <div className="p-8 bg-[#0c0c0e] border border-white/10 text-center font-mono-num">
-                    <span className="text-xs text-zinc-500 uppercase tracking-widest block mb-1">REMAINING REST</span>
-                    <span className={`text-6xl font-extrabold tracking-tight block ${timerSeconds === 0 ? 'text-[#d8ff38] animate-pulse' : 'text-white'}`}>
-                      {Math.floor(timerSeconds / 60)}:{String(timerSeconds % 60).padStart(2, '0')}
-                    </span>
-                    <span className="text-xs text-zinc-400 block mt-2">
-                      {isTimerRunning ? 'COUNTING DOWN...' : timerSeconds === 0 ? 'TIME TO LIFT! GO!' : 'READY TO START'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Timer Controls */}
-                <div className="grid grid-cols-2 gap-3 font-mono-num text-xs">
-                  {isTimerRunning ? (
-                    <button
-                      onClick={handlePauseTimer}
-                      className="py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase flex items-center justify-center gap-2"
-                    >
-                      <Pause size={14} />
-                      <span>PAUSE</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleStartTimer()}
-                      className="py-3 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-bold uppercase flex items-center justify-center gap-2"
-                    >
-                      <Play size={14} />
-                      <span>{timerSeconds === initialTimerSeconds ? 'START TIMER' : 'RESUME'}</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={handleResetTimer}
-                    className="py-3 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white uppercase flex items-center justify-center gap-2"
-                  >
-                    <RotateCcw size={14} />
-                    <span>RESET</span>
-                  </button>
                 </div>
 
               </div>
@@ -855,92 +638,102 @@ export const WorkoutPlanner: React.FC = () => {
           </div>
         )}
 
-        {/* View Mode 3: COMPREHENSIVE EXERCISE LIBRARY */}
+        {/* View Mode 3: EXERCISE CATALOG & VIDEO REELS */}
         {viewMode === 'LIBRARY' && (
           <div className="space-y-8">
             
-            {/* Filter and Search Bar */}
-            <div className="bg-zinc-950 border border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              
+            {/* Category Filter & Search Bar */}
+            <div className="bg-zinc-950 border border-white/10 p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="relative flex-1 w-full">
+                  <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search exercise name, target muscle, or biomechanical cue..."
+                    className="w-full bg-zinc-900 border border-zinc-800 pl-10 pr-4 py-2.5 text-xs font-mono-num text-white focus:border-[#d8ff38] focus:outline-none"
+                  />
+                </div>
+              </div>
+
               {/* Category Pills */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 font-mono-num text-xs">
                 {categories.map(cat => (
                   <button
                     key={cat.id}
-                    onClick={() => setSelectedExerciseCategory(cat.id)}
-                    className={`px-3 py-1.5 text-xs font-mono-num font-bold uppercase tracking-wider border whitespace-nowrap transition-all ${
+                    onClick={() => setSelectedExerciseCategory(cat.id as any)}
+                    className={`px-3 py-1.5 uppercase font-bold tracking-wider border transition-all shrink-0 ${
                       selectedExerciseCategory === cat.id
                         ? 'bg-[#d8ff38] text-black border-[#d8ff38]'
-                        : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-900/40'
+                        : 'border-zinc-800 text-zinc-400 hover:text-white bg-zinc-900/50'
                     }`}
                   >
                     {cat.label}
                   </button>
                 ))}
               </div>
-
-              {/* Search Box */}
-              <div className="relative w-full md:w-72">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search muscles or lifts..."
-                  className="w-full bg-zinc-900 border border-zinc-800 pl-9 pr-4 py-2 text-xs font-mono-num text-white focus:border-[#d8ff38] focus:outline-none"
-                />
-                <Search size={14} className="absolute left-3 top-2.5 text-zinc-500" />
-              </div>
-
             </div>
 
-            {/* Exercise Cards Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Exercise Grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredExercises.map(ex => (
-                <div
+                <div 
                   key={ex.id}
-                  className="border border-white/10 bg-zinc-950 flex flex-col justify-between hover:border-white/30 transition-all group overflow-hidden"
+                  className="bg-zinc-950 border border-white/10 overflow-hidden flex flex-col justify-between hover:border-white/20 transition-all group"
                 >
-                  {/* Photo area */}
-                  <div className="relative h-44 w-full bg-zinc-900 overflow-hidden">
-                    <img 
-                      src={ex.videoThumbnail} 
-                      alt={ex.name} 
-                      className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
-                    
-                    <span className="absolute top-3 left-3 px-2 py-0.5 bg-black/80 border border-white/10 text-[10px] font-mono-num font-bold text-[#d8ff38] uppercase">
-                      {ex.category}
-                    </span>
+                  <div>
+                    {/* 9:16 Video Thumbnail Container */}
+                    <div 
+                      onClick={() => setActiveExerciseModal(ex)}
+                      className="relative aspect-[9/16] max-h-[280px] w-full bg-zinc-900 overflow-hidden cursor-pointer"
+                    >
+                      {ex.videoThumbnail ? (
+                        <img
+                          src={ex.videoThumbnail}
+                          alt={ex.name}
+                          className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-zinc-600">
+                          <Video size={36} />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-[#d8ff38] text-black flex items-center justify-center pl-0.5 shadow-lg group-hover:scale-110 transition-transform">
+                          <Play size={18} fill="currentColor" />
+                        </div>
+                      </div>
+                      <span className="absolute top-2 left-2 bg-black/80 px-2 py-0.5 text-[9px] font-mono-num font-bold text-[#d8ff38] uppercase border border-white/10">
+                        {ex.category}
+                      </span>
+                      <span className="absolute top-2 right-2 bg-black/80 px-2 py-0.5 text-[9px] font-mono-num text-zinc-300 uppercase border border-white/10">
+                        9:16 VIDEO
+                      </span>
+                    </div>
 
-                    <span className="absolute top-3 right-3 px-2 py-0.5 bg-black/80 border border-white/10 text-[10px] font-mono-num text-zinc-300 uppercase">
-                      {ex.difficulty}
-                    </span>
-                  </div>
-
-                  {/* Body Info */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <h4 className="text-base font-bold text-white font-mono-num uppercase group-hover:text-[#d8ff38] transition-colors">
+                    <div className="p-5 space-y-3">
+                      <h4 className="text-base font-bold font-mono-num text-white">
                         {ex.name}
                       </h4>
-                      <p className="text-xs font-mono-num text-zinc-400 mt-1">
-                        {ex.targetMuscles}
+                      <p className="text-xs font-mono-num text-zinc-400">
+                        TARGET: <strong className="text-zinc-200">{ex.targetMuscles}</strong>
+                      </p>
+                      <p className="text-xs text-zinc-400 italic bg-black/40 border-l-2 border-[#d8ff38] pl-2.5 py-1 font-mono-num">
+                        {ex.keyFormTip}
                       </p>
                     </div>
+                  </div>
 
-                    <div className="border-t border-white/10 pt-3 flex items-center justify-between font-mono-num text-xs text-zinc-400">
-                      <span>SETS: <strong className="text-white">{ex.sets}</strong></span>
-                      <span>REPS: <strong className="text-[#d8ff38]">{ex.reps}</strong></span>
-                      <span>REST: <strong className="text-white">{ex.restSeconds}s</strong></span>
-                    </div>
-
+                  <div className="p-5 pt-0 border-t border-white/5 flex items-center justify-between font-mono-num text-xs">
+                    <span className="text-zinc-500 uppercase">{ex.equipment.replace('_', ' ')}</span>
                     <button
                       onClick={() => setActiveExerciseModal(ex)}
-                      className="w-full py-2 bg-zinc-900 hover:bg-[#d8ff38] hover:text-black border border-white/10 text-xs font-mono-num font-bold uppercase tracking-wider transition-colors"
+                      className="text-[#d8ff38] hover:underline font-bold uppercase flex items-center gap-1"
                     >
-                      READ BIOMECHANICS & FORM
+                      <span>WATCH FORM</span>
+                      <ChevronRight size={12} />
                     </button>
                   </div>
                 </div>
@@ -950,89 +743,275 @@ export const WorkoutPlanner: React.FC = () => {
           </div>
         )}
 
-        {/* EXERCISE DETAIL MODAL */}
+        {/* ========================================================================= */}
+        {/* ONE-TIME / ON-DEMAND PROGRAM CONFIGURATION POP-UP MODAL                   */}
+        {/* ========================================================================= */}
+        {isConfigModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-[#0b0b0e] border border-[#d8ff38]/30 max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              
+              {/* Modal Top Header */}
+              <div className="flex items-start justify-between border-b border-white/10 pb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Sparkles size={14} className="text-[#d8ff38]" />
+                    <span className="text-[10px] font-mono-num font-bold uppercase tracking-[0.2em] text-[#d8ff38]">
+                      TAILORED ATHLETIC SPLIT
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
+                    CUSTOMIZE YOUR WORKOUT PROGRAM
+                  </h3>
+                  <p className="text-xs font-mono-num text-zinc-400 mt-1">
+                    Answer these quick parameters once to generate your periodized routine.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsConfigModalOpen(false)}
+                  className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 hover:border-white/20 transition-colors shrink-0"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Form Controls */}
+              <form onSubmit={handleGenerateWorkout} className="space-y-6">
+                
+                {/* 1. Primary Goal */}
+                <div>
+                  <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
+                    1. PRIMARY ADAPTATION GOAL
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'BUILD_MUSCLE', label: 'MUSCLE HYPERTROPHY' },
+                      { id: 'LOSE_WEIGHT', label: 'METABOLIC FAT LOSS' },
+                      { id: 'STRENGTH', label: 'PURE FORCE / STRENGTH' },
+                      { id: 'ENDURANCE', label: 'AEROBIC ENDURANCE' }
+                    ].map(g => (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => setGoal(g.id as FitnessGoal)}
+                        className={`p-3 text-left text-xs font-mono-num font-bold uppercase border transition-all ${
+                          goal === g.id 
+                            ? 'border-[#d8ff38] bg-[#d8ff38]/15 text-white shadow-[0_0_10px_rgba(216,255,56,0.15)]' 
+                            : 'border-zinc-800 text-zinc-400 hover:border-zinc-700 bg-zinc-900/40'
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Experience & Equipment */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
+                      2. TRAINING AGE / EXPERIENCE
+                    </label>
+                    <div className="grid grid-cols-3 gap-1">
+                      {['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].map(exp => (
+                        <button
+                          key={exp}
+                          type="button"
+                          onClick={() => setExperience(exp as any)}
+                          className={`py-2 text-[11px] font-mono-num font-bold uppercase border ${
+                            experience === exp ? 'bg-white text-black border-white' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
+                          }`}
+                        >
+                          {exp.slice(0, 3)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
+                      3. EQUIPMENT ACCESS
+                    </label>
+                    <select
+                      value={equipment}
+                      onChange={(e) => setEquipment(e.target.value as EquipmentType)}
+                      className="w-full bg-zinc-900 border border-zinc-800 p-2.5 text-white font-mono-num text-xs focus:border-[#d8ff38] outline-none uppercase"
+                    >
+                      <option value="FULL_GYM">FULL COMMERCIAL GYM</option>
+                      <option value="HOME_GYM">HOME GYM / SQUAT RACK</option>
+                      <option value="DUMBBELLS">DUMBBELLS ONLY</option>
+                      <option value="NO_EQUIPMENT">BODYWEIGHT / CALISTHENICS</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 3. Schedule & Duration */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
+                      4. DAYS PER WEEK
+                    </label>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[3, 4, 5, 6].map(d => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => setDaysPerWeek(d)}
+                          className={`py-2 text-xs font-mono-num font-bold uppercase border ${
+                            daysPerWeek === d ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
+                          }`}
+                        >
+                          {d} DAYS
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono-num text-zinc-300 font-bold uppercase tracking-wider mb-2">
+                      5. SESSION DURATION
+                    </label>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[30, 45, 60, 75].map(m => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setDurationMinutes(m)}
+                          className={`py-2 text-xs font-mono-num font-bold uppercase border ${
+                            durationMinutes === m ? 'bg-[#d8ff38] text-black border-[#d8ff38]' : 'border-zinc-800 text-zinc-400 bg-zinc-900/40'
+                          }`}
+                        >
+                          {m} MIN
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit CTA */}
+                <div className="pt-2 border-t border-white/10 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsConfigModalOpen(false)}
+                    className="px-4 py-2.5 bg-zinc-900 text-zinc-400 uppercase font-mono-num font-bold text-xs hover:text-white border border-zinc-800"
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-[#d8ff38] hover:bg-[#cbf425] text-black font-mono-num font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_15px_rgba(216,255,56,0.3)] transition-all"
+                  >
+                    <span>GENERATE & APPLY SPLIT</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+
+              </form>
+
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 9:16 VERTICAL EXERCISE VIDEO & FORM MODAL                                 */}
+        {/* ========================================================================= */}
         {activeExerciseModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0c0c0e] border border-white/20 max-w-2xl w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-[#0b0b0e] border border-white/20 max-w-4xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
               
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#d8ff38] block">
+                  <span className="text-[10px] font-mono-num font-bold uppercase tracking-[0.2em] text-[#d8ff38]">
                     {activeExerciseModal.category} // {activeExerciseModal.difficulty}
                   </span>
-                  <h3 className="text-2xl font-bold uppercase font-display text-white mt-0.5">
+                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white mt-1">
                     {activeExerciseModal.name}
                   </h3>
                 </div>
                 <button
                   onClick={() => setActiveExerciseModal(null)}
-                  className="text-zinc-400 hover:text-white text-xs font-mono-num uppercase px-3 py-1 border border-zinc-800"
+                  className="px-3 py-1.5 bg-zinc-900 text-zinc-400 hover:text-white text-xs font-mono-num uppercase border border-zinc-800"
                 >
                   CLOSE
                 </button>
               </div>
 
-              {/* Video Player & Form Demonstration */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono-num">
-                  <span className="text-zinc-400 uppercase font-bold flex items-center gap-1.5">
-                    <Video size={13} className="text-[#d8ff38]" />
-                    <span>PROPER FORM DEMONSTRATION</span>
-                  </span>
-                  {activeExerciseModal.videoUrl && (
-                    <span className="text-[10px] text-[#d8ff38] font-bold">
-                      COACH APPROVED FORM GUIDE
+              {/* 2-Column Responsive Layout: 9:16 Video on Left, Protocol on Right */}
+              <div className="grid md:grid-cols-12 gap-6 items-start">
+                
+                {/* 9:16 Vertical Video Player */}
+                <div className="md:col-span-5 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-mono-num">
+                    <span className="text-zinc-400 uppercase font-bold flex items-center gap-1.5">
+                      <Video size={13} className="text-[#d8ff38]" />
+                      <span>9:16 VIDEO FORM GUIDE</span>
                     </span>
-                  )}
-                </div>
-
-                <ExerciseVideoPlayer
-                  videoUrl={activeExerciseModal.videoUrl}
-                  thumbnailUrl={activeExerciseModal.videoThumbnail}
-                  exerciseName={activeExerciseModal.name}
-                  className="rounded-sm"
-                />
-
-                <div className="p-2.5 bg-zinc-900/60 border border-white/5 text-xs font-mono-num text-zinc-300 flex items-center justify-between">
-                  <div>
-                    <span className="text-[#d8ff38] font-bold uppercase">PRIMARY TARGET: </span>
-                    <span>{activeExerciseModal.targetMuscles}</span>
+                    {activeExerciseModal.videoUrl && (
+                      <span className="text-[10px] text-[#d8ff38] font-bold">
+                        COACH APPROVED
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] text-zinc-400 uppercase bg-black/40 px-2 py-0.5 border border-white/10">
-                    {activeExerciseModal.equipment.replace('_', ' ')}
-                  </span>
-                </div>
-              </div>
 
-              {/* Execution Steps */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
-                  EXECUTION PROTOCOL:
-                </h4>
-                <div className="space-y-2 font-mono-num text-xs text-zinc-300">
-                  {activeExerciseModal.instructions.map((step, sIdx) => (
-                    <div key={sIdx} className="flex items-start gap-3 bg-zinc-950 p-3 border border-white/5">
-                      <span className="text-[#d8ff38] font-bold shrink-0">0{sIdx + 1}.</span>
-                      <p className="leading-relaxed">{step}</p>
+                  <ExerciseVideoPlayer
+                    videoUrl={activeExerciseModal.videoUrl}
+                    thumbnailUrl={activeExerciseModal.videoThumbnail}
+                    exerciseName={activeExerciseModal.name}
+                    aspectRatio="9/16"
+                    className="rounded-sm"
+                  />
+                </div>
+
+                {/* Details / Protocol on Right */}
+                <div className="md:col-span-7 space-y-4">
+                  
+                  {/* Target Muscles & Equipment */}
+                  <div className="p-3 bg-zinc-900/60 border border-white/5 text-xs font-mono-num text-zinc-300 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[#d8ff38] font-bold uppercase">TARGET: </span>
+                        <span>{activeExerciseModal.targetMuscles}</span>
+                      </div>
+                      <span className="text-[10px] text-zinc-400 uppercase bg-black/40 px-2 py-0.5 border border-white/10">
+                        {activeExerciseModal.equipment.replace('_', ' ')}
+                      </span>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Execution Steps */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-mono-num font-bold uppercase tracking-wider text-white">
+                      EXECUTION PROTOCOL:
+                    </h4>
+                    <div className="space-y-2 font-mono-num text-xs text-zinc-300">
+                      {activeExerciseModal.instructions.map((step, sIdx) => (
+                        <div key={sIdx} className="flex items-start gap-3 bg-zinc-950 p-2.5 border border-white/5">
+                          <span className="text-[#d8ff38] font-bold shrink-0">0{sIdx + 1}.</span>
+                          <p className="leading-relaxed">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Golden Form Tip */}
+                  <div className="p-3.5 bg-zinc-900 border-l-2 border-[#d8ff38] text-xs font-mono-num text-zinc-200">
+                    <span className="text-[#d8ff38] font-bold uppercase block mb-1">COACH BIOMECHANICAL CUE</span>
+                    <p>{activeExerciseModal.keyFormTip}</p>
+                  </div>
+
+                  {/* Prescribed Rest & Got It Button */}
+                  <div className="flex items-center justify-between text-xs font-mono-num text-zinc-400 border-t border-white/10 pt-3">
+                    <span>PRESCRIBED REST: {activeExerciseModal.restSeconds}S</span>
+                    <button
+                      onClick={() => setActiveExerciseModal(null)}
+                      className="px-5 py-2 bg-[#d8ff38] text-black font-bold uppercase text-xs hover:bg-[#cbf425]"
+                    >
+                      GOT IT
+                    </button>
+                  </div>
+
                 </div>
-              </div>
 
-              {/* Golden Form Tip */}
-              <div className="p-4 bg-zinc-900 border-l-2 border-[#d8ff38] text-xs font-mono-num text-zinc-200">
-                <span className="text-[#d8ff38] font-bold uppercase block mb-1">COACH BIOMECHANICAL CUE</span>
-                <p>{activeExerciseModal.keyFormTip}</p>
-              </div>
-
-              <div className="flex items-center justify-between text-xs font-mono-num text-zinc-400 border-t border-white/10 pt-4">
-                <span>PRESCRIBED REST: {activeExerciseModal.restSeconds} SECONDS</span>
-                <button
-                  onClick={() => setActiveExerciseModal(null)}
-                  className="px-5 py-2 bg-[#d8ff38] text-black font-bold uppercase text-xs"
-                >
-                  GOT IT
-                </button>
               </div>
 
             </div>

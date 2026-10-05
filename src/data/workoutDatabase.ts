@@ -1,5 +1,7 @@
 import { Exercise, MuscleGroup, ExperienceLevel, EquipmentType, WorkoutPlan, FitnessGoal } from '../types';
 
+export const SHARED_WORKOUT_DRIVE_VIDEO_URL = 'https://drive.google.com/file/d/1qrB6aZDVWIbzrJ4ZRpGQSttBO0J8HvrL/view?usp=sharing';
+
 export const EXERCISE_DATABASE: Exercise[] = [
   // CHEST
   {
@@ -19,7 +21,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Tuck elbows at 45° to protect shoulders and maximize sternal chest recruitment.',
     videoThumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=vcBig73ojpE',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -38,7 +40,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Do not exceed 30°-45° incline to avoid shifting load predominantly to front delts.',
     videoThumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=8iPEnn-ltC8',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'DUMBBELLS'
   },
   {
@@ -57,7 +59,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Maintain forward lean throughout to target chest over triceps.',
     videoThumbnail: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=2z8JmcrW-As',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'HOME_GYM'
   },
   {
@@ -76,7 +78,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Keep neck neutral and protract shoulder blades at the very top.',
     videoThumbnail: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=IODxDxX7oi4',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'NO_EQUIPMENT'
   },
 
@@ -97,7 +99,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Engage lats as if bending the bar around your shins before lifting.',
     videoThumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -116,7 +118,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Eliminates lumbar fatigue while overloading upper back density.',
     videoThumbnail: 'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=j3Igk5nyZE4',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -134,7 +136,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Lead with sternum, not chin, to maximize lat fiber recruitment.',
     videoThumbnail: 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=eGo4IYlbE5g',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'HOME_GYM'
   },
 
@@ -155,7 +157,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Squeeze glutes rock hard to prevent hyper-extending the lumbar spine.',
     videoThumbnail: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=2yjwXTZQDDI',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -173,7 +175,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Provides continuous tension through the entire range of motion.',
     videoThumbnail: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=PzsMln2t284',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -191,7 +193,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Never shrug traps at the top; keep shoulder blades down.',
     videoThumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=3VcKaXpzqRo',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'DUMBBELLS'
   },
 
@@ -211,7 +213,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Maintains extreme stretch on the long head of the bicep throughout.',
     videoThumbnail: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=soxrZlIl35U',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'DUMBBELLS'
   },
   {
@@ -229,7 +231,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Angling the upper arm back 10° keeps constant tension at the top lockout.',
     videoThumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=d_KZxkY_0cM',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
 
@@ -250,7 +252,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Track knees directly over middle toes, ensuring heels remain glued down.',
     videoThumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=bEv6CCg2BC8',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -269,7 +271,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Move through hips only—do not increase knee flexion on the way down.',
     videoThumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=JCXUYuzwNrM',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'DUMBBELLS'
   },
   {
@@ -288,7 +290,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Slight forward torso lean shifts emphasis onto glute max.',
     videoThumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=2C-uNgKwPLE',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'DUMBBELLS'
   },
 
@@ -308,7 +310,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Curl your pelvis upward at the top; do not just flex hip flexors.',
     videoThumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=hdng3Nm1x_E',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'HOME_GYM'
   },
   {
@@ -326,7 +328,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Never let lower back hyperextend—keep abs locked in hollow body position.',
     videoThumbnail: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=rqiTPdK1c_I',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'HOME_GYM'
   },
 
@@ -346,7 +348,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Drive through balls of feet and maintain aggressive rhythmic breathing.',
     videoThumbnail: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=Yf-P0y8d5yM',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'FULL_GYM'
   },
   {
@@ -364,7 +366,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Power comes entirely from the hip snap, not the shoulder pull.',
     videoThumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=6P7r0O6jJ1U',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'DUMBBELLS'
   },
 
@@ -384,7 +386,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Breathe out on rotation to unlock deep thoracic spine mobility.',
     videoThumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=-uxU4cTcLlE',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'NO_EQUIPMENT'
   },
   {
@@ -402,7 +404,7 @@ export const EXERCISE_DATABASE: Exercise[] = [
     ],
     keyFormTip: 'Keep sit bones anchored and pivot smoothly on heels.',
     videoThumbnail: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://www.youtube.com/watch?v=6A2V9B8vKqg',
+    videoUrl: SHARED_WORKOUT_DRIVE_VIDEO_URL,
     equipment: 'NO_EQUIPMENT'
   }
 ];
@@ -448,9 +450,9 @@ export function generateWorkoutPlan(
         focus: 'Chest, Back, Quads, Core',
         estimatedMinutes: durationMinutes,
         exercises: [
-          { exercise: legs[0] || EXERCISE_DATABASE[12], customSets: '4', customReps: '6-8' },
           { exercise: chest[0] || EXERCISE_DATABASE[0], customSets: '4', customReps: '6-8' },
           { exercise: back[0] || EXERCISE_DATABASE[4], customSets: '4', customReps: '8' },
+          { exercise: legs[0] || EXERCISE_DATABASE[12], customSets: '4', customReps: '6-8' },
           { exercise: shoulders[0] || EXERCISE_DATABASE[7], customSets: '3', customReps: '10' },
           { exercise: core[0] || EXERCISE_DATABASE[15], customSets: '3', customReps: '12-15' }
         ]
@@ -464,7 +466,7 @@ export function generateWorkoutPlan(
           { exercise: back[1] || EXERCISE_DATABASE[5], customSets: '4', customReps: '10' },
           { exercise: chest[1] || EXERCISE_DATABASE[1], customSets: '3', customReps: '10-12' },
           { exercise: arms[0] || EXERCISE_DATABASE[10], customSets: '3', customReps: '12' },
-          { exercise: mobility[0] || EXERCISE_DATABASE[19], customSets: '2', customReps: '8' }
+          { exercise: mobility[0] || EXERCISE_DATABASE[18], customSets: '2', customReps: '8' }
         ]
       },
       {
@@ -476,7 +478,7 @@ export function generateWorkoutPlan(
           { exercise: chest[2] || EXERCISE_DATABASE[2], customSets: '3', customReps: '10' },
           { exercise: back[2] || EXERCISE_DATABASE[6], customSets: '3', customReps: '8' },
           { exercise: shoulders[1] || EXERCISE_DATABASE[8], customSets: '3', customReps: '15' },
-          { exercise: hiit[0] || EXERCISE_DATABASE[17], customSets: '5 rounds', customReps: '20s on / 40s off' }
+          { exercise: hiit[0] || EXERCISE_DATABASE[16], customSets: '5 rounds', customReps: '20s on / 40s off' }
         ]
       }
     ];

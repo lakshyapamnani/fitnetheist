@@ -349,7 +349,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem('fitnetheist_exercises_lib');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((e: Exercise) => ({
+            ...e,
+            videoUrl: e.videoUrl || 'https://drive.google.com/file/d/1qrB6aZDVWIbzrJ4ZRpGQSttBO0J8HvrL/view?usp=sharing'
+          }));
+        }
       }
     } catch {}
     return EXERCISE_DATABASE;
