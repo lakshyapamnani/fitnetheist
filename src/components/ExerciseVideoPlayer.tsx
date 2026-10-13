@@ -1,10 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Video as VideoIcon
-} from 'lucide-react';
+import React from 'react';
+import { Video as VideoIcon } from 'lucide-react';
 
 interface ExerciseVideoPlayerProps {
   videoUrl?: string;
@@ -32,7 +27,7 @@ export function parseExerciseVideoEmbed(url?: string): {
     const videoId = ytMatch[1];
     return {
       type: 'youtube',
-      embedUrl: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1&autoplay=1`,
+      embedUrl: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`,
       rawUrl: cleanUrl
     };
   }
@@ -55,7 +50,7 @@ export function parseExerciseVideoEmbed(url?: string): {
   if (vimeoMatch && vimeoMatch[3]) {
     return {
       type: 'vimeo',
-      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}?title=0&byline=0&portrait=0&autoplay=1`,
+      embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}?title=0&byline=0&portrait=0`,
       rawUrl: cleanUrl
     };
   }
@@ -66,7 +61,7 @@ export function parseExerciseVideoEmbed(url?: string): {
     if (loomId) {
       return {
         type: 'loom',
-        embedUrl: `https://www.loom.com/embed/${loomId}?autoplay=1`,
+        embedUrl: `https://www.loom.com/embed/${loomId}`,
         rawUrl: cleanUrl
       };
     }
@@ -97,16 +92,8 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   thumbnailUrl,
   exerciseName,
   className = '',
-  autoPlay = false,
   aspectRatio = '9/16'
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const [isPlaying, setIsPlaying] = useState<boolean>(autoPlay);
-  const [isEnded, setIsEnded] = useState<boolean>(false);
-  const [isEmbedActivated, setIsEmbedActivated] = useState<boolean>(autoPlay);
-
   const parsed = parseExerciseVideoEmbed(videoUrl);
 
   const aspectClass = aspectRatio === '9/16' 
@@ -115,41 +102,7 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     ? 'aspect-video w-full' 
     : 'w-full';
 
-  // Toggle Play/Pause on click
-  const handlePlayPause = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-
-    if (parsed.type === 'gdrive' || parsed.type === 'youtube' || parsed.type === 'vimeo' || parsed.type === 'loom') {
-      setIsEmbedActivated(true);
-      setIsPlaying(true);
-      return;
-    }
-
-    if (!videoRef.current) return;
-
-    if (isEnded) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play();
-      setIsPlaying(true);
-      setIsEnded(false);
-      return;
-    }
-
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const handleVideoEnded = () => {
-    setIsPlaying(false);
-    setIsEnded(true);
-  };
-
-  // 1. Placeholder when no video is present
+  // 1. Placeholder when no video
   if (parsed.type === 'none') {
     return (
       <div className={`relative ${aspectClass} bg-[#0c0c0e] border border-white/10 rounded-[6px] overflow-hidden flex flex-col items-center justify-center text-center p-6 ${className}`}>
@@ -176,46 +129,10 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     );
   }
 
-  // 2. Google Drive / YouTube / Vimeo / Loom (9:16 vertical orientation)
+  // 2. Google Drive & Embedded Video Player (Native Drive Controls only)
   if (parsed.type === 'gdrive' || parsed.type === 'youtube' || parsed.type === 'vimeo' || parsed.type === 'loom') {
-    if (!isEmbedActivated) {
-      return (
-        <div 
-          ref={containerRef}
-          onClick={handlePlayPause}
-          className={`relative ${aspectClass} bg-[#09090b] border border-white/10 rounded-[6px] overflow-hidden cursor-pointer group select-none shadow-lg ${className}`}
-        >
-          {thumbnailUrl ? (
-            <img
-              src={thumbnailUrl}
-              alt={exerciseName}
-              className="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-102 transition-transform duration-300"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="w-full h-full bg-[#0e0e11] flex items-center justify-center">
-              <VideoIcon size={32} className="text-zinc-600" />
-            </div>
-          )}
-
-          {/* Bottom-left play button */}
-          <div className="absolute bottom-3 left-3 z-20">
-            <button
-              type="button"
-              onClick={handlePlayPause}
-              className="w-11 h-11 rounded-full bg-[#d8ff38] hover:bg-[#cbf425] text-black flex items-center justify-center shadow-lg transition-transform active:scale-95"
-              aria-label={`Play video for ${exerciseName}`}
-            >
-              <Play size={18} fill="currentColor" className="ml-0.5" />
-            </button>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div 
-        ref={containerRef}
         className={`relative ${aspectClass} bg-black border border-white/10 rounded-[6px] overflow-hidden shadow-lg ${className}`}
       >
         <iframe
@@ -229,39 +146,35 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
     );
   }
 
-  // 3. HTML5 Native Video Stream (9:16 orientation with bottom-left play/pause button)
-  return (
-    <div
-      ref={containerRef}
-      onClick={handlePlayPause}
-      className={`relative ${aspectClass} bg-black border border-white/10 rounded-[6px] overflow-hidden select-none group cursor-pointer shadow-lg ${className}`}
-    >
-      <video
-        ref={videoRef}
-        src={parsed.embedUrl}
-        poster={thumbnailUrl}
-        playsInline
-        onEnded={handleVideoEnded}
-        className="w-full h-full object-cover bg-black"
-      />
-
-      {/* Bottom-Left Play / Pause / Replay Button */}
-      <div className="absolute bottom-3 left-3 z-20">
-        <button
-          type="button"
-          onClick={handlePlayPause}
-          className="w-11 h-11 rounded-full bg-[#d8ff38] hover:bg-[#cbf425] text-black flex items-center justify-center shadow-lg transition-transform active:scale-95"
-          aria-label={isEnded ? 'Replay' : isPlaying ? 'Pause' : 'Play'}
+  // 3. Direct HTML5 Video File with Native browser controls
+  if (parsed.type === 'direct') {
+    return (
+      <div
+        className={`relative ${aspectClass} bg-black border border-white/10 rounded-[6px] overflow-hidden shadow-lg ${className}`}
+      >
+        <video
+          src={parsed.embedUrl}
+          poster={thumbnailUrl}
+          controls
+          playsInline
+          className="w-full h-full object-cover bg-black"
         >
-          {isEnded ? (
-            <RotateCcw size={18} className="stroke-[2.5]" />
-          ) : isPlaying ? (
-            <Pause size={18} fill="currentColor" />
-          ) : (
-            <Play size={18} fill="currentColor" className="ml-0.5" />
-          )}
-        </button>
+          Your browser does not support HTML5 video.
+        </video>
       </div>
+    );
+  }
+
+  // 4. External link fallback
+  return (
+    <div className={`relative ${aspectClass} bg-black border border-white/10 rounded-[6px] overflow-hidden ${className}`}>
+      {thumbnailUrl && (
+        <img
+          src={thumbnailUrl}
+          alt={exerciseName}
+          className="w-full h-full object-cover opacity-60"
+        />
+      )}
     </div>
   );
 };

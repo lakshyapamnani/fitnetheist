@@ -73,7 +73,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const isAllowed = (subtab: AdminSubtab): boolean => {
     if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') return true;
     if (currentRole === 'COACH') {
-      return ['clients', 'clients-detail', 'customers', 'workouts', 'exercises'].includes(subtab);
+      return ['clients', 'clients-detail', 'customers', 'exercise-bank', 'workouts', 'exercises'].includes(subtab);
     }
     if (currentRole === 'CONTENT_MANAGER') {
       return ['cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
@@ -117,11 +117,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           badge: `${customers?.length || 0}` 
         },
         { 
-          id: 'workouts' as AdminSubtab, 
-          label: 'Workout & Exercises', 
-          desc: 'Programs, Splits & Library',
+          id: 'exercise-bank' as AdminSubtab, 
+          label: 'Exercise Bank', 
+          desc: 'Categories & Client Assignment',
           icon: Dumbbell, 
-          badge: undefined 
+          badge: 'Personalize' 
         },
         { 
           id: 'invoices' as AdminSubtab, 
@@ -154,6 +154,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <span className="font-display font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">
               FITNETHEIST <span className="text-[#FFC515] text-xs font-mono-num font-bold px-1.5 py-0.5 border border-[#FFC515]/40 bg-[#FFC515]/10 uppercase">ADMIN OS</span>
             </span>
+
+            {/* Quick Exercise Bank Direct Shortcut */}
+            <button
+              onClick={() => setActiveSubtab('exercise-bank')}
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono-num font-bold uppercase transition-all border ${
+                activeSubtab === 'exercise-bank'
+                  ? 'bg-[#FFC515] text-black border-[#FFC515]'
+                  : 'bg-[#14141a] text-[#FFC515] border-[#FFC515]/40 hover:bg-[#FFC515]/10'
+              }`}
+            >
+              <Dumbbell size={12} />
+              <span>Exercise Bank</span>
+            </button>
           </div>
         </div>
 

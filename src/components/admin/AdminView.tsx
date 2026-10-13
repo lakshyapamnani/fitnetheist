@@ -16,6 +16,7 @@ import { TransformationsAndTestimonialsView } from './TransformationsAndTestimon
 import { UsersAndAuditLogsView } from './UsersAndAuditLogsView';
 import { AdminUsersView } from './AdminUsersView';
 import { AdminSettingsView } from './AdminSettingsView';
+import { ExerciseBankAdminView } from './ExerciseBankAdminView';
 
 export const AdminView: React.FC = () => {
   const { activeSubtab, isAdminAuthenticated } = useAdmin();
@@ -50,6 +51,9 @@ export const AdminView: React.FC = () => {
       case 'customers':
         return <ClientManagementView />;
 
+      case 'exercise-bank':
+        return <ExerciseBankAdminView />;
+
       case 'workouts':
       case 'exercises':
         return <WorkoutsAndExercisesAdminView />;
@@ -60,8 +64,6 @@ export const AdminView: React.FC = () => {
       case 'payments':
         return <InvoiceReceiptGeneratorView />;
 
-      case 'customers':
-        return <CustomerManagementView />;
       case 'challenges':
         return <ChallengesAdminView />;
       case 'foods':
@@ -70,7 +72,6 @@ export const AdminView: React.FC = () => {
       case 'transformations':
       case 'testimonials':
         return <TransformationsAndTestimonialsView />;
-      case 'users':
       case 'activity':
         return <UsersAndAuditLogsView />;
       case 'settings':

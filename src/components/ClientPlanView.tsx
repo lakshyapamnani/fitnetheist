@@ -138,6 +138,42 @@ export const ClientPlanView: React.FC = () => {
             </button>
           </div>
 
+          {/* Personalized Plan Status Banner */}
+          {!workoutPlan?.isPersonalized && (
+            <div className="bg-[#0e0e12] border-2 border-[#FFC515] rounded-xl p-5 sm:p-6 space-y-3 font-mono-num shadow-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#FFC515] animate-ping" />
+                  <span className="text-[11px] font-bold text-[#FFC515] uppercase tracking-widest">
+                    COACH NEETU // PERSONALIZATION IN PROGRESS
+                  </span>
+                </div>
+                <span className="text-[10px] bg-[#FFC515]/10 text-[#FFC515] border border-[#FFC515]/30 px-2 py-0.5 rounded">
+                  NO PRE-MADE TEMPLATES
+                </span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
+                  YOUR PLAN WILL BE PERSONALIZED SHORTLY
+                </h3>
+                <p className="text-[#9A9A9A] text-xs sm:text-sm leading-relaxed max-w-3xl">
+                  Coach Neetu is hand-selecting exercises for you from the Fitnetheist Exercise Bank based on your bio-mechanics, experience level, and training days. We do not use pre-made or auto-generated routines.
+                </p>
+              </div>
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => setActiveSubTab('WORKOUT')}
+                  className="px-4 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold text-xs uppercase tracking-wider rounded transition-colors"
+                >
+                  View Status & Exercise Catalog →
+                </button>
+                <span className="text-[11px] text-[#9A9A9A]">
+                  Assigned Coach: <strong className="text-white">Coach Neetu</strong>
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* 3 Core Pillars: NUTRITION, TRAINING, RECOVERY */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -215,12 +251,16 @@ export const ClientPlanView: React.FC = () => {
                 </div>
 
                 <div>
-                  <span className="text-[11px] text-[#9A9A9A] font-mono-num block">CURRENT SPLIT</span>
+                  <span className="text-[11px] text-[#9A9A9A] font-mono-num block">
+                    {workoutPlan?.isPersonalized ? 'PERSONALIZED PROTOCOL' : 'TRAINING STATUS'}
+                  </span>
                   <span className="text-lg font-bold text-[#F5F5F5] block mt-0.5">
-                    {workoutPlan?.splitType || 'Upper / Lower Hypertrophy'}
+                    {workoutPlan?.isPersonalized ? workoutPlan.name : 'Your plan will be personalized shortly'}
                   </span>
                   <span className="text-xs text-[#9A9A9A] font-mono-num block mt-0.5">
-                    {workoutPlan?.difficulty || 'Intermediate'} · {user?.sessionDurationMinutes || 45} min sessions
+                    {workoutPlan?.isPersonalized 
+                      ? `${workoutPlan.daysPerWeek} days/week · Curated by Coach Neetu`
+                      : 'Coach Neetu is curating your personalized exercises'}
                   </span>
                 </div>
 
@@ -234,13 +274,21 @@ export const ClientPlanView: React.FC = () => {
                     <span className="text-[#F5F5F5] font-medium">{(user?.equipmentAvailable || 'FULL_GYM').replace('_', ' ')}</span>
                   </div>
                   <div className="flex justify-between text-[#9A9A9A]">
-                    <span>Today's Focus:</span>
-                    <span className="text-[#FFC515] font-medium">{currentDaySplit.focus}</span>
+                    <span>Assigned Coach:</span>
+                    <span className="text-[#FFC515] font-medium">Coach Neetu</span>
+                  </div>
+                  <div className="flex justify-between text-[#9A9A9A]">
+                    <span>Exercise Delivery:</span>
+                    <span className={workoutPlan?.isPersonalized ? "text-emerald-400 font-medium" : "text-[#FFC515] font-medium"}>
+                      {workoutPlan?.isPersonalized ? 'Active & Assigned' : 'In Coach Review'}
+                    </span>
                   </div>
                 </div>
 
                 <p className="text-[11px] text-[#9A9A9A] leading-relaxed">
-                  Progressive overload programmed with calculated rest timers and RPE guidance.
+                  {workoutPlan?.isPersonalized 
+                    ? 'Bespoke progressive overload routine with HD Google Drive form demonstrations.' 
+                    : 'Personalized routines are hand-crafted by Coach Neetu from the Exercise Bank, not auto-generated.'}
                 </p>
               </div>
 

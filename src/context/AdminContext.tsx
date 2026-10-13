@@ -59,6 +59,7 @@ export type AdminSubtab =
   | 'leads-detail'
   | 'clients'
   | 'clients-detail'
+  | 'exercise-bank'
   | 'workouts'
   | 'exercises'
   | 'invoices'
@@ -249,7 +250,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const [currentRole, setCurrentRole] = useState<AdminRole>('SUPER_ADMIN');
-  const [activeSubtab, setActiveSubtab] = useState<AdminSubtab>('cms');
+  const [activeSubtab, setActiveSubtab] = useState<AdminSubtab>('exercise-bank');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 

@@ -480,13 +480,17 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
                 >
                   <option value="" disabled>⚡ Autofill from CRM...</option>
                   <optgroup label="Active Leads">
-                    {leads.slice(0, 8).map(l => (
-                      <option key={l.id} value={l.id}>{l.name} ({l.goal.replace('_', ' ')})</option>
+                    {leads.slice(0, 10).map(l => (
+                      <option key={l.id} value={l.id}>
+                        {l.name} {l.email ? `(${l.email})` : `(${l.goal.replace('_', ' ')})`}
+                      </option>
                     ))}
                   </optgroup>
                   <optgroup label="Enrolled Customers">
-                    {customers.slice(0, 8).map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                    {customers.slice(0, 10).map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} {c.email ? `(${c.email})` : ''}
+                      </option>
                     ))}
                   </optgroup>
                 </select>

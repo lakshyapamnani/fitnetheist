@@ -167,6 +167,25 @@ export const AdminLoginView: React.FC = () => {
               )}
             </button>
 
+            {/* Quick 1-Click Access for Reviewer / Coach */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setUsername('admin');
+                  setPassword('admin123');
+                  adminLogin('admin', 'admin123', true);
+                }}
+                className="w-full py-2.5 px-3 bg-[#FFC515] hover:bg-[#e6b010] text-black font-extrabold font-mono text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 rounded-xs transition-colors shadow-md"
+              >
+                <span>⚡ 1-Click Sign-In as Coach Neetu (Admin OS)</span>
+              </button>
+              <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono mt-2 px-1">
+                <span>Default credentials:</span>
+                <span className="text-zinc-400 font-bold">admin / admin123</span>
+              </div>
+            </div>
+
           </form>
 
         </div>

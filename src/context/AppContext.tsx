@@ -136,6 +136,10 @@ interface AppContextType {
     daysPerWeek: number, 
     durationMinutes: number
   ) => WorkoutPlan;
+  assignPersonalizedWorkoutToClient: (
+    client: { id: string; name: string; email: string },
+    plan: WorkoutPlan
+  ) => void;
   toggleGroceryItemCheck: (id: string) => void;
   enrollInChallenge: (challengeId: string) => void;
   logDailyProgress: (log: Partial<DailyLog>) => void;
@@ -334,9 +338,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return generateGroceryList(initialPlan);
   });
 
-  // Workout State
+  // Workout State: Client plans are assigned by coach, not auto-generated or pre-made!
   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(() => {
-    return generateWorkoutPlan('BUILD_MUSCLE', 'INTERMEDIATE', 'FULL_GYM', 4, 45);
+    try {
+      const saved = localStorage.getItem('fitnetheist_assigned_workout');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.isPersonalized) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return null;
   });
 
   // Community & Social
@@ -1003,6 +1016,51 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return plan;
   };
 
+  const assignPersonalizedWorkoutToClient = (
+    client: { id: string; name: string; email: string },
+    plan: WorkoutPlan
+  ) => {
+    const personalizedPlan: WorkoutPlan = {
+      ...plan,
+      isPersonalized: true,
+      assignedClientId: client.id,
+      assignedClientName: client.name,
+      assignedClientEmail: client.email,
+      assignedAt: new Date().toISOString()
+    };
+
+    // Immediately update active workoutPlan so app live view updates without page refresh
+    setWorkoutPlan(personalizedPlan);
+
+    // Update active user state with personalized workout flag
+    if (user) {
+      const updatedUser = {
+        ...user,
+        assignedWorkoutPlan: personalizedPlan,
+        isWorkoutPlanPersonalized: true
+      };
+      setUser(updatedUser);
+      saveProfile(updatedUser);
+      try {
+        localStorage.setItem('fitnetheist_user', JSON.stringify(updatedUser));
+      } catch {}
+    }
+
+    // Persist to client specific storage & fallback storage
+    try {
+      localStorage.setItem('fitnetheist_assigned_workout', JSON.stringify(personalizedPlan));
+      localStorage.setItem(`fitnetheist_client_workout_${client.id}`, JSON.stringify(personalizedPlan));
+      if (client.email) {
+        localStorage.setItem(`fitnetheist_client_workout_${client.email.toLowerCase()}`, JSON.stringify(personalizedPlan));
+      }
+    } catch {}
+
+    // Sync to Realtime DB if available
+    try {
+      saveWorkoutPlanToRealtimeDb(client.id, personalizedPlan);
+    } catch {}
+  };
+
   const toggleGroceryItemCheck = (id: string) => {
     setGroceryList(prev => prev.map(item => item.id === id ? { ...item, checked: !item.checked } : item));
   };
@@ -1195,6 +1253,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       generateAndSetDiet,
       swapDietMeal,
       generateAndSetWorkout,
+      assignPersonalizedWorkoutToClient,
       toggleGroceryItemCheck,
       enrollInChallenge,
       logDailyProgress,

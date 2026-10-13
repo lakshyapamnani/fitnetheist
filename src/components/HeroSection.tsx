@@ -1,9 +1,11 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowRight, ChevronDown } from 'lucide-react';
+import { useCoachNeetuPhoto } from './CoachNeetuPhoto';
 
 export const HeroSection: React.FC = () => {
   const { setActiveTab, openCalorieModal } = useApp();
+  const { photoUrl, filterMode } = useCoachNeetuPhoto();
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -42,14 +44,29 @@ export const HeroSection: React.FC = () => {
       <div className="relative z-10 max-w-7xl mx-auto w-full my-auto py-10 sm:py-16">
         <div className="max-w-4xl space-y-6">
           
-          {/* Supporting Brand Identity */}
-          <div className="space-y-1">
-            <p className="text-[#FFC515] font-mono-num text-xs sm:text-sm font-bold tracking-[0.25em] uppercase">
-              FITNETHEIST – BE THE ONE
-            </p>
-            <p className="text-white/60 font-mono-num text-xs sm:text-sm tracking-wider uppercase">
-              By Coach Neetu
-            </p>
+          {/* Supporting Brand Identity with Coach Neetu portrait chip */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => scrollToSection('coach-story-section')}
+              className="flex items-center gap-3 p-1.5 pr-4 bg-[#14141a]/90 hover:bg-[#1c1c24] border border-white/15 hover:border-[#FFC515]/60 transition-all rounded-[2px] group text-left cursor-pointer"
+            >
+              <img
+                src={photoUrl}
+                alt="Coach Neetu"
+                className={`w-10 h-10 object-cover object-top border border-white/20 transition-all ${
+                  filterMode === 'MONO' ? 'grayscale group-hover:grayscale-0' : 'contrast-105'
+                }`}
+              />
+              <div>
+                <p className="text-[#FFC515] font-mono-num text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase">
+                  FITNETHEIST COACHING
+                </p>
+                <p className="text-white font-mono-num text-xs font-semibold tracking-wider uppercase flex items-center gap-1.5">
+                  <span>Head Coach Neetu</span>
+                  <span className="text-[#FFC515] text-[10px]">→ View Story</span>
+                </p>
+              </div>
+            </button>
           </div>
 
           {/* Huge Display Headline */}

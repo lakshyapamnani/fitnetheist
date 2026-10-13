@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Award, CheckCircle2, Shield, Calendar, Send, Check } from 'lucide-react';
+import { CoachNeetuPhoto } from './CoachNeetuPhoto';
 
 export const CoachSection: React.FC = () => {
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
@@ -46,25 +47,7 @@ export const CoachSection: React.FC = () => {
           
           {/* Coach Photo */}
           <div className="lg:col-span-5 h-[460px] lg:h-auto bg-[#14141a] border-b lg:border-b-0 lg:border-r border-white/10 relative overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80"
-              alt="Head Coach Marcus Vance"
-              className="w-full h-full object-cover object-top filter grayscale contrast-125"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-            
-            <div className="absolute bottom-6 left-6 right-6">
-              <span className="px-2 py-0.5 bg-[#FFC515] text-black text-[10px] font-mono-num font-extrabold uppercase">
-                FOUNDER & HEAD COACH
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold font-display uppercase text-white mt-1">
-                VIKRAMADITYA "VIK" RATHORE
-              </h2>
-              <p className="text-xs font-mono-num text-white/60 mt-0.5">
-                CSCS • Precision Nutrition L2 • 12+ Years Competitive Prep
-              </p>
-            </div>
+            <CoachNeetuPhoto className="w-full h-full min-h-[460px]" showBadge={true} allowEdit={true} />
           </div>
 
           {/* Coach Details & Philosophy */}

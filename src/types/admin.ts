@@ -5,7 +5,8 @@ import {
   ActivityLevel, 
   ExperienceLevel, 
   EquipmentType, 
-  MealCategory 
+  MealCategory,
+  WorkoutPlan
 } from '../types';
 
 export type AdminRole = 
@@ -205,6 +206,7 @@ export interface Customer {
   checkIns?: ClientCheckIn[];
   coachNotes?: ClientCoachNote[];
   convertedFromLeadId?: string;
+  assignedWorkoutPlan?: WorkoutPlan;
 }
 
 export type OrderStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'CANCELLED';

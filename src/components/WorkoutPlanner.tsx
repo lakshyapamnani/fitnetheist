@@ -253,17 +253,17 @@ export const WorkoutPlanner: React.FC = () => {
         {viewMode === 'PROGRAM' && (
           <div className="space-y-6">
             
-            {/* Minimal Program Header Bar */}
+            {/* Program Header Bar */}
             <div className="bg-[#0c0c0e] border border-white/10 rounded-[4px] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d8ff38]" />
-                  <span className="text-[10px] font-mono-num font-medium text-[#d8ff38] uppercase tracking-wider">
-                    CURRENT SPLIT
+                  <span className={`w-1.5 h-1.5 rounded-full ${workoutPlan?.isPersonalized ? 'bg-[#FFC515]' : 'bg-[#d8ff38]'}`} />
+                  <span className={`text-[10px] font-mono-num font-bold uppercase tracking-wider ${workoutPlan?.isPersonalized ? 'text-[#FFC515]' : 'text-[#d8ff38]'}`}>
+                    {workoutPlan?.isPersonalized ? 'PERSONALIZED BY COACH NEETU' : 'PROGRAM STATUS'}
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
-                  {workoutPlan?.name || 'Hypertrophy Muscle Engine Split'}
+                  {workoutPlan?.isPersonalized ? workoutPlan.name : 'Athlete Custom Protocol'}
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono-num text-zinc-400 pt-0.5">
                   <span className="bg-zinc-900 px-2 py-0.5 rounded-[2px] border border-white/5 text-zinc-300">
@@ -281,18 +281,110 @@ export const WorkoutPlanner: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsConfigModalOpen(true)}
-                className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-white/10 rounded-[3px] font-mono-num text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shrink-0 self-start md:self-auto min-h-[44px]"
-              >
-                <Settings2 size={13} className="text-[#d8ff38]" />
-                <span>Customize Split</span>
-              </button>
+              {workoutPlan?.isPersonalized && (
+                <div className="px-3.5 py-2 bg-[#FFC515]/10 border border-[#FFC515]/40 text-[#FFC515] font-mono-num text-xs uppercase font-bold flex items-center gap-2 rounded-[3px]">
+                  <Sparkles size={14} />
+                  <span>Coach Neetu Verified</span>
+                </div>
+              )}
             </div>
 
-            {/* Program Routine View */}
-            {workoutPlan && (
+            {/* When plan is NOT personalized yet: Show Coach Neetu Personalization Status */}
+            {!workoutPlan?.isPersonalized ? (
+              <div className="bg-[#0e0e12] border-2 border-[#FFC515]/70 rounded-[4px] p-6 sm:p-8 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#FFC515] animate-ping" />
+                      <span className="text-[11px] font-mono-num font-bold text-[#FFC515] uppercase tracking-widest">
+                        COACH NEETU // PERSONALIZATION IN PROGRESS
+                      </span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold uppercase font-display text-white">
+                      YOUR PLAN WILL BE PERSONALIZED SHORTLY
+                    </h3>
+                    <p className="text-zinc-300 text-xs sm:text-sm font-mono-num max-w-2xl leading-relaxed">
+                      Coach Neetu is reviewing your intake assessment and hand-curating your exercises directly from the Exercise Bank. Fitnetheist delivers 100% personalized routines tailored to your bio-mechanics—never generic or pre-made templates.
+                    </p>
+                  </div>
+
+                  <div className="shrink-0 flex items-center gap-2 bg-[#14141a] border border-[#FFC515]/30 px-3.5 py-2.5 rounded-[4px]">
+                    <div className="text-right">
+                      <span className="text-[10px] text-zinc-400 block font-mono-num uppercase">Assigned Coach</span>
+                      <span className="text-xs font-bold text-white uppercase">Coach Neetu</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Pipeline Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono-num">
+                  <div className="bg-zinc-900/70 border border-emerald-500/30 p-4 rounded-[4px] space-y-1.5">
+                    <div className="flex items-center justify-between text-emerald-400 text-xs font-bold">
+                      <span>01. INTAKE RECEIVED</span>
+                      <CheckCircle2 size={15} />
+                    </div>
+                    <p className="text-[11px] text-zinc-300">
+                      Target: <strong className="text-white">{user?.goal || 'Build Muscle & Lean Definition'}</strong>
+                    </p>
+                    <p className="text-[10px] text-zinc-400">
+                      Split preference: {user?.trainingDaysPerWeek || 4} days/week · {user?.equipmentAvailable || 'Full Gym'}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#FFC515]/10 border border-[#FFC515]/50 p-4 rounded-[4px] space-y-1.5">
+                    <div className="flex items-center justify-between text-[#FFC515] text-xs font-bold">
+                      <span>02. FORMULATING PROTOCOL</span>
+                      <Clock size={15} className="animate-spin" />
+                    </div>
+                    <p className="text-[11px] text-zinc-200">
+                      Selecting optimal exercise angles & hypertrophy stimulus in Exercise Bank.
+                    </p>
+                    <span className="text-[10px] text-[#FFC515] font-bold uppercase tracking-wider block">
+                      ● Under Coach Review
+                    </span>
+                  </div>
+
+                  <div className="bg-zinc-900/50 border border-white/5 p-4 rounded-[4px] space-y-1.5 opacity-80">
+                    <div className="flex items-center justify-between text-zinc-400 text-xs font-bold">
+                      <span>03. PROTOCOL ACTIVATION</span>
+                      <Sparkles size={15} />
+                    </div>
+                    <p className="text-[11px] text-zinc-400">
+                      HD 9:16 form cues, sets, reps, and periodized volume assigned to your account.
+                    </p>
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">
+                      Pending Coach Sign-off
+                    </span>
+                  </div>
+                </div>
+
+                {/* Information note & browse catalog link */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-[4px]">
+                  <p className="text-xs text-zinc-400 font-mono-num leading-relaxed">
+                    While Coach Neetu personalizes your routine, you can explore the <strong className="text-zinc-200">Exercise Catalog</strong> or test your compound benchmarks in the <strong className="text-zinc-200">1RM Calculator</strong>.
+                  </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('LIBRARY')}
+                      className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-mono-num font-bold uppercase tracking-wider rounded transition-colors"
+                    >
+                      View Exercise Catalog
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('CALCULATOR')}
+                      className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-mono-num font-bold uppercase tracking-wider rounded transition-colors"
+                    >
+                      1RM Calculator
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Program Routine View (Only when personalized by coach) */}
+            {workoutPlan && workoutPlan.isPersonalized && (
               <div className="space-y-6">
                 
                 {/* Day Tabs */}

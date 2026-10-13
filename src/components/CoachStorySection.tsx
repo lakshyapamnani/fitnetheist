@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
+import { CoachNeetuPhoto } from './CoachNeetuPhoto';
 
 export const CoachStorySection: React.FC = () => {
   const scrollToPricing = () => {
@@ -40,26 +41,7 @@ export const CoachStorySection: React.FC = () => {
           
           {/* Coach Photo Card */}
           <div className="lg:col-span-5 relative flex flex-col justify-between border border-white/15 bg-[#101014] overflow-hidden min-h-[440px] sm:min-h-[500px]">
-            <img
-              src="https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=1200&q=85"
-              alt="Coach Neetu - Founder of Fitnetheist"
-              className="w-full h-full object-cover object-top filter grayscale contrast-115 brightness-95"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-transparent to-transparent" />
-            
-            {/* Caption Overlay */}
-            <div className="absolute bottom-6 left-6 right-6 p-4 bg-[#08080a]/90 backdrop-blur-md border border-white/10 font-mono-num">
-              <span className="text-[10px] text-[#FFC515] font-bold uppercase tracking-widest block">
-                FOUNDER & HEAD COACH
-              </span>
-              <h3 className="text-xl font-bold font-display uppercase text-white mt-0.5">
-                COACH NEETU
-              </h3>
-              <p className="text-xs text-white/60 mt-1">
-                Personal Transformation 2017–18 • Dedicated 1-on-1 Fitness Coach
-              </p>
-            </div>
+            <CoachNeetuPhoto className="w-full h-full min-h-[440px] sm:min-h-[500px]" showBadge={true} allowEdit={true} />
           </div>
 
           {/* Coach Story Details */}

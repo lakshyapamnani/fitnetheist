@@ -49,6 +49,7 @@ export interface UserProfile {
   trainingLocation?: 'GYM' | 'HOME' | 'BOTH';
   equipmentAvailable?: EquipmentType;
   sessionDurationMinutes?: number;
+  assignedWorkoutPlan?: WorkoutPlan;
   
   // Lifestyle
   dailyStepGoal?: number;
@@ -174,6 +175,12 @@ export interface WorkoutPlan {
   daysPerWeek: number;
   durationMinutes: number;
   days: WorkoutDay[];
+  isPersonalized?: boolean;
+  assignedClientId?: string;
+  assignedClientName?: string;
+  assignedClientEmail?: string;
+  assignedAt?: string;
+  coachNotes?: string;
 }
 
 export interface Challenge {
