@@ -44,21 +44,97 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
 }) => {
   const { 
     customers, 
+    leads,
     updateCustomer, 
     deleteCustomer, 
     addClientCheckIn, 
     addClientCoachNote,
+    convertLeadToCustomer,
+    setSelectedCustomerId,
     invoices,
     setActiveSubtab,
     currentRole
   } = useAdmin();
 
-  const client = customers.find(c => c.id === customerId);
+  const [currentId, setCurrentId] = useState<string>(customerId);
+
+  // Sync internal currentId when customerId prop changes
+  useEffect(() => {
+    if (customerId) {
+      setCurrentId(customerId);
+    }
+  }, [customerId]);
+
+  // Resolve client from customers OR synthesized from leads (like the invoice generator)
+  const existingCustomer = (customers || []).find(
+    c => c.id === currentId || 
+         (c.convertedFromLeadId && c.convertedFromLeadId === currentId) ||
+         ((c.email && currentId.includes('@')) && c.email.toLowerCase() === currentId.toLowerCase())
+  );
+
+  const matchingLead = !existingCustomer ? (leads || []).find(l => l.id === currentId || (l.email && currentId.includes('@') && l.email.toLowerCase() === currentId.toLowerCase())) : null;
+
+  const isLeadView = Boolean(!existingCustomer && matchingLead);
+
+  const client: Customer | undefined = existingCustomer || (matchingLead ? {
+    id: matchingLead.id,
+    name: matchingLead.name || 'Athlete Lead',
+    email: matchingLead.email || 'athlete@fitnetheist.com',
+    phone: matchingLead.phone || '',
+    avatarUrl: matchingLead.sex === 'female' 
+      ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+      : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    joinedDate: matchingLead.createdAt ? matchingLead.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+    totalSpent: matchingLead.estimatedValue || 7500,
+    status: matchingLead.status === 'CONVERTED' ? 'ACTIVE' : 'ONBOARDING',
+    programTier: matchingLead.challengeInterest || 'CRM Intake Protocol',
+    assignedCoach: matchingLead.assignedTo && matchingLead.assignedTo !== 'Unassigned' ? matchingLead.assignedTo : 'Coach Neetu (Head Coach)',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+    age: matchingLead.age || 28,
+    gender: matchingLead.sex === 'female' ? 'FEMALE' : 'MALE',
+    city: 'India',
+    emergencyContact: '',
+    heightCm: matchingLead.heightCm || 175,
+    startingWeightKg: matchingLead.weightKg || 75,
+    currentWeightKg: matchingLead.weightKg || 75,
+    targetWeightKg: matchingLead.goal === 'LOSE_WEIGHT' ? (matchingLead.weightKg || 75) - 6 : (matchingLead.weightKg || 75) + 4,
+    targetDate: '',
+    injuriesOrMedicalConditions: 'Disclosed via CRM Intake',
+    dietGoal: (matchingLead.goal as any) || 'BUILD_MUSCLE',
+    dietType: (matchingLead.dietType as any) || 'VEGETARIAN',
+    dailyCalories: matchingLead.calculatedCalories || 2150,
+    proteinGrams: Math.round((matchingLead.weightKg || 75) * 2),
+    carbsGrams: Math.round(((matchingLead.calculatedCalories || 2150) * 0.45) / 4),
+    fatsGrams: Math.round(((matchingLead.calculatedCalories || 2150) * 0.25) / 9),
+    waterLitres: 3.5,
+    mealsPerDay: matchingLead.dietPreferences?.mealsPerDay || 4,
+    allergiesOrRestrictions: matchingLead.dietPreferences?.restrictions?.join(', ') || 'None reported',
+    cheatMealProtocol: '1 clean cheat meal weekly',
+    workoutSplit: matchingLead.workoutPreferences?.daysPerWeek === 4 ? '4-Day Upper / Lower' : 'Push / Pull / Legs 6-Day',
+    trainingDaysPerWeek: matchingLead.workoutPreferences?.daysPerWeek || 4,
+    experienceLevel: (matchingLead.workoutPreferences?.experience as any) || 'INTERMEDIATE',
+    cardioProtocol: '8,500 daily steps',
+    strengthBenchmarks: { benchPressKg: 70, squatKg: 90, deadliftKg: 120, overheadPressKg: 40 },
+    streakDays: 1,
+    lastActivity: 'Active CRM Inquiry',
+    orderIds: [],
+    convertedFromLeadId: matchingLead.id,
+    checkIns: [],
+    coachNotes: Array.isArray(matchingLead.notes) ? matchingLead.notes.map((n: any, idx: number) => ({
+      id: `cn_${idx}`,
+      createdAt: n.date || new Date().toISOString(),
+      author: n.author || 'Coach Neetu',
+      type: 'GENERAL' as const,
+      content: n.text || ''
+    })) : []
+  } : undefined);
 
   const [activeProfileTab, setActiveProfileTab] = useState<'BIOMETRICS' | 'NUTRITION' | 'WORKOUT' | 'CHECKINS' | 'NOTES' | 'INVOICES'>('BIOMETRICS');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isCoachNoteModalOpen, setIsCoachNoteModalOpen] = useState(false);
+  const [convertSuccessMsg, setConvertSuccessMsg] = useState<string | null>(null);
 
   // New Check-in Form State
   const [checkInWeight, setCheckInWeight] = useState<number>(client?.currentWeightKg || 75);
@@ -74,13 +150,44 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
 
   if (!client) {
     return (
-      <div className="p-8 text-center bg-[#0e0e12] border border-white/10 rounded-sm">
+      <div className="p-8 text-center bg-[#0e0e12] border border-white/10 rounded-sm font-mono-num">
         <AlertCircle size={32} className="mx-auto text-amber-400 mb-3" />
         <h3 className="text-lg font-bold text-white uppercase font-display">Client Profile Not Found</h3>
         <p className="text-zinc-400 text-xs mt-1">The requested client record may have been removed or merged.</p>
+        
+        {/* Dropdown in empty state so user can pick any existing athlete */}
+        <div className="mt-4 max-w-xs mx-auto">
+          <select
+            defaultValue=""
+            onChange={(e) => {
+              if (e.target.value) {
+                setCurrentId(e.target.value);
+                setSelectedCustomerId(e.target.value);
+              }
+            }}
+            className="w-full bg-zinc-900 border border-[#FFC515]/40 text-[#FFC515] font-bold p-2 text-xs rounded-sm focus:outline-none"
+          >
+            <option value="" disabled>⚡ Pick Athlete from CRM...</option>
+            <optgroup label="Enrolled Customers">
+              {(customers || []).map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.email})
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Active Leads">
+              {(leads || []).map(l => (
+                <option key={l.id} value={l.id}>
+                  {l.name} ({l.email || l.goal})
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
+
         <button
           onClick={onBack}
-          className="mt-4 px-4 py-2 bg-[#FFC515] text-black font-bold uppercase text-xs rounded-sm inline-flex items-center gap-2"
+          className="mt-4 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white font-bold uppercase text-xs rounded-sm inline-flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft size={14} /> Back to Client Roster
         </button>

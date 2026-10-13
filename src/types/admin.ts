@@ -422,3 +422,41 @@ export interface LeadScoringRules {
   purchaseCompleted: number;
   contactFormSubmitted: number;
 }
+
+export interface CoachingConsentRecord {
+  id: string;
+  clientName: string;
+  clientAge?: string;
+  clientPhone: string;
+  clientEmail?: string;
+  program: '3_MONTHS' | '6_MONTHS' | '9_MONTHS' | '12_MONTHS' | string;
+  programPrice: string;
+  pauseAllowance: string;
+  startDate: string;
+  medicalConditions?: string;
+  medications?: string;
+  allergies?: string;
+  injuries?: string;
+  emergencyContact?: string;
+  emergencyRelationship?: string;
+  emergencyPhone?: string;
+  declarations?: {
+    healthMedical: boolean;
+    exerciseRisk: boolean;
+    nutritionConsent: boolean;
+    clientResponsibilities: boolean;
+    strictNoRefund: boolean;
+    pausePolicyAccepted: boolean;
+    virtualTerms?: boolean;
+    proprietaryMaterial?: boolean;
+    privacyAcknowledged?: boolean;
+  };
+  signatureText: string;
+  signaturePlace: string;
+  signedAt: string;
+  status: 'SIGNED' | 'VERIFIED' | 'REVIEWED';
+  verifiedAt?: string;
+  coachNotes?: string;
+  lastSyncedAt?: string;
+}
+

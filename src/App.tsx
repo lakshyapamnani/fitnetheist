@@ -19,6 +19,7 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { ClientPlanView } from './components/ClientPlanView';
 import { ClientProgressView } from './components/ClientProgressView';
 import { ClientMeProfileView } from './components/ClientMeProfileView';
+import { PolicyPage } from './components/PolicyPage';
 
 const AppContent: React.FC = () => {
   const { activeTab, user, openCalorieModal } = useApp();
@@ -58,6 +59,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'community' && <CommunitySection />}
         {activeTab === 'coach' && <CoachSection />}
         {activeTab === 'pricing' && <PricingSection />}
+        {(activeTab === 'policy' || activeTab === 'consent' || activeTab === 'terms') && <PolicyPage />}
         {activeTab === 'admin' && <AdminDashboard />}
       </main>
 

@@ -113,8 +113,16 @@ export const ClientManagementView: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2">
           <button
+            onClick={() => setActiveSubtab('consent-forms')}
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/20 uppercase font-bold text-xs flex items-center gap-1.5 transition-colors rounded-xs cursor-pointer"
+          >
+            <ShieldCheck size={14} className="text-[#FFC515]" />
+            <span>SIGNED CONSENT FORMS</span>
+          </button>
+
+          <button
             onClick={() => setIsSelectLeadModalOpen(true)}
-            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white border border-white/20 uppercase font-bold text-xs flex items-center gap-1.5 transition-colors rounded-xs shadow-sm"
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-white border border-white/20 uppercase font-bold text-xs flex items-center gap-1.5 transition-colors rounded-xs shadow-sm cursor-pointer"
           >
             <Sparkles size={14} className="text-[#FFC515]" />
             <span>CONVERT FROM LEAD ({convertibleLeads.length})</span>
@@ -125,7 +133,7 @@ export const ClientManagementView: React.FC = () => {
               setLeadToConvert(null);
               setIsIntakeModalOpen(true);
             }}
-            className="px-4 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-black uppercase text-xs flex items-center gap-1.5 transition-transform active:scale-95 rounded-xs shadow-lg"
+            className="px-4 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-black uppercase text-xs flex items-center gap-1.5 transition-transform active:scale-95 rounded-xs shadow-lg cursor-pointer"
           >
             <UserPlus size={15} />
             <span>+ DIRECT NEW CLIENT</span>

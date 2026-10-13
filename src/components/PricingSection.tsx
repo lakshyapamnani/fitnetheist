@@ -1,204 +1,208 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
 import { useAdmin } from '../context/AdminContext';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, PauseCircle, ShieldAlert, Sparkles, MessageCircle, FileText, Phone, Instagram } from 'lucide-react';
+import { COACHING_PLANS } from './RateCardsSection';
 
 export const PricingSection: React.FC = () => {
-  const { setActiveTab, openAuthModal, user } = useApp();
-  const { trackLeadEvent, captureLead } = useAdmin();
-  const [billingCycle, setBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('ANNUAL');
+  const { setActiveTab } = useApp();
+  const { trackLeadEvent } = useAdmin();
 
-  const plans = [
-    {
-      id: 'free',
-      name: 'FOUNDATION',
-      tier: 'TIER 01',
-      priceMonthly: '$0',
-      priceAnnual: '$0',
-      period: 'FOREVER',
-      description: 'Essential calculations and starter 7-day diet generation.',
-      features: [
-        'Mifflin-St Jeor Calorie Calculator',
-        'Basic 7-Day Diet Generator',
-        'Standard Exercise Library access',
-        'Basic daily water & step tracking',
-        'Community Tribe public feed'
-      ],
-      cta: 'GET STARTED FREE',
-      isPopular: false
-    },
-    {
-      id: 'challenge',
-      name: 'CHALLENGE PASS',
-      tier: 'TIER 02',
-      priceMonthly: '$49',
-      priceAnnual: '$39',
-      period: 'PER PROGRAM',
-      description: 'Full enrollment in structured 21, 60, or 90 day challenge cohorts.',
-      features: [
-        'All Foundation features included',
-        'Complete Challenge Program Curriculum',
-        'Automated 7-Day Grocery List with 1-click Export',
-        'Smart Meal Swap Engine with ±30 kcal parity',
-        'Full Periodized Workout Split Generator',
-        'Verified Leaderboard streak ranking'
-      ],
-      cta: 'JOIN NEXT COHORT',
-      isPopular: true
-    },
-    {
-      id: 'pro',
-      name: 'PRO ATHLETE',
-      tier: 'TIER 03',
-      priceMonthly: '$79',
-      priceAnnual: '$59',
-      period: 'PER MONTH',
-      description: 'Uncapped access to all future challenges, custom macro adjustments, and direct audit.',
-      features: [
-        'Unlimited Challenge Cohort entries',
-        'Bi-weekly Coach Biometric Review',
-        'Custom Indian / International recipe builder',
-        'Advanced RPE & Progressive Overload tracker',
-        'Direct priority athlete support queue'
-      ],
-      cta: 'JOIN PRO ATHLETE',
-      isPopular: false
-    }
-  ];
-
-  const handleSelectPlan = (planId: string) => {
+  const handleSelectPlan = (plan: typeof COACHING_PLANS[0]) => {
     trackLeadEvent('PRICING_VIEWED', {
-      source: 'PRICING_GRID',
-      details: `Selected ${planId.toUpperCase()} tier (${billingCycle})`
+      source: 'PRICING_PAGE_4TIERS',
+      details: `Selected ${plan.name} (${plan.durationLabel}) - ${plan.priceFormatted}`
     });
-
-    if (!user) {
-      openAuthModal('signup');
-    } else {
-      if (planId === 'free') {
-        setActiveTab('calculate');
-      } else {
-        trackLeadEvent('CHECKOUT_STARTED', {
-          source: 'PRICING_GRID',
-          details: `Initiated checkout for ${planId.toUpperCase()} tier`
-        });
-        captureLead({
-          name: user.name || 'Athlete Visitor',
-          email: user.email,
-          phone: user.phone || '+91 98000 00000',
-          source: 'PRICING_TABLE',
-          goal: 'MUSCLE_GAIN'
-        });
-        setActiveTab('challenges');
-      }
-    }
+    const text = encodeURIComponent(
+      `Hello Coach Neetu! I want to enroll in the "${plan.name}" (${plan.durationLabel} - ${plan.priceFormatted}). Both Workout & Nutrition included. Let's start!`
+    );
+    window.open(`https://wa.me/917420082838?text=${text}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <div id="pricing-section-page" className="min-h-screen bg-[#08080a] text-white pt-24 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div id="pricing-section-page" className="min-h-screen bg-[#08080a] text-white pt-24 pb-20 px-4 sm:px-6 lg:px-8 font-mono-num">
+      <div className="max-w-7xl mx-auto space-y-14">
         
         {/* Header */}
-        <div className="border-b border-white/10 pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
+        <div className="border-b border-white/10 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
               <span className="h-2 w-2 bg-[#FFC515]"></span>
-              <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
-                MEMBERSHIP ARCHITECTURE // 08
+              <span className="text-xs font-bold uppercase tracking-[0.25em] text-[#FFC515]">
+                OFFICIAL RATE CARDS & TIERS
               </span>
             </div>
-            <h1 className="text-4xl sm:text-6xl font-extrabold uppercase tracking-tight font-display">
-              TRANSPARENT <span className="text-[#FFC515]">PRICING</span>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold uppercase tracking-tight font-display text-white">
+              COACHING <span className="text-[#FFC515]">INVESTMENT.</span>
             </h1>
-            <p className="text-white/70 text-sm max-w-2xl mt-2">
-              No hidden subscriptions. No deceptive upsells. Invest in your physical performance with transparent pricing.
+            <p className="text-white/70 text-sm sm:text-base max-w-2xl leading-relaxed">
+              Every package includes <strong className="text-white">BOTH custom workout programming and bespoke nutrition guidance</strong> by Coach Neetu.
             </p>
           </div>
 
-          {/* Billing Cycle Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-[#14141a] border border-white/10 font-mono-num text-xs">
-            <button
-              onClick={() => setBillingCycle('MONTHLY')}
-              className={`px-3 py-1.5 uppercase font-bold transition-colors ${
-                billingCycle === 'MONTHLY' ? 'bg-[#FFC515] text-black font-extrabold' : 'text-white/60 hover:text-white'
-              }`}
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <a
+              href="https://wa.me/917420082838?text=Hello%20Coach%20Neetu%2C%20I%20have%20a%20question%20about%20your%20coaching%20plans."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-[#FFC515] text-black font-extrabold uppercase rounded flex items-center gap-2 hover:bg-[#eab308] transition-colors"
             >
-              MONTHLY
-            </button>
-            <button
-              onClick={() => setBillingCycle('ANNUAL')}
-              className={`px-3 py-1.5 uppercase font-bold transition-colors ${
-                billingCycle === 'ANNUAL' ? 'bg-[#FFC515] text-black font-extrabold' : 'text-white/60 hover:text-white'
-              }`}
+              <Phone size={14} />
+              <span>07420082838</span>
+            </a>
+            <a
+              href="https://www.instagram.com/coachneetu.fit?stkn=MnUwMXQxZ2RxZGwy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-zinc-900 border border-white/15 text-white font-bold uppercase rounded flex items-center gap-2 hover:bg-zinc-800 transition-colors"
             >
-              ANNUAL (SAVE 25%)
-            </button>
+              <Instagram size={14} />
+              <span>@coachneetu.fit</span>
+            </a>
           </div>
         </div>
 
-        {/* Pricing Tiers Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {plans.map(plan => (
-            <div
-              key={plan.id}
-              className={`bg-[#101014] border flex flex-col justify-between p-8 transition-all relative ${
-                plan.isPopular 
-                  ? 'border-[#FFC515] bg-[#101014]/90 shadow-[0_0_30px_rgba(255,197,21,0.12)]' 
-                  : 'border-white/10 hover:border-white/20'
-              }`}
-            >
-              {plan.isPopular && (
-                <span className="absolute -top-3 left-8 px-3 py-0.5 bg-[#FFC515] text-black text-[10px] font-mono-num font-extrabold uppercase tracking-wider shadow-[0_0_10px_rgba(255,197,21,0.3)]">
-                  MOST POPULAR CHOICE
-                </span>
-              )}
-
-              <div>
-                <span className="text-[10px] font-mono-num text-white/40 uppercase tracking-widest block">
-                  {plan.tier}
-                </span>
-                <h3 className="text-2xl font-bold uppercase font-display text-white mt-1">
-                  {plan.name}
-                </h3>
-                <p className="text-xs text-white/60 font-mono-num mt-2">
-                  {plan.description}
-                </p>
-
-                {/* Price Display */}
-                <div className="my-6 pt-6 border-t border-white/10 flex items-baseline gap-2 font-mono-num">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-white">
-                    {billingCycle === 'ANNUAL' ? plan.priceAnnual : plan.priceMonthly}
-                  </span>
-                  <span className="text-xs text-white/40 uppercase">
-                    / {plan.period}
-                  </span>
-                </div>
-
-                {/* Features List */}
-                <div className="space-y-3 font-mono-num text-xs mb-8">
-                  {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-2 text-white/80">
-                      <Check size={14} className="text-[#FFC515] shrink-0 mt-0.5" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Button */}
-              <button
-                onClick={() => handleSelectPlan(plan.id)}
-                className={`w-full py-3.5 text-xs font-mono-num font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                  plan.isPopular
-                    ? 'bg-[#FFC515] hover:bg-[#E6AF0F] text-black shadow-[0_0_15px_rgba(255,197,21,0.25)]'
-                    : 'bg-[#14141a] hover:bg-white hover:text-black border border-white/15 text-white'
+        {/* 4 Plans Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {COACHING_PLANS.map((plan) => {
+            const isFeatured = plan.isPopular;
+            return (
+              <div
+                key={plan.id}
+                className={`bg-[#0e0e12] border rounded-[4px] p-6 sm:p-7 flex flex-col justify-between space-y-6 relative transition-all duration-300 hover:border-[#FFC515]/80 ${
+                  isFeatured
+                    ? 'border-[#FFC515] shadow-[0_0_30px_rgba(255,197,21,0.14)] bg-gradient-to-b from-[#14141a] to-[#0c0c10]'
+                    : 'border-white/15'
                 }`}
               >
-                <span>{plan.cta}</span>
-                <ArrowRight size={14} />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between min-h-[26px]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                      {plan.durationLabel}
+                    </span>
+                    {plan.badge && (
+                      <span
+                        className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-[2px] tracking-wider ${
+                          isFeatured ? 'bg-[#FFC515] text-black' : 'bg-zinc-800 text-[#FFC515] border border-[#FFC515]/30'
+                        }`}
+                      >
+                        {plan.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
+                      {plan.name}
+                    </h3>
+                    <div className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 bg-[#FFC515]/10 border border-[#FFC515]/30 rounded text-[11px] text-[#FFC515] font-semibold">
+                      <Sparkles size={11} />
+                      <span>Workout + Nutrition</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    {plan.description}
+                  </p>
+
+                  <div className="pt-4 border-t border-white/10 space-y-1">
+                    <div className="flex items-baseline gap-1 text-[#FFC515]">
+                      <span className="text-4xl sm:text-5xl font-extrabold tracking-tight">
+                        {plan.priceFormatted}
+                      </span>
+                      <span className="text-xs text-white/50 uppercase">/ TOTAL</span>
+                    </div>
+                    <div className="text-[11px] text-zinc-400">
+                      Effective: <strong className="text-white">{plan.monthlyEquivalent}</strong>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 bg-zinc-950/80 border border-white/10 rounded text-xs space-y-1">
+                    <div className="flex items-center gap-1.5 text-zinc-300">
+                      <PauseCircle size={13} className={plan.pauseDays > 0 ? "text-[#FFC515]" : "text-zinc-500"} />
+                      <span className="text-[11px] uppercase font-bold">
+                        Pause: <strong className={plan.pauseDays > 0 ? "text-[#FFC515]" : "text-zinc-400"}>{plan.pauseLabel}</strong>
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-zinc-500 leading-tight">
+                      {plan.pauseDays === 0
+                        ? 'No pause allowed under 3 months.'
+                        : `Beyond ${plan.pauseDays} days: ₹199/day.`}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2.5 text-xs pt-2 text-white/80">
+                    {plan.features.map((feat, fIdx) => (
+                      <div key={fIdx} className="flex items-start gap-2">
+                        <Check size={14} className="text-[#FFC515] shrink-0 mt-0.5" />
+                        <span className="leading-snug">{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 space-y-2">
+                  <button
+                    onClick={() => handleSelectPlan(plan)}
+                    className={`w-full py-3.5 font-bold text-xs uppercase tracking-wider rounded-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      isFeatured
+                        ? 'bg-[#FFC515] hover:bg-[#eab308] text-black shadow-[0_0_20px_rgba(255,197,21,0.3)]'
+                        : 'bg-[#14141a] hover:bg-white hover:text-black border border-white/20 text-white'
+                    }`}
+                  >
+                    <span>ENROLL IN {plan.durationMonths} MONTHS</span>
+                    <ArrowRight size={14} />
+                  </button>
+                  <span className="block text-center text-[10px] text-zinc-500 uppercase">
+                    Strict No-Refund Policy
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Policy Highlights */}
+        <div className="grid md:grid-cols-2 gap-6 text-xs">
+          <div className="bg-[#0f0f14] border border-[#FFC515]/30 p-6 rounded-[4px] space-y-3">
+            <h4 className="text-sm font-bold uppercase tracking-wider font-display text-white flex items-center gap-2">
+              <PauseCircle size={16} className="text-[#FFC515]" />
+              MEMBERSHIP PAUSE RULES
+            </h4>
+            <div className="space-y-1.5 text-zinc-300">
+              <p>• <strong>3 Months Plan:</strong> NO PAUSE applicable (0 days).</p>
+              <p>• <strong>6 Months Plan:</strong> 20 Days complimentary pause.</p>
+              <p>• <strong>9 Months Plan:</strong> 30 Days complimentary pause.</p>
+              <p>• <strong>12 Months Plan:</strong> 40 Days complimentary pause.</p>
+              <p className="text-amber-300 pt-1">
+                • <strong>Extended Pause:</strong> Anything beyond these days will be chargeable at <strong>₹199 per day</strong>, and pause will be lifted only after payment of the extended pause days.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-[#0f0f14] border border-white/15 p-6 rounded-[4px] space-y-3">
+            <h4 className="text-sm font-bold uppercase tracking-wider font-display text-white flex items-center gap-2">
+              <ShieldAlert size={16} className="text-[#FFC515]" />
+              REFUND POLICY
+            </h4>
+            <div className="space-y-1.5 text-zinc-300">
+              <p>• <strong>Strict No-Refund:</strong> All payments are 100% non-refundable once coaching commences.</p>
+              <p>• <strong>Personal Inability:</strong> <strong className="text-white">No refund if the client has personal issues, schedule conflicts, lack of time, lack of motivation, travel, or inability to follow the plan.</strong></p>
+              <p>• <strong>Unused Days:</strong> Unused tenure is non-refundable upon voluntary discontinuation.</p>
+            </div>
+            <div className="pt-2 border-t border-white/10">
+              <button
+                onClick={() => {
+                  setActiveTab('policy');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="text-[#FFC515] hover:underline font-bold flex items-center gap-1 uppercase"
+              >
+                <FileText size={13} />
+                <span>Read Full Coaching Consent Form & Agreement →</span>
               </button>
             </div>
-          ))}
+          </div>
         </div>
 
       </div>

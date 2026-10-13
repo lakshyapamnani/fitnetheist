@@ -95,6 +95,16 @@ export const Navbar: React.FC = () => {
           >
             COACHING & PRICING
           </button>
+
+          <button
+            id="nav-link-policy"
+            onClick={() => { setActiveTab('policy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className={`text-xs font-mono-num font-semibold tracking-wider transition-colors uppercase ${
+              activeTab === 'policy' ? 'text-[#FFC515] border-b-2 border-[#FFC515] pb-0.5' : 'text-white/50 hover:text-white'
+            }`}
+          >
+            POLICY & CONSENT
+          </button>
         </nav>
 
         {/* Right CTA Actions: ADMIN, CONNECT, LOGIN, START NOW */}
@@ -223,6 +233,18 @@ export const Navbar: React.FC = () => {
               className="w-full text-left py-3 px-4 border border-white/10 bg-[#101014] text-white/70 hover:border-[#FFC515] hover:text-[#FFC515] uppercase font-bold tracking-wider flex items-center justify-between"
             >
               <span>COACHING & PRICING</span>
+              <ArrowRight size={14} className="text-[#FFC515]" />
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('policy');
+                setIsMobileMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="w-full text-left py-3 px-4 border border-white/10 bg-[#101014] text-white/70 hover:border-[#FFC515] hover:text-[#FFC515] uppercase font-bold tracking-wider flex items-center justify-between"
+            >
+              <span>POLICY & CONSENT FORM</span>
               <ArrowRight size={14} className="text-[#FFC515]" />
             </button>
           </div>

@@ -112,14 +112,32 @@ export const Footer: React.FC = () => {
               </span>
               <ul className="space-y-2 text-white/50 text-[11px]">
                 <li>
-                  <button onClick={() => scrollToSection('connect-with-us-section')} className="text-white/70 hover:text-[#FFC515] transition-colors">
-                    WhatsApp Desk
-                  </button>
+                  <a 
+                    href="https://wa.me/917420082838?text=Hello%20Coach%20Neetu%2C%20I%20want%20to%20connect%20for%20coaching." 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-white/70 hover:text-[#FFC515] transition-colors"
+                  >
+                    WhatsApp: 07420082838 ↗
+                  </a>
                 </li>
                 <li>
-                  <a href="https://instagram.com/fitnetheist" target="_blank" rel="noopener noreferrer" className="text-white/70 hover:text-[#FFC515] transition-colors">
-                    Instagram ↗
+                  <a 
+                    href="https://www.instagram.com/coachneetu.fit?stkn=MnUwMXQxZ2RxZGwy" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-white/70 hover:text-[#FFC515] transition-colors"
+                  >
+                    Instagram: @coachneetu.fit ↗
                   </a>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { setActiveTab('policy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+                    className="text-[#FFC515] hover:underline font-bold transition-colors text-left"
+                  >
+                    Coaching Consent & Policies →
+                  </button>
                 </li>
                 <li>
                   <button onClick={() => setActiveTab('admin')} className="text-white/70 hover:text-[#FFC515] transition-colors">

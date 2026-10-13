@@ -203,18 +203,18 @@ export const ClientHomeDashboard: React.FC = () => {
 
             <div className="p-3 bg-[#111113] rounded border border-[#1E1E22] text-xs text-[#9A9A9A] flex items-center justify-between">
               <span className="font-mono-num">Coach Neetu's Desk:</span>
-              <span className="text-[#F5F5F5] font-medium">Active 1-on-1</span>
+              <span className="text-[#FFC515] font-bold font-mono-num">07420082838</span>
             </div>
           </div>
 
           <button
             onClick={() => {
               const text = encodeURIComponent(`Hi Coach Neetu, this is ${user?.name || 'Athlete'}. Checking in on my plan.`);
-              window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
+              window.open(`https://wa.me/917420082838?text=${text}`, '_blank', 'noopener,noreferrer');
             }}
-            className="w-full py-2.5 px-4 bg-[#18181B] hover:bg-[#202024] border border-[#28282D] text-[#F5F5F5] font-medium text-xs font-mono-num uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 bg-[#18181B] hover:bg-[#202024] border border-[#28282D] text-[#F5F5F5] font-medium text-xs font-mono-num uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>MESSAGE COACH NEETU</span>
+            <span>MESSAGE COACH NEETU (07420082838)</span>
             <ArrowRight size={14} className="text-[#9A9A9A]" />
           </button>
         </div>

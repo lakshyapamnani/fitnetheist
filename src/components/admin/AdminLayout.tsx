@@ -51,6 +51,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     customers,
     orders,
     invoices,
+    consentForms,
     adminLogout
   } = useAdmin();
   
@@ -73,13 +74,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const isAllowed = (subtab: AdminSubtab): boolean => {
     if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') return true;
     if (currentRole === 'COACH') {
-      return ['clients', 'clients-detail', 'customers', 'exercise-bank', 'workouts', 'exercises'].includes(subtab);
+      return ['clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'workouts', 'exercises'].includes(subtab);
     }
     if (currentRole === 'CONTENT_MANAGER') {
       return ['cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
     }
     if (currentRole === 'SALES_LEAD_MANAGER') {
-      return ['users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'invoices', 'orders'].includes(subtab);
+      return ['users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'consent-forms', 'invoices', 'orders'].includes(subtab);
     }
     return true;
   };
@@ -115,6 +116,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           desc: 'Athletes, Intake & Profiles',
           icon: UserCheck, 
           badge: `${customers?.length || 0}` 
+        },
+        { 
+          id: 'consent-forms' as AdminSubtab, 
+          label: 'Consent Forms', 
+          desc: 'Signed Legal Agreements & Intake',
+          icon: ShieldCheck, 
+          badge: `${consentForms?.length || 0}` 
         },
         { 
           id: 'exercise-bank' as AdminSubtab, 

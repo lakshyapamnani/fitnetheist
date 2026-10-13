@@ -11,9 +11,11 @@ export const ConnectWithUsSection: React.FC = () => {
       details: `User clicked on ${channel} direct contact destination.`
     });
     if (channel === 'instagram') {
-      window.open('https://instagram.com/fitnetheist', '_blank', 'noopener,noreferrer');
+      window.open('https://www.instagram.com/coachneetu.fit?stkn=MnUwMXQxZ2RxZGwy', '_blank', 'noopener,noreferrer');
     } else if (channel === 'whatsapp') {
-      window.open('https://wa.me/?text=Hello%20Coach%20Neetu%2C%20I%20want%20to%20start%20my%20Fitnetheist%20transformation.', '_blank', 'noopener,noreferrer');
+      window.open('https://wa.me/917420082838?text=Hello%20Coach%20Neetu%2C%20I%20want%20to%20start%20my%20Fitnetheist%20transformation.', '_blank', 'noopener,noreferrer');
+    } else if (channel === 'phone') {
+      window.location.href = 'tel:07420082838';
     } else if (channel === 'email') {
       window.location.href = 'mailto:contact@fitnetheist.com?subject=Fitnetheist%20Coaching%20Inquiry%20-%20Coach%20Neetu';
     }
@@ -76,11 +78,11 @@ export const ConnectWithUsSection: React.FC = () => {
                     INSTAGRAM
                   </span>
                   <span className="text-xs text-[#FFC515] group-hover:underline">
-                    @FITNETHEIST ↗
+                    @COACHNEETU.FIT ↗
                   </span>
                 </div>
                 <p className="text-xs text-white/50 mt-1">
-                  Follow Coach Neetu and daily fitness insights.
+                  Follow Coach Neetu and daily transformation insights.
                 </p>
               </div>
 
@@ -95,11 +97,30 @@ export const ConnectWithUsSection: React.FC = () => {
                     WHATSAPP
                   </span>
                   <span className="text-xs text-[#FFC515] group-hover:underline">
-                    DIRECT DESK ↗
+                    07420082838 ↗
                   </span>
                 </div>
                 <p className="text-xs text-white/50 mt-1">
-                  Chat directly about your goals and onboarding.
+                  Chat directly about your goals, rate cards, and enrollment.
+                </p>
+              </div>
+
+              {/* Direct Call Phone */}
+              <div 
+                id="contact-phone-btn"
+                onClick={() => handleContactAction('phone')}
+                className="pt-6 group cursor-pointer"
+              >
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xl sm:text-2xl font-extrabold tracking-tight uppercase text-white group-hover:text-[#FFC515] transition-colors font-display">
+                    DIRECT CALL
+                  </span>
+                  <span className="text-xs text-[#FFC515] group-hover:underline">
+                    074200 82838 ↗
+                  </span>
+                </div>
+                <p className="text-xs text-white/50 mt-1">
+                  Call Coach Neetu desk directly for phone consultations.
                 </p>
               </div>
 

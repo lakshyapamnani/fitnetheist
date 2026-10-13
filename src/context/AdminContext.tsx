@@ -49,7 +49,12 @@ import {
   listenToRealtimeCustomers,
   saveInvoiceToRealtimeDb,
   deleteInvoiceFromRealtimeDb,
-  listenToRealtimeInvoices
+  listenToRealtimeInvoices,
+  CoachingConsentRecord,
+  listenToRealtimeConsentForms,
+  updateConsentFormStatusInRealtimeDb,
+  deleteConsentFormFromRealtimeDb,
+  saveConsentFormToRealtimeDb
 } from '../services/firebase';
 
 export type AdminSubtab = 
@@ -59,6 +64,7 @@ export type AdminSubtab =
   | 'leads-detail'
   | 'clients'
   | 'clients-detail'
+  | 'consent-forms'
   | 'exercise-bank'
   | 'workouts'
   | 'exercises'
@@ -207,6 +213,12 @@ interface AdminContextType {
     submittedDate: string;
   }[];
   updateTestimonialStatus: (id: string, status: 'APPROVED' | 'REJECTED') => void;
+
+  // Consent Forms & Signed Agreements
+  consentForms: CoachingConsentRecord[];
+  submitConsentForm: (consent: CoachingConsentRecord) => Promise<void>;
+  updateConsentFormStatus: (id: string, status: 'SIGNED' | 'VERIFIED' | 'REVIEWED', notes?: string) => Promise<void>;
+  deleteConsentForm: (id: string) => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -464,6 +476,82 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('fitnetheist_customers', JSON.stringify(customers));
   }, [customers]);
 
+  // Ensure converted leads always show in the customers roster
+  useEffect(() => {
+    const convertedLeads = (leads || []).filter(l => l && l.status === 'CONVERTED');
+    if (convertedLeads.length > 0) {
+      setCustomers(prev => {
+        let hasNew = false;
+        const currentList = [...(prev || [])];
+        convertedLeads.forEach(l => {
+          const emailLower = (l.email || '').toLowerCase().trim();
+          const phoneTrim = (l.phone || '').trim();
+          const alreadyInCustomers = currentList.some(c => 
+            (c.convertedFromLeadId && c.convertedFromLeadId === l.id) ||
+            c.id === l.id ||
+            c.id === `cust_${l.id}` ||
+            (emailLower && c.email && c.email.toLowerCase().trim() === emailLower) ||
+            (phoneTrim && c.phone && c.phone.trim() === phoneTrim)
+          );
+
+          if (!alreadyInCustomers) {
+            hasNew = true;
+            const startingWeight = l.weightKg || 75;
+            const targetWeight = l.goal === 'LOSE_WEIGHT' ? startingWeight - 6 : startingWeight + 4;
+            const calTarget = l.calculatedCalories || 2100;
+            const newCust: Customer = {
+              id: `cust_${l.id.replace('lead_', '')}`,
+              name: l.name || 'Converted Athlete',
+              email: l.email || `athlete_${l.id}@domain.com`,
+              phone: l.phone || '',
+              avatarUrl: l.sex === 'female' 
+                ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+                : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+              joinedDate: l.createdAt ? l.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+              totalSpent: l.estimatedValue || 7500,
+              status: 'ACTIVE',
+              programTier: l.challengeInterest || '90-Day VIP 1-on-1 Transformation',
+              assignedCoach: l.assignedTo && l.assignedTo !== 'Unassigned' ? l.assignedTo : 'Coach Neetu (Head Coach)',
+              startDate: new Date().toISOString().split('T')[0],
+              endDate: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+              age: l.age || 28,
+              gender: l.sex === 'female' ? 'FEMALE' : 'MALE',
+              city: 'India',
+              emergencyContact: '',
+              heightCm: l.heightCm || 175,
+              startingWeightKg: startingWeight,
+              currentWeightKg: startingWeight,
+              targetWeightKg: targetWeight,
+              targetDate: '',
+              injuriesOrMedicalConditions: 'None reported.',
+              dietGoal: (l.goal as any) || 'BUILD_MUSCLE',
+              dietType: (l.dietType as any) || 'VEGETARIAN',
+              dailyCalories: calTarget,
+              proteinGrams: Math.round(startingWeight * 2),
+              carbsGrams: Math.round((calTarget * 0.45) / 4),
+              fatsGrams: Math.round((calTarget * 0.25) / 9),
+              waterLitres: 3.5,
+              mealsPerDay: l.dietPreferences?.mealsPerDay || 4,
+              allergiesOrRestrictions: l.dietPreferences?.restrictions?.join(', ') || 'None',
+              cheatMealProtocol: '1 clean cheat meal weekly',
+              workoutSplit: l.workoutPreferences?.daysPerWeek === 4 ? '4-Day Upper / Lower' : 'Push / Pull / Legs 6-Day',
+              trainingDaysPerWeek: l.workoutPreferences?.daysPerWeek || 4,
+              experienceLevel: (l.workoutPreferences?.experience as any) || 'INTERMEDIATE',
+              cardioProtocol: '8,500 daily steps',
+              strengthBenchmarks: { benchPressKg: 70, squatKg: 90, deadliftKg: 120, overheadPressKg: 40 },
+              streakDays: 1,
+              lastActivity: 'Converted from Lead',
+              orderIds: [],
+              convertedFromLeadId: l.id
+            };
+            currentList.unshift(newCust);
+          }
+        });
+        return hasNew ? currentList : prev;
+      });
+    }
+  }, [leads]);
+
   useEffect(() => {
     localStorage.setItem('fitnetheist_cms_pages', JSON.stringify(cmsPages));
   }, [cmsPages]);
@@ -472,7 +560,23 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('fitnetheist_invoices', JSON.stringify(invoices));
   }, [invoices]);
 
-  // Real-time Firebase database listeners for Leads & Customers
+  // Consent Forms State
+  const [consentForms, setConsentForms] = useState<CoachingConsentRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_consent_forms');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('fitnetheist_consent_forms', JSON.stringify(consentForms));
+  }, [consentForms]);
+
+  // Real-time Firebase database listeners for Leads, Customers & Consent Forms
   useEffect(() => {
     const unsubLeads = listenToRealtimeLeads((remoteLeads) => {
       if (Array.isArray(remoteLeads) && remoteLeads.length > 0) {
@@ -536,12 +640,64 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     });
 
+    const unsubConsent = listenToRealtimeConsentForms((remoteConsent) => {
+      if (Array.isArray(remoteConsent)) {
+        setConsentForms(remoteConsent);
+      }
+    });
+
     return () => {
       unsubLeads();
       unsubCust();
       unsubInvoices();
+      unsubConsent();
     };
   }, []);
+
+  const submitConsentForm = async (consent: CoachingConsentRecord) => {
+    await saveConsentFormToRealtimeDb(consent);
+    setConsentForms(prev => {
+      const idx = prev.findIndex(c => c.id === consent.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = consent;
+        return copy;
+      }
+      return [consent, ...prev];
+    });
+
+    const notif: AdminNotification = {
+      id: `notif_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      title: 'New Coaching Consent Signed',
+      message: `${consent.clientName} signed ${consent.program.replace('_', ' ')} protocol agreement.`,
+      type: 'CHALLENGE_ENROLLMENT',
+      read: false,
+      linkSubtab: 'consent-forms'
+    };
+    setNotifications(prev => [notif, ...prev]);
+
+    logAuditAction(
+      'CLIENT_CONSENT_SIGNED',
+      consent.clientName,
+      'Pending Verification',
+      `Signed Coaching Consent Form for ${consent.program.replace('_', ' ')} (${consent.programPrice})`
+    );
+  };
+
+  const updateConsentFormStatus = async (
+    id: string, 
+    status: 'SIGNED' | 'VERIFIED' | 'REVIEWED', 
+    notes?: string
+  ) => {
+    await updateConsentFormStatusInRealtimeDb(id, status, notes);
+    setConsentForms(prev => prev.map(c => c.id === id ? { ...c, status, coachNotes: notes ?? c.coachNotes } : c));
+  };
+
+  const deleteConsentForm = async (id: string) => {
+    await deleteConsentFormFromRealtimeDb(id);
+    setConsentForms(prev => prev.filter(c => c.id !== id));
+  };
 
   // Log an audit action helper
   const logAuditAction = (action: string, targetResource: string, oldValue?: string, newValue?: string) => {
@@ -1125,11 +1281,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ]
     };
 
-    if (existingCust) {
-      setCustomers(prev => (prev || []).map(c => c.id === existingCust.id ? newCustomer : c));
-    } else {
-      setCustomers(prev => [newCustomer, ...(prev || [])]);
-    }
+    const updatedCustomers = [
+      newCustomer,
+      ...(customers || []).filter(c => c.id !== newCustomer.id && (!existingCust || c.id !== existingCust.id))
+    ];
+    setCustomers(updatedCustomers);
+    try {
+      localStorage.setItem('fitnetheist_customers', JSON.stringify(updatedCustomers));
+    } catch {}
 
     // Update the lead status to CONVERTED
     setLeads(prev => (prev || []).map(l => {
@@ -1483,7 +1642,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       markNotificationRead,
       clearAllNotifications,
       testimonials,
-      updateTestimonialStatus
+      updateTestimonialStatus,
+      consentForms,
+      submitConsentForm,
+      updateConsentFormStatus,
+      deleteConsentForm
     }}>
       {children}
     </AdminContext.Provider>

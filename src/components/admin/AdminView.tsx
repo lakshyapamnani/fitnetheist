@@ -17,6 +17,7 @@ import { UsersAndAuditLogsView } from './UsersAndAuditLogsView';
 import { AdminUsersView } from './AdminUsersView';
 import { AdminSettingsView } from './AdminSettingsView';
 import { ExerciseBankAdminView } from './ExerciseBankAdminView';
+import { ConsentFormsAdminView } from './ConsentFormsAdminView';
 
 export const AdminView: React.FC = () => {
   const { activeSubtab, isAdminAuthenticated } = useAdmin();
@@ -50,6 +51,9 @@ export const AdminView: React.FC = () => {
       case 'clients-detail':
       case 'customers':
         return <ClientManagementView />;
+
+      case 'consent-forms':
+        return <ConsentFormsAdminView />;
 
       case 'exercise-bank':
         return <ExerciseBankAdminView />;

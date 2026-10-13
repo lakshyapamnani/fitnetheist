@@ -960,3 +960,226 @@ export const listenToRealtimeCMSPages = (callback: (pages: any[]) => void) => {
     return () => {};
   }
 };
+
+/**
+ * ========================================================
+ * REALTIME DATABASE & FIRESTORE: COACHING CONSENT FORMS
+ * ========================================================
+ */
+export interface CoachingConsentRecord {
+  id: string;
+  clientName: string;
+  clientAge?: string;
+  clientPhone: string;
+  clientEmail?: string;
+  program: '3_MONTHS' | '6_MONTHS' | '9_MONTHS' | '12_MONTHS' | string;
+  programPrice: string;
+  pauseAllowance: string;
+  startDate: string;
+  medicalConditions?: string;
+  medications?: string;
+  allergies?: string;
+  injuries?: string;
+  emergencyContact?: string;
+  emergencyRelationship?: string;
+  emergencyPhone?: string;
+  declarations?: {
+    healthMedical: boolean;
+    exerciseRisk: boolean;
+    nutritionConsent: boolean;
+    clientResponsibilities: boolean;
+    strictNoRefund: boolean;
+    pausePolicyAccepted: boolean;
+    virtualTerms?: boolean;
+    proprietaryMaterial?: boolean;
+    privacyAcknowledged?: boolean;
+  };
+  signatureText: string;
+  signaturePlace: string;
+  signedAt: string;
+  status: 'SIGNED' | 'VERIFIED' | 'REVIEWED';
+  verifiedAt?: string;
+  coachNotes?: string;
+  lastSyncedAt?: string;
+}
+
+export const saveConsentFormToRealtimeDb = async (consent: CoachingConsentRecord) => {
+  if (!consent || !consent.id) return;
+  const payload = {
+    ...consent,
+    lastSyncedAt: new Date().toISOString()
+  };
+
+  // 1. Push to Firebase Realtime Database
+  if (db) {
+    try {
+      const consentRef = ref(db, `consent_forms/${consent.id}`);
+      await set(consentRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database consent form sync notice:', err);
+    }
+  }
+
+  // 2. Mirror to Firestore
+  if (firestore) {
+    try {
+      const consentDoc = doc(firestore, 'consent_forms', consent.id);
+      await setDoc(consentDoc, payload, { merge: true });
+    } catch (err) {
+      console.warn('Firestore consent form sync notice:', err);
+    }
+  }
+
+  // 3. Fallback localStorage array
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = localStorage.getItem('fitnetheist_consent_forms');
+      let list: CoachingConsentRecord[] = existing ? JSON.parse(existing) : [];
+      const idx = list.findIndex(c => c.id === consent.id);
+      if (idx >= 0) {
+        list[idx] = payload;
+      } else {
+        list.unshift(payload);
+      }
+      localStorage.setItem('fitnetheist_consent_forms', JSON.stringify(list));
+      localStorage.setItem('fitnetheist_signed_coaching_consent', JSON.stringify(payload));
+    } catch (err) {}
+  }
+};
+
+export const listenToRealtimeConsentForms = (callback: (forms: CoachingConsentRecord[]) => void) => {
+  if (!db) {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('fitnetheist_consent_forms');
+        if (stored) callback(JSON.parse(stored));
+      } catch {}
+    }
+    return () => {};
+  }
+
+  try {
+    const consentRef = ref(db, 'consent_forms');
+    const unsubscribe = onValue(consentRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({
+          ...val[key],
+          id: val[key].id || key
+        })).sort((a, b) => new Date(b.signedAt || b.lastSyncedAt || 0).getTime() - new Date(a.signedAt || a.lastSyncedAt || 0).getTime());
+        
+        callback(list);
+
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('fitnetheist_consent_forms', JSON.stringify(list));
+          } catch {}
+        }
+      } else {
+        if (typeof window !== 'undefined') {
+          try {
+            const stored = localStorage.getItem('fitnetheist_consent_forms');
+            if (stored) {
+              callback(JSON.parse(stored));
+              return;
+            }
+          } catch {}
+        }
+        callback([]);
+      }
+    }, (error) => {
+      console.warn('Realtime Database consent forms listener notice:', error);
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('fitnetheist_consent_forms');
+          if (stored) callback(JSON.parse(stored));
+        } catch {}
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (err) {
+    console.warn('Could not attach realtime consent forms listener:', err);
+    return () => {};
+  }
+};
+
+export const updateConsentFormStatusInRealtimeDb = async (
+  consentId: string, 
+  status: 'SIGNED' | 'VERIFIED' | 'REVIEWED', 
+  coachNotes?: string
+) => {
+  if (!consentId) return;
+  const updates: Record<string, any> = {
+    status,
+    verifiedAt: new Date().toISOString(),
+    lastSyncedAt: new Date().toISOString()
+  };
+  if (coachNotes !== undefined) {
+    updates.coachNotes = coachNotes;
+  }
+
+  if (db) {
+    try {
+      const consentRef = ref(db, `consent_forms/${consentId}`);
+      await update(consentRef, updates);
+    } catch (err) {
+      console.warn('Realtime Database update consent status notice:', err);
+    }
+  }
+
+  if (firestore) {
+    try {
+      const consentDoc = doc(firestore, 'consent_forms', consentId);
+      await setDoc(consentDoc, updates, { merge: true });
+    } catch (err) {
+      console.warn('Firestore update consent status notice:', err);
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = localStorage.getItem('fitnetheist_consent_forms');
+      if (existing) {
+        const list: CoachingConsentRecord[] = JSON.parse(existing);
+        const updatedList = list.map(c => c.id === consentId ? { ...c, ...updates } : c);
+        localStorage.setItem('fitnetheist_consent_forms', JSON.stringify(updatedList));
+      }
+    } catch {}
+  }
+};
+
+export const deleteConsentFormFromRealtimeDb = async (consentId: string) => {
+  if (!consentId) return;
+  if (db) {
+    try {
+      const consentRef = ref(db, `consent_forms/${consentId}`);
+      await remove(consentRef);
+    } catch (err) {
+      console.warn('Realtime Database consent form remove notice:', err);
+    }
+  }
+
+  if (firestore) {
+    try {
+      const consentDoc = doc(firestore, 'consent_forms', consentId);
+      await deleteDoc(consentDoc);
+    } catch (err) {
+      console.warn('Firestore consent form delete notice:', err);
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = localStorage.getItem('fitnetheist_consent_forms');
+      if (existing) {
+        const list: CoachingConsentRecord[] = JSON.parse(existing);
+        const filtered = list.filter(c => c.id !== consentId);
+        localStorage.setItem('fitnetheist_consent_forms', JSON.stringify(filtered));
+      }
+    } catch {}
+  }
+};
+
