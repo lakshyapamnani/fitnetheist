@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Customer, ClientCheckIn, ClientCoachNote } from '../../types/admin';
 import { useAdmin } from '../../context/AdminContext';
 import { ClientIntakeModal } from './ClientIntakeModal';
@@ -30,7 +30,8 @@ import {
   ExternalLink,
   ChevronRight,
   Send,
-  Zap
+  Zap,
+  Sparkles
 } from 'lucide-react';
 
 interface ClientProfileDetailViewProps {
@@ -78,8 +79,8 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
 
   const client: Customer | undefined = existingCustomer || (matchingLead ? {
     id: matchingLead.id,
-    name: matchingLead.name || 'Athlete Lead',
-    email: matchingLead.email || 'athlete@fitnetheist.com',
+    name: matchingLead.name || 'Client Lead',
+    email: matchingLead.email || 'client@fitnetheist.com',
     phone: matchingLead.phone || '',
     avatarUrl: matchingLead.sex === 'female' 
       ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
@@ -155,7 +156,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
         <h3 className="text-lg font-bold text-white uppercase font-display">Client Profile Not Found</h3>
         <p className="text-zinc-400 text-xs mt-1">The requested client record may have been removed or merged.</p>
         
-        {/* Dropdown in empty state so user can pick any existing athlete */}
+        {/* Dropdown in empty state so user can pick any existing client */}
         <div className="mt-4 max-w-xs mx-auto">
           <select
             defaultValue=""
@@ -167,7 +168,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
             }}
             className="w-full bg-zinc-900 border border-[#FFC515]/40 text-[#FFC515] font-bold p-2 text-xs rounded-sm focus:outline-none"
           >
-            <option value="" disabled>⚡ Pick Athlete from CRM...</option>
+            <option value="" disabled>⚡ Pick Client from CRM...</option>
             <optgroup label="Enrolled Customers">
               {(customers || []).map(c => (
                 <option key={c.id} value={c.id}>
@@ -235,7 +236,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
       waistCircumferenceCm: checkInWaist ? Number(checkInWaist) : undefined,
       bodyFatPercent: checkInBodyFat ? Number(checkInBodyFat) : undefined,
       adherenceScore: Number(checkInAdherence),
-      clientNotes: checkInNotes.trim() || 'Weekly check-in logged by athlete/coach.',
+      clientNotes: checkInNotes.trim() || 'Weekly check-in logged by client/coach.',
       coachFeedback: checkInFeedback.trim() || 'Keep pushing! Maintain consistent hydration and protein intake.',
       photosUploaded: false
     });
@@ -261,13 +262,51 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
       
       {/* Top Breadcrumb & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0a0a0e] border border-white/10 p-4 rounded-sm">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-2 text-zinc-400 hover:text-white uppercase font-bold text-xs tracking-wider transition-colors"
-        >
-          <ArrowLeft size={16} />
-          <span>BACK TO ALL CLIENTS</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-2 text-zinc-400 hover:text-white uppercase font-bold text-xs tracking-wider transition-colors cursor-pointer"
+          >
+            <ArrowLeft size={16} />
+            <span>ROSTER</span>
+          </button>
+
+          <span className="text-zinc-600 hidden sm:inline">•</span>
+
+          {/* Client Quick Dropdown Switcher (Like Invoices) */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-zinc-400 uppercase font-bold whitespace-nowrap hidden lg:inline">
+              SELECT CLIENT:
+            </span>
+            <select
+              value={currentId}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val) {
+                  setCurrentId(val);
+                  setSelectedCustomerId(val);
+                }
+              }}
+              className="bg-[#14141c] hover:bg-[#181822] border border-[#FFC515]/50 hover:border-[#FFC515] text-[#FFC515] font-bold px-3 py-1.5 text-xs rounded-xs focus:border-[#FFC515] focus:outline-none min-w-[200px] max-w-[280px] truncate cursor-pointer shadow-sm"
+              title="Quickly switch to any client or lead profile like in invoices"
+            >
+              <optgroup label="⭐ Enrolled Coaching Clients (Customers)">
+                {(customers || []).map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ''} [{c.status || 'ACTIVE'}]
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="⚡ Inquiries & Leads">
+                {(leads || []).map(l => (
+                  <option key={l.id} value={l.id}>
+                    {l.name} {l.phone ? `(${l.phone})` : l.email ? `(${l.email})` : ''} [Lead: {l.status}]
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {client.phone && (
@@ -276,7 +315,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
               className="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-black border border-emerald-500/40 uppercase font-bold text-xs flex items-center gap-1.5 transition-colors rounded-xs"
             >
               <MessageSquare size={13} />
-              <span>WHATSAPP ATHLETE</span>
+              <span>WHATSAPP CLIENT</span>
             </button>
           )}
 
@@ -321,11 +360,56 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
         </div>
       </div>
 
+      {/* Lead Notification Banner if viewing an unconverted lead dossier */}
+      {isLeadView && matchingLead && (
+        <div className="bg-amber-500/10 border border-amber-500/40 p-4 rounded-sm flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[#FFC515]/20 text-[#FFC515] rounded-xs border border-[#FFC515]/40 shrink-0">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-white uppercase">
+                  CRM Client Inquiry / Lead Dossier
+                </span>
+                <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-bold uppercase rounded-xs">
+                  {matchingLead.status}
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                This client inquiry was fetched from the CRM pipeline ({matchingLead.source?.replace(/_/g, ' ') || 'Website'}). Convert them to create their official enrolled client record in Realtime DB.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              const newCustomer = convertLeadToCustomer(matchingLead.id);
+              setCurrentId(newCustomer.id);
+              setSelectedCustomerId(newCustomer.id);
+              setConvertSuccessMsg(`Successfully converted ${matchingLead.name} into an active client!`);
+              setTimeout(() => setConvertSuccessMsg(null), 4000);
+            }}
+            className="px-4 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-black uppercase text-xs flex items-center justify-center gap-1.5 transition-transform active:scale-95 rounded-xs shrink-0 cursor-pointer shadow-lg"
+          >
+            <Zap size={14} className="fill-black" />
+            <span>CONVERT INTO ACTIVE CLIENT ROSTER</span>
+          </button>
+        </div>
+      )}
+
+      {convertSuccessMsg && (
+        <div className="bg-emerald-950/60 border border-emerald-500/60 text-emerald-300 p-3 rounded-sm flex items-center gap-2 text-xs font-bold uppercase">
+          <CheckCircle2 size={16} className="text-emerald-400" />
+          <span>{convertSuccessMsg}</span>
+        </div>
+      )}
+
       {/* Main Profile Header Dossier */}
       <div className="bg-[#0f0f14] border border-white/10 p-6 rounded-sm relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           
-          {/* Athlete Avatar & Core Identity */}
+          {/* Client Avatar & Core Identity */}
           <div className="flex items-start sm:items-center gap-4">
             <div className="relative shrink-0">
               <img
@@ -794,7 +878,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
         <div className="space-y-6 animate-in fade-in duration-150">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-white uppercase font-display">ATHLETE PROGRESS CHECK-IN LOG</h3>
+              <h3 className="text-base font-bold text-white uppercase font-display">CLIENT PROGRESS CHECK-IN LOG</h3>
               <p className="text-xs text-zinc-400 font-mono-num">Weekly bodyweight, adherence scores, and coach feedback history.</p>
             </div>
             <button
@@ -836,8 +920,8 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                     <div className="bg-[#171722] p-3 rounded-xs border border-white/5">
-                      <span className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">Athlete Comments:</span>
-                      <p className="text-zinc-300 italic">{chk.clientNotes || 'No athlete comments.'}</p>
+                      <span className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">Client Comments:</span>
+                      <p className="text-zinc-300 italic">{chk.clientNotes || 'No client comments.'}</p>
                     </div>
 
                     <div className="bg-[#171722] p-3 rounded-xs border border-white/5">
@@ -886,7 +970,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
                 required
                 value={newNoteContent}
                 onChange={(e) => setNewNoteContent(e.target.value)}
-                placeholder="Log protocol adjustment, check-in call notes, or athlete feedback..."
+                placeholder="Log protocol adjustment, check-in call notes, or client feedback..."
                 className="flex-1 bg-[#181824] border border-white/20 p-2 text-xs text-white rounded-xs focus:border-[#FFC515] focus:outline-none font-mono-num"
               />
 
@@ -981,7 +1065,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
               ))
             ) : (
               <div className="p-8 text-center bg-[#111116] border border-white/10 rounded-sm text-zinc-500 text-xs italic">
-                No invoices found for this athlete under email {client.email}. Click '+ Create New GST Invoice' to issue one.
+                No invoices found for this client under email {client.email}. Click '+ Create New GST Invoice' to issue one.
               </div>
             )}
           </div>
@@ -1003,7 +1087,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
           <div className="bg-[#0e0e14] border border-white/20 p-6 max-w-lg w-full font-mono-num text-xs space-y-4 rounded-sm">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-white">
-                LOG ATHLETE CHECK-IN: {client.name}
+                LOG CLIENT CHECK-IN: {client.name}
               </h3>
               <button onClick={() => setIsCheckInModalOpen(false)} className="text-zinc-400 hover:text-white">✕</button>
             </div>
@@ -1061,7 +1145,7 @@ export const ClientProfileDetailView: React.FC<ClientProfileDetailViewProps> = (
               </div>
 
               <div>
-                <label className="block text-zinc-400 uppercase font-bold mb-1">ATHLETE REFLECTIONS / NOTES</label>
+                <label className="block text-zinc-400 uppercase font-bold mb-1">CLIENT REFLECTIONS / NOTES</label>
                 <textarea
                   rows={2}
                   value={checkInNotes}

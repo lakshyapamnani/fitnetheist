@@ -501,8 +501,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const calTarget = l.calculatedCalories || 2100;
             const newCust: Customer = {
               id: `cust_${l.id.replace('lead_', '')}`,
-              name: l.name || 'Converted Athlete',
-              email: l.email || `athlete_${l.id}@domain.com`,
+              name: l.name || 'Converted Client',
+              email: l.email || `client_${l.id}@domain.com`,
               phone: l.phone || '',
               avatarUrl: l.sex === 'female' 
                 ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
@@ -883,7 +883,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const newLead: Lead = {
         id: `lead_${Date.now()}`,
-        name: data.name || 'Anonymous Athlete',
+        name: data.name || 'Anonymous Lead',
         phone: data.phone || 'Pending capture',
         email: cleanEmail,
         source: data.source,
@@ -968,23 +968,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           ];
         }
 
-        // If converted, add to customer list
+        // If converted, ensure client profile is generated and synced
         if (status === 'CONVERTED' && oldStatus !== 'CONVERTED') {
-          const newCust: Customer = {
-            id: `cust_${Date.now()}`,
-            name: l.name,
-            email: l.email,
-            phone: l.phone,
-            joinedDate: new Date().toISOString().split('T')[0],
-            totalSpent: l.estimatedValue || 149,
-            activeChallengeName: l.challengeInterest || '21 Day Ignite',
-            lastActivity: 'Just now',
-            dietGoal: l.goal,
-            workoutSplit: '4-Day Athletic Split',
-            streakDays: 1,
-            orderIds: [`ORD-${Math.floor(1000 + Math.random() * 9000)}`]
-          };
-          setCustomers(cPrev => [newCust, ...cPrev]);
+          setTimeout(() => {
+            convertLeadToCustomer(leadId);
+          }, 10);
         }
 
         return {
@@ -1128,8 +1116,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const newCustomer: Customer = {
       id: newId,
-      name: data.name || 'New Athlete',
-      email: data.email || `athlete_${Date.now()}@domain.com`,
+      name: data.name || 'New Client',
+      email: data.email || `client_${Date.now()}@domain.com`,
       phone: data.phone || '',
       avatarUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       joinedDate: data.joinedDate || new Date().toISOString().split('T')[0],
@@ -1173,7 +1161,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           date: new Date().toISOString().split('T')[0],
           weightKg: currentWeight,
           adherenceScore: 10,
-          clientNotes: 'Athlete profile initialized. Ready to begin training.',
+          clientNotes: 'Client profile initialized. Ready to begin training.',
           coachFeedback: 'Welcome to the team! Protocol assigned and active.',
           photosUploaded: false
         }
@@ -1184,7 +1172,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           createdAt: new Date().toISOString(),
           author: currentRole === 'SUPER_ADMIN' ? 'Admin' : currentRole.replace('_', ' '),
           type: 'GENERAL',
-          content: `Athlete enrolled into ${data.programTier || 'Coaching Program'}. Initial protocol active.`
+          content: `Client enrolled into ${data.programTier || 'Coaching Program'}. Initial protocol active.`
         }
       ]
     };
@@ -1281,14 +1269,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ]
     };
 
-    const updatedCustomers = [
-      newCustomer,
-      ...(customers || []).filter(c => c.id !== newCustomer.id && (!existingCust || c.id !== existingCust.id))
-    ];
-    setCustomers(updatedCustomers);
-    try {
-      localStorage.setItem('fitnetheist_customers', JSON.stringify(updatedCustomers));
-    } catch {}
+    setCustomers(prev => {
+      const list = prev || [];
+      const filtered = list.filter(c => c.id !== newCustomer.id && (!existingCust || c.id !== existingCust.id));
+      const nextList = [newCustomer, ...filtered];
+      try {
+        localStorage.setItem('fitnetheist_customers', JSON.stringify(nextList));
+      } catch {}
+      return nextList;
+    });
 
     // Update the lead status to CONVERTED
     setLeads(prev => (prev || []).map(l => {

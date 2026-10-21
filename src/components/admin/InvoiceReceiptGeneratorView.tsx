@@ -266,7 +266,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
   const handleWhatsAppShare = (inv: Invoice) => {
     const text = `*OFFICIAL ${inv.type.replace('_', ' ')} - FITNETHEIST*\n\n` +
       `Invoice #: ${inv.invoiceNumber}\n` +
-      `Athlete: ${inv.clientName}\n` +
+      `Client: ${inv.clientName}\n` +
       `Status: ${inv.status}\n` +
       `Total Amount: Rs ${inv.totalAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}\n` +
       `Payment Mode: ${inv.paymentMethod}\n` +
@@ -325,7 +325,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
             INVOICE & RECEIPT GENERATOR
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Generate GST-compliant tax invoices, payment receipts, and payment confirmations for elite athlete enrollments.
+            Generate GST-compliant tax invoices, payment receipts, and payment confirmations for coaching client enrollments.
           </p>
         </div>
 
@@ -385,7 +385,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
         </div>
 
         <div className="bg-zinc-950 border border-[#FFC515]/20 p-4 rounded-sm">
-          <span className="text-[10px] text-[#FFC515] uppercase font-bold block mb-1">ACTIVE ATHLETES</span>
+          <span className="text-[10px] text-[#FFC515] uppercase font-bold block mb-1">ACTIVE CLIENTS</span>
           <span className="text-xl sm:text-2xl font-extrabold text-[#FFC515] font-mono-num">
             {customers.length + leads.length}
           </span>
@@ -465,11 +465,11 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
               </div>
             </div>
 
-            {/* Client / Athlete Details */}
+            {/* Client Details */}
             <div className="bg-zinc-950 border border-white/10 p-5 rounded-sm space-y-4">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <span className="text-xs uppercase font-bold tracking-widest text-[#FFC515] flex items-center gap-1.5">
-                  <User size={14} /> 2. CLIENT & ATHLETE INFORMATION
+                  <User size={14} /> 2. CLIENT INFORMATION
                 </span>
 
                 {/* Quick Auto-fill Dropdown */}
@@ -498,7 +498,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">ATHLETE NAME *</label>
+                  <label className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">CLIENT NAME *</label>
                   <input
                     type="text"
                     value={clientName}
@@ -695,7 +695,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
                 </div>
 
                 <div className="col-span-2">
-                  <label className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">NOTES TO ATHLETE</label>
+                  <label className="text-[10px] text-zinc-400 uppercase font-bold block mb-1">NOTES TO CLIENT</label>
                   <input
                     type="text"
                     value={notes}
@@ -726,7 +726,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
                 onClick={() => handleWhatsAppShare(currentInvoiceData)}
                 className="px-4 py-3 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-bold uppercase text-xs rounded-sm flex items-center gap-2 transition-colors"
               >
-                <Share2 size={15} /> WhatsApp Athlete
+                <Share2 size={15} /> WhatsApp Client
               </button>
             </div>
           </div>
@@ -776,8 +776,8 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
                 {/* Billed To & Dates */}
                 <div className="grid grid-cols-2 gap-6 mb-6 font-mono-num text-xs">
                   <div className="space-y-1 bg-zinc-50 p-3 rounded-xs border border-zinc-200">
-                    <span className="text-[10px] uppercase font-bold text-zinc-400 block">BILLED TO (ATHLETE):</span>
-                    <span className="font-extrabold text-sm text-black block">{clientName || 'Athlete Name'}</span>
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 block">BILLED TO (CLIENT):</span>
+                    <span className="font-extrabold text-sm text-black block">{clientName || 'Client Name'}</span>
                     <span className="text-zinc-600 block">{clientEmail}</span>
                     <span className="text-zinc-600 block">{clientPhone}</span>
                     <span className="text-zinc-600 block text-[11px]">{clientAddress}</span>
@@ -904,7 +904,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
                 type="text"
                 value={historySearchTerm}
                 onChange={(e) => setHistorySearchTerm(e.target.value)}
-                placeholder="Search by invoice #, athlete name, email, or phone..."
+                placeholder="Search by invoice #, client name, email, or phone..."
                 className="w-full bg-zinc-900 border border-white/10 pl-10 pr-4 py-2 text-white placeholder-zinc-500 rounded-sm text-xs focus:border-[#FFC515] focus:outline-none"
               />
             </div>
@@ -935,7 +935,7 @@ export const InvoiceReceiptGeneratorView: React.FC = () => {
                 <thead className="bg-zinc-900 text-zinc-400 uppercase text-[10px]">
                   <tr>
                     <th className="py-3 px-4">Invoice #</th>
-                    <th className="py-3 px-4">Athlete / Client</th>
+                    <th className="py-3 px-4">Client</th>
                     <th className="py-3 px-4">Service Package</th>
                     <th className="py-3 px-4">Amount</th>
                     <th className="py-3 px-4">Status</th>

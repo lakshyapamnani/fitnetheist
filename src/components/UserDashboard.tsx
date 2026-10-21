@@ -88,11 +88,11 @@ export const UserDashboard: React.FC = () => {
             <div className="flex items-center gap-3 mb-2">
               <span className="h-2 w-2 bg-[#FFC515]"></span>
               <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
-                ATHLETE PERFORMANCE DASHBOARD
+                CLIENT PERFORMANCE DASHBOARD
               </span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight font-display">
-              {user ? `COMMAND CENTER // ${user.name}` : 'ATHLETE COMMAND CENTER'}
+              {user ? `COMMAND CENTER // ${user.name}` : 'CLIENT COMMAND CENTER'}
             </h1>
             <p className="text-white/70 text-xs sm:text-sm font-mono-num mt-1">
               Live tracking, daily compliance thresholds, and habit accountability.

@@ -33,14 +33,12 @@ export const COACHING_PLANS: CoachingPlan[] = [
     pauseLabel: 'NO PAUSE Applicable',
     badge: 'QUARTERLY ESSENTIAL',
     isPopular: false,
-    description: 'Complete 90-day structured foundation for fat loss or lean muscle development.',
+    description: 'Customised workout and nutrition plan, weekly check in over WhatsApp, monthly review, and strict no-pause policy as per plan duration.',
     features: [
-      'Both Custom Workout & Bespoke Nutrition included',
-      'Personalized macro blueprint & weekly dietary adjustments',
-      'Biomechanically tailored workout split adapted to gym/home',
-      'Weekly progress reviews directly with Coach Neetu',
-      'Direct WhatsApp coaching desk: 07420082838',
-      'Strict No-Pause policy (0 days pause allowance)'
+      'Customised workout and nutrition plan',
+      'Weekly check in over WhatsApp',
+      'Monthly review',
+      'Pause details as per plan duration (No pause applicable)'
     ]
   },
   {
@@ -56,14 +54,12 @@ export const COACHING_PLANS: CoachingPlan[] = [
     badge: 'DEEP HABIT TRANSFORMATION',
     isPopular: false,
     savingsNote: 'Flexible 20-Day Pause',
-    description: 'Comprehensive 6-month body recomposition and metabolic adaptation.',
+    description: 'Customised workout and nutrition plan, weekly check in over WhatsApp, monthly review, and 20-day pause allowance as per plan duration.',
     features: [
-      'Both Custom Workout & Bespoke Nutrition included',
-      '2 Periodized training phase resets & progressive overload load tuning',
-      'Metabolic refeed protocols & flexible meal adaptations',
-      '20 Days Membership Pause flexibility included',
-      'Beyond 20 days: ₹199/day (pause lifted upon payment)',
-      'Direct WhatsApp check-ins and form video audits with Coach Neetu'
+      'Customised workout and nutrition plan',
+      'Weekly check in over WhatsApp',
+      'Monthly review',
+      'Pause details as per plan duration (20 days pause included · Beyond 20 days: ₹199/day)'
     ]
   },
   {
@@ -79,14 +75,12 @@ export const COACHING_PLANS: CoachingPlan[] = [
     badge: 'LONG-TERM MASTERY',
     isPopular: false,
     savingsNote: 'High Value (~₹2,222/mo)',
-    description: 'Long-term physique sculpting with substantial cost savings and deload phases.',
+    description: 'Customised workout and nutrition plan, weekly check in over WhatsApp, monthly review, and 30-day pause allowance as per plan duration.',
     features: [
-      'Both Custom Workout & Bespoke Nutrition included',
-      '3 Progressive training macrocycles (Hypertrophy, Strength, Recomp)',
-      'Advanced caloric cycling and restaurant dining strategies',
-      '30 Days Membership Pause flexibility included',
-      'Beyond 30 days: ₹199/day (pause lifted upon payment)',
-      'Continuous 1-on-1 accountability via WhatsApp & Instagram'
+      'Customised workout and nutrition plan',
+      'Weekly check in over WhatsApp',
+      'Monthly review',
+      'Pause details as per plan duration (30 days pause included · Beyond 30 days: ₹199/day)'
     ]
   },
   {
@@ -102,14 +96,12 @@ export const COACHING_PLANS: CoachingPlan[] = [
     badge: 'BEST VALUE // ELITE YEAR',
     isPopular: true,
     savingsNote: 'Lowest Monthly Rate (~₹2,083/mo)',
-    description: 'The ultimate year-long lifestyle and physique overhaul with maximum pause flexibility.',
+    description: 'Customised workout and nutrition plan, weekly check in over WhatsApp, monthly review, and 40-day pause allowance as per plan duration.',
     features: [
-      'Both Custom Workout & Bespoke Nutrition included',
-      'Full 4-Season periodized protocol (Hypertrophy, Cut, Maintenance, Peak)',
-      'Comprehensive blood-work & bio-feedback lifestyle alignment',
-      'Maximum 40 Days Membership Pause flexibility included',
-      'Beyond 40 days: ₹199/day (pause lifted upon payment)',
-      'Priority VIP coach desk with Coach Neetu directly'
+      'Customised workout and nutrition plan',
+      'Weekly check in over WhatsApp',
+      'Monthly review',
+      'Pause details as per plan duration (40 days pause included · Beyond 40 days: ₹199/day)'
     ]
   }
 ];
@@ -141,7 +133,7 @@ export const RateCardsSection: React.FC = () => {
     e.preventDefault();
     if (selectedPlanModal) {
       captureLead({
-        name: clientName || 'Interested Athlete',
+        name: clientName || 'Interested Client',
         email: clientEmail,
         phone: clientPhone || '07420082838',
         source: `ENROLL_${selectedPlanModal.id.toUpperCase()}_${selectedPlanModal.durationMonths}M`,
@@ -165,7 +157,7 @@ export const RateCardsSection: React.FC = () => {
       return;
     }
     const text = encodeURIComponent(
-      `Hello Coach Neetu! I want to enroll in the "${selectedPlanModal.name}" (${selectedPlanModal.durationLabel} - ${selectedPlanModal.priceFormatted}). Both Workout and Nutrition included. My name is ${clientName || 'Athlete'}. I have reviewed the strict no-refund policy and pause rules.`
+      `Hello Coach Neetu! I want to enroll in the "${selectedPlanModal.name}" (${selectedPlanModal.durationLabel} - ${selectedPlanModal.priceFormatted}). Both Workout and Nutrition included. My name is ${clientName || 'Client'}. I have reviewed the strict no-refund policy and pause rules.`
     );
     window.open(`https://wa.me/917420082838?text=${text}`, '_blank', 'noopener,noreferrer');
   };
@@ -507,7 +499,7 @@ export const RateCardsSection: React.FC = () => {
                   ENROLLMENT APPLICATION RECEIVED
                 </h4>
                 <p className="text-xs text-white/80 leading-relaxed">
-                  Thank you, <strong>{clientName || 'Athlete'}</strong>. Your application for the <strong>{selectedPlanModal.name}</strong> ({selectedPlanModal.priceFormatted}) has been routed to Coach Neetu.
+                  Thank you, <strong>{clientName || 'Client'}</strong>. Your application for the <strong>{selectedPlanModal.name}</strong> ({selectedPlanModal.priceFormatted}) has been routed to Coach Neetu.
                 </p>
                 <div className="p-3 bg-zinc-950 border border-white/10 rounded text-[11px] text-zinc-300 text-left space-y-1">
                   <div><strong>Selected Tenure:</strong> {selectedPlanModal.durationLabel}</div>

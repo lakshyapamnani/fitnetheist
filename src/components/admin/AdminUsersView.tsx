@@ -86,7 +86,7 @@ export const AdminUsersView: React.FC = () => {
       if (Array.isArray(remoteAthletes) && remoteAthletes.length > 0) {
         const formatted = remoteAthletes.map(a => ({
           id: a.id || a.userId || `usr_${Date.now()}`,
-          name: a.name || a.profile?.name || 'Athlete',
+          name: a.name || a.profile?.name || 'User',
           email: a.email || a.profile?.email || 'user@fitnetheist.com',
           phone: a.phone || a.profile?.phone || '',
           avatarUrl: a.avatarUrl || a.profile?.avatarUrl,
@@ -116,14 +116,14 @@ export const AdminUsersView: React.FC = () => {
   const allUsers = useMemo(() => {
     const map = new Map<string, UserLoginRecord>();
 
-    // 1. Realtime Database athlete records
+    // 1. Realtime Database user records
     realtimeUsers.forEach(u => {
       if (u.email) {
         map.set(u.email.toLowerCase(), u);
       }
     });
 
-    // 2. Currently logged-in athlete in app state
+    // 2. Currently logged-in user in app state
     if (currentAppUser && currentAppUser.email) {
       const activeRecord: UserLoginRecord = {
         id: currentAppUser.id,
@@ -369,7 +369,7 @@ export const AdminUsersView: React.FC = () => {
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display text-white">
-            USER LOGINS & ATHLETES
+            USER LOGINS & CLIENTS
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
             Browse all authenticated user sessions, promote them into CRM leads, and convert them to coaching clients.
@@ -394,7 +394,7 @@ export const AdminUsersView: React.FC = () => {
         {/* Card 1: Total Logins */}
         <div className="bg-zinc-950 border border-white/10 p-4 rounded-sm">
           <div className="flex items-center justify-between text-zinc-400 text-[10px] uppercase font-bold mb-1">
-            <span>TOTAL ATHLETE LOGINS</span>
+            <span>TOTAL CLIENT LOGINS</span>
             <Users size={14} className="text-[#FFC515]" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-display text-white">
@@ -459,7 +459,7 @@ export const AdminUsersView: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by Athlete Name, Mobile (+91...), Email, or Goal..."
+            placeholder="Search by Client Name, Mobile (+91...), Email, or Goal..."
             className="w-full bg-zinc-950 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           />
         </div>
@@ -493,7 +493,7 @@ export const AdminUsersView: React.FC = () => {
           <table className="w-full text-left border-collapse font-mono-num">
             <thead>
               <tr className="bg-zinc-900/90 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
-                <th className="p-3.5">ATHLETE IDENTITY</th>
+                <th className="p-3.5">CLIENT IDENTITY</th>
                 <th className="p-3.5">MOBILE NUMBER</th>
                 <th className="p-3.5">GOAL & TARGET</th>
                 <th className="p-3.5">LAST ACTIVE</th>
@@ -522,7 +522,7 @@ export const AdminUsersView: React.FC = () => {
                         className="mt-4 px-4 py-2 bg-[#FFC515] text-black font-extrabold uppercase text-xs rounded-xs hover:bg-[#e6b010] inline-flex items-center gap-1.5"
                       >
                         <Plus size={13} />
-                        <span>Record Test Athlete Login</span>
+                        <span>Record Test Client Login</span>
                       </button>
                     )}
                   </td>
@@ -538,7 +538,7 @@ export const AdminUsersView: React.FC = () => {
                       key={user.id} 
                       className="hover:bg-zinc-900/50 transition-colors group"
                     >
-                      {/* Athlete Identity */}
+                      {/* Client Identity */}
                       <td className="p-3.5">
                         <div className="flex items-center gap-3">
                           <img
@@ -691,7 +691,7 @@ export const AdminUsersView: React.FC = () => {
                             <button
                               onClick={() => handleConvertToLead(user)}
                               className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-black font-extrabold uppercase text-[10px] tracking-wider inline-flex items-center gap-1 rounded-xs transition-transform active:scale-95 shadow-sm"
-                              title="Push this athlete login into CRM Leads"
+                              title="Push this client login into CRM Leads"
                             >
                               <UserPlus size={11} />
                               <span>CONVERT TO LEAD</span>
@@ -745,7 +745,7 @@ export const AdminUsersView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <Users size={18} className="text-[#FFC515]" />
-                <h3 className="font-bold text-white uppercase text-sm">RECORD ATHLETE LOGIN</h3>
+                <h3 className="font-bold text-white uppercase text-sm">RECORD CLIENT LOGIN</h3>
               </div>
               <button 
                 onClick={() => setIsAddUserModalOpen(false)}
@@ -757,7 +757,7 @@ export const AdminUsersView: React.FC = () => {
 
             <form onSubmit={handleCreateManualUser} className="space-y-3 font-mono-num text-xs">
               <div>
-                <label className="block text-zinc-400 uppercase text-[10px] font-bold mb-1">Athlete Full Name *</label>
+                <label className="block text-zinc-400 uppercase text-[10px] font-bold mb-1">Client Full Name *</label>
                 <input
                   type="text"
                   required
@@ -830,7 +830,7 @@ export const AdminUsersView: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 bg-[#FFC515] text-black font-extrabold uppercase rounded-xs hover:bg-[#e6b010]"
                 >
-                  Save Athlete Login
+                  Save Client Login
                 </button>
               </div>
             </form>

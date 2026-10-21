@@ -36,7 +36,7 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
 };
 
 export const DEFAULT_PROFILE: UserProfile = {
-  id: 'usr_default_athlete',
+  id: 'usr_default_client',
   name: 'Alex Mercer',
   email: 'alex.mercer@fitnetheist.com',
   phone: '+91 98765 43210',
@@ -97,6 +97,7 @@ export function getProfile(): UserProfile | null {
     if (
       !parsed || 
       parsed.id === 'usr_default_athlete' || 
+      parsed.id === 'usr_default_client' ||
       parsed.email === 'alex.mercer@fitnetheist.com' ||
       parsed.email === 'demo@fitnetheist.com' ||
       parsed.isDemo

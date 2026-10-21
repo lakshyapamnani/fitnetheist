@@ -4,6 +4,8 @@ import { createServer as createViteServer } from 'vite';
 import { generateSevenDayDiet, getMealAlternatives, generateGroceryList } from './src/services/dietGeneratorEngine';
 import { FOOD_DATABASE } from './src/data/nutritionDatabase';
 import { DietType, CuisineType } from './src/types';
+import { extractDriveFolderId, crawlGoogleDriveFolder } from './src/services/driveExtractor';
+import { DEFAULT_DRIVE_VIDEOS, ORIGINAL_DRIVE_FOLDER_URL } from './src/data/driveVideoBankData';
 
 async function startServer() {
   const app = express();
@@ -15,6 +17,12 @@ async function startServer() {
   // Health check endpoint
   app.get('/api/health', (req: Request, res: Response) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // Google Search Console Site Verification
+  app.get('/google7f0e06c043119c9b.html', (_req: Request, res: Response) => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send('google-site-verification: google7f0e06c043119c9b.html');
   });
 
   // Diet Generator Endpoint
@@ -131,6 +139,60 @@ async function startServer() {
       });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // Google Drive Video Bank: Get all available videos
+  app.get('/api/drive/videos', (req: Request, res: Response) => {
+    try {
+      res.json({
+        success: true,
+        count: DEFAULT_DRIVE_VIDEOS.length,
+        sourceUrl: ORIGINAL_DRIVE_FOLDER_URL,
+        videos: DEFAULT_DRIVE_VIDEOS
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // Google Drive Video Bank: Crawl & Extract from any Google Drive Folder link
+  app.post('/api/drive/sync-folder', async (req: Request, res: Response) => {
+    try {
+      const { folderUrl = ORIGINAL_DRIVE_FOLDER_URL } = req.body;
+      const folderId = extractDriveFolderId(folderUrl);
+
+      if (!folderId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid Google Drive folder link or folder ID. Please provide a valid drive.google.com/drive/folders/... link.'
+        });
+      }
+
+      console.log(`[Drive Crawler] Syncing Google Drive folder: ${folderId}`);
+      const extractedVideos = await crawlGoogleDriveFolder(folderId);
+
+      // Group categories summary
+      const categoriesSummary: Record<string, number> = {};
+      extractedVideos.forEach(v => {
+        const cat = v.subfolderCategory || 'General';
+        categoriesSummary[cat] = (categoriesSummary[cat] || 0) + 1;
+      });
+
+      res.json({
+        success: true,
+        count: extractedVideos.length,
+        folderId,
+        folderUrl,
+        categories: categoriesSummary,
+        videos: extractedVideos
+      });
+    } catch (error: any) {
+      console.error('[Drive Crawler] Error syncing folder:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to extract videos from Google Drive folder'
+      });
     }
   });
 

@@ -52,6 +52,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     orders,
     invoices,
     consentForms,
+    setSelectedCustomerId,
     adminLogout
   } = useAdmin();
   
@@ -65,7 +66,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const roles: { role: AdminRole; label: string; desc: string }[] = [
     { role: 'SUPER_ADMIN', label: 'SUPER ADMIN', desc: 'Unrestricted master access to all operations & settings' },
     { role: 'ADMIN', label: 'ADMIN', desc: 'Business operations, CRM, orders & full CMS control' },
-    { role: 'COACH', label: 'COACH', desc: 'Workouts, exercises, nutrition & athlete progress' },
+    { role: 'COACH', label: 'COACH', desc: 'Workouts, exercises, nutrition & client progress' },
     { role: 'CONTENT_MANAGER', label: 'CONTENT MANAGER', desc: 'Pages, blog, media, testimonials & FAQs' },
     { role: 'SALES_LEAD_MANAGER', label: 'SALES / LEAD MANAGER', desc: 'CRM pipeline, leads, follow-ups & conversions' }
   ];
@@ -99,21 +100,21 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         { 
           id: 'users' as AdminSubtab, 
           label: 'Users & Logins', 
-          desc: 'Athlete Logins & Portal Accounts',
+          desc: 'Client Logins & Portal Accounts',
           icon: UserPlus, 
           badge: 'Realtime' 
         },
         { 
           id: 'leads' as AdminSubtab, 
           label: 'Leads & CRM', 
-          desc: 'Athlete Pipeline & Inquiries',
+          desc: 'Client Pipeline & Inquiries',
           icon: Users, 
           badge: `${leads?.length || 0}` 
         },
         { 
           id: 'clients' as AdminSubtab, 
           label: 'Clients', 
-          desc: 'Athletes, Intake & Profiles',
+          desc: 'Clients, Intake & Profiles',
           icon: UserCheck, 
           badge: `${customers?.length || 0}` 
         },
@@ -340,6 +341,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <button
                       key={item.id}
                       onClick={() => {
+                        if (item.id === 'clients') {
+                          setSelectedCustomerId(null);
+                        }
                         setActiveSubtab(item.id);
                         setIsMobileNavOpen(false);
                       }}

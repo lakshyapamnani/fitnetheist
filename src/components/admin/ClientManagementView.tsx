@@ -62,30 +62,100 @@ export const ClientManagementView: React.FC = () => {
     );
   }
 
+  // Dynamically merge any leads with status === 'CONVERTED' into customers roster if not already present
+  const mergedCustomers = useMemo(() => {
+    const list = [...(customers || [])];
+    const existingLeadIds = new Set(list.map(c => c.convertedFromLeadId || c.id));
+    const existingEmails = new Set(list.map(c => (c.email || '').toLowerCase().trim()).filter(Boolean));
+    const existingPhones = new Set(list.map(c => (c.phone || '').trim()).filter(Boolean));
+
+    (leads || []).forEach(lead => {
+      if (lead && lead.status === 'CONVERTED') {
+        const emailLower = (lead.email || '').toLowerCase().trim();
+        const phoneTrim = (lead.phone || '').trim();
+        const alreadyPresent = existingLeadIds.has(lead.id) ||
+          (emailLower && existingEmails.has(emailLower)) ||
+          (phoneTrim && existingPhones.has(phoneTrim));
+
+        if (!alreadyPresent) {
+          list.unshift({
+            id: `cust_${lead.id.replace('lead_', '')}`,
+            name: lead.name || 'Converted Client',
+            email: lead.email || `client_${lead.id}@domain.com`,
+            phone: lead.phone || '',
+            avatarUrl: lead.sex === 'female' 
+              ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+              : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+            joinedDate: lead.createdAt ? lead.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+            totalSpent: lead.estimatedValue || 8000,
+            status: 'ACTIVE',
+            programTier: lead.challengeInterest || '90-Day VIP 1-on-1 Transformation',
+            assignedCoach: lead.assignedTo && lead.assignedTo !== 'Unassigned' ? lead.assignedTo : 'Coach Neetu (Head Coach)',
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+            age: lead.age || 28,
+            gender: lead.sex === 'female' ? 'FEMALE' : 'MALE',
+            city: 'India',
+            emergencyContact: '',
+            heightCm: lead.heightCm || 175,
+            startingWeightKg: lead.weightKg || 75,
+            currentWeightKg: lead.weightKg || 75,
+            targetWeightKg: lead.goal === 'LOSE_WEIGHT' ? (lead.weightKg || 75) - 6 : (lead.weightKg || 75) + 4,
+            targetDate: '',
+            injuriesOrMedicalConditions: 'None reported.',
+            dietGoal: (lead.goal as any) || 'BUILD_MUSCLE',
+            dietType: (lead.dietType as any) || 'VEGETARIAN',
+            dailyCalories: lead.calculatedCalories || 2100,
+            proteinGrams: Math.round((lead.weightKg || 75) * 2),
+            carbsGrams: Math.round(((lead.calculatedCalories || 2100) * 0.45) / 4),
+            fatsGrams: Math.round(((lead.calculatedCalories || 2100) * 0.25) / 9),
+            waterLitres: 3.5,
+            mealsPerDay: lead.dietPreferences?.mealsPerDay || 4,
+            allergiesOrRestrictions: lead.dietPreferences?.restrictions?.join(', ') || 'None',
+            cheatMealProtocol: '1 clean cheat meal weekly',
+            workoutSplit: lead.workoutPreferences?.daysPerWeek === 4 ? '4-Day Upper / Lower' : 'Push / Pull / Legs 6-Day',
+            trainingDaysPerWeek: lead.workoutPreferences?.daysPerWeek || 4,
+            experienceLevel: (lead.workoutPreferences?.experience as any) || 'INTERMEDIATE',
+            cardioProtocol: '8,500 daily steps',
+            strengthBenchmarks: { benchPressKg: 70, squatKg: 90, deadliftKg: 120, overheadPressKg: 40 },
+            streakDays: 1,
+            lastActivity: 'Converted from Lead',
+            orderIds: [],
+            convertedFromLeadId: lead.id
+          });
+        }
+      }
+    });
+    return list;
+  }, [customers, leads]);
+
   // Filtered clients
-  const filteredCustomers = (customers || []).filter(c => {
-    if (statusFilter !== 'ALL' && c.status !== statusFilter) return false;
+  const filteredCustomers = mergedCustomers.filter(c => {
+    if (!c) return false;
+    const clientStatus = c.status || 'ACTIVE';
+    if (statusFilter !== 'ALL' && clientStatus !== statusFilter) return false;
     if (goalFilter !== 'ALL' && c.dietGoal !== goalFilter) return false;
-    if (coachFilter !== 'ALL' && !c.assignedCoach.toLowerCase().includes(coachFilter.toLowerCase())) return false;
+    const coach = c.assignedCoach || 'Coach Neetu (Head Coach)';
+    if (coachFilter !== 'ALL' && !coach.toLowerCase().includes(coachFilter.toLowerCase())) return false;
     
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchName = c.name.toLowerCase().includes(q);
-      const matchEmail = c.email.toLowerCase().includes(q);
+      const matchName = (c.name || '').toLowerCase().includes(q);
+      const matchEmail = (c.email || '').toLowerCase().includes(q);
       const matchPhone = (c.phone || '').includes(q);
       const matchProgram = (c.programTier || '').toLowerCase().includes(q);
       const matchCity = (c.city || '').toLowerCase().includes(q);
-      const matchCoach = (c.assignedCoach || '').toLowerCase().includes(q);
+      const matchCoach = coach.toLowerCase().includes(q);
       return matchName || matchEmail || matchPhone || matchProgram || matchCity || matchCoach;
     }
     return true;
   });
 
   // Calculate high-level roster stats
-  const totalClients = customers?.length || 0;
-  const activeClients = (customers || []).filter(c => c.status === 'ACTIVE').length;
-  const onboardingClients = (customers || []).filter(c => c.status === 'ONBOARDING').length;
-  const totalRosterLTV = (customers || []).reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+  const totalClients = mergedCustomers.length;
+  const activeClients = mergedCustomers.filter(c => (c.status || 'ACTIVE') === 'ACTIVE').length;
+  const onboardingClients = mergedCustomers.filter(c => c.status === 'ONBOARDING').length;
+  const totalRosterLTV = mergedCustomers.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
 
   // Leads available to convert (non-converted leads)
   const convertibleLeads = (leads || []).filter(l => l.status !== 'CONVERTED' && l.status !== 'LOST');
@@ -102,16 +172,46 @@ export const ClientManagementView: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-display">
-                CLIENTS & ATHLETE MANAGEMENT
+                CLIENT MANAGEMENT & ROSTER
               </h1>
               <p className="text-zinc-400 text-xs font-mono-num">
-                Direct athlete intake, CRM lead conversions, biometrics, macros, training splits & full profiles.
+                Direct client intake, CRM lead conversions, biometrics, macros, training splits & full profiles.
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Client Selector Dropdown (Like Invoices) */}
+          <div className="relative">
+            <select
+              defaultValue=""
+              onChange={(e) => {
+                const val = e.target.value;
+                if (!val) return;
+                setSelectedCustomerId(val);
+              }}
+              className="bg-zinc-900 hover:bg-zinc-850 border border-[#FFC515]/50 hover:border-[#FFC515] text-[#FFC515] font-bold px-3 py-2 text-xs rounded-xs focus:outline-none cursor-pointer max-w-[240px] truncate shadow-sm"
+              title="Select any client or lead like in invoice to open their client profile"
+            >
+              <option value="" disabled>⚡ Fetch Client (Like Invoices)...</option>
+              <optgroup label="⭐ Active & Converted Clients">
+                {mergedCustomers.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} {c.phone ? `(${c.phone})` : c.email ? `(${c.email})` : ''} [{c.status || 'ACTIVE'}]
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="⚡ Inquiries & Leads">
+                {(leads || []).map(l => (
+                  <option key={l.id} value={l.id}>
+                    {l.name} {l.phone ? `(${l.phone})` : l.email ? `(${l.email})` : ''} [Lead: {l.status}]
+                  </option>
+                ))}
+              </optgroup>
+            </select>
+          </div>
+
           <button
             onClick={() => setActiveSubtab('consent-forms')}
             className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/20 uppercase font-bold text-xs flex items-center gap-1.5 transition-colors rounded-xs cursor-pointer"
@@ -144,7 +244,7 @@ export const ClientManagementView: React.FC = () => {
       {/* Roster KPI Summary Ribbon */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-[#0f0f14] border border-white/10 p-4 rounded-sm">
-          <span className="text-[10px] text-zinc-400 uppercase font-bold block">Total Athletes</span>
+          <span className="text-[10px] text-zinc-400 uppercase font-bold block">Total Clients</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl sm:text-3xl font-black text-white font-mono-num">{totalClients}</span>
             <span className="text-xs text-zinc-400 font-bold">CLIENTS</span>
@@ -186,7 +286,7 @@ export const ClientManagementView: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by athlete name, email, phone, city, program, coach..."
+              placeholder="Search by client name, email, phone, city, program, coach..."
               className="w-full bg-[#15151c] border border-white/15 pl-9 pr-4 py-2 text-xs text-white rounded-xs focus:border-[#FFC515] focus:outline-none font-mono-num"
             />
           </div>
@@ -252,7 +352,7 @@ export const ClientManagementView: React.FC = () => {
         </div>
       </div>
 
-      {/* ATHLETE CARDS GRID VIEW */}
+      {/* CLIENT CARDS GRID VIEW */}
       {viewMode === 'CARDS' && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredCustomers.length > 0 ? (
@@ -314,7 +414,7 @@ export const ClientManagementView: React.FC = () => {
                         {cust.programTier || 'Coaching Program'}
                       </span>
                       <span className="px-2 py-0.5 bg-[#FFC515]/10 border border-[#FFC515]/30 text-[10px] font-bold text-[#FFC515] uppercase rounded-xs">
-                        {cust.assignedCoach.split(' ')[1] || 'Coach'}
+                        {(cust.assignedCoach || 'Coach Neetu').split(' ')[1] || 'Neetu'}
                       </span>
                     </div>
 
@@ -376,7 +476,7 @@ export const ClientManagementView: React.FC = () => {
             <div className="col-span-full p-12 text-center bg-[#0f0f14] border border-white/10 rounded-sm">
               <Users size={36} className="mx-auto text-zinc-600 mb-3" />
               <h3 className="text-base font-bold text-white uppercase font-display">No Client Profiles Found</h3>
-              <p className="text-zinc-400 text-xs mt-1">Try adjusting your search query or status filter, or onboard a new athlete.</p>
+              <p className="text-zinc-400 text-xs mt-1">Try adjusting your search query or status filter, or onboard a new client.</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
@@ -399,7 +499,7 @@ export const ClientManagementView: React.FC = () => {
           <table className="w-full text-left border-collapse text-xs font-mono-num">
             <thead>
               <tr className="border-b border-white/10 bg-[#14141c] text-zinc-400 uppercase text-[10px] font-bold tracking-wider">
-                <th className="p-3">Athlete</th>
+                <th className="p-3">Client</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Program & Coach</th>
                 <th className="p-3">Weight Progress</th>
@@ -518,7 +618,7 @@ export const ClientManagementView: React.FC = () => {
             </div>
 
             <p className="text-zinc-400 text-xs shrink-0">
-              Choose an inquiry or prospective athlete from your CRM pipeline. All lead data (biometrics, calorie estimates, goal) will be preloaded into the client onboarding dossier.
+              Choose an inquiry or prospective client from your CRM pipeline. All lead data (biometrics, calorie estimates, goal) will be preloaded into the client onboarding dossier.
             </p>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
@@ -556,7 +656,7 @@ export const ClientManagementView: React.FC = () => {
                       type="button"
                       className="px-3 py-1.5 bg-[#FFC515] text-black font-extrabold uppercase text-[10px] rounded-xs group-hover:bg-[#e6b010] shrink-0 flex items-center gap-1"
                     >
-                      <span>Convert Athlete</span>
+                      <span>Convert Client</span>
                       <ChevronRight size={12} />
                     </button>
                   </div>

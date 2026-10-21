@@ -46,7 +46,7 @@ export const ClientHomeDashboard: React.FC = () => {
             {getGreeting()}
           </span>
           <h2 className="text-xl sm:text-2xl font-bold text-[#F5F5F5] font-display mt-0.5">
-            {user?.name || 'Athlete'}
+            {user?.name || 'Client'}
           </h2>
         </div>
 
@@ -209,7 +209,7 @@ export const ClientHomeDashboard: React.FC = () => {
 
           <button
             onClick={() => {
-              const text = encodeURIComponent(`Hi Coach Neetu, this is ${user?.name || 'Athlete'}. Checking in on my plan.`);
+              const text = encodeURIComponent(`Hi Coach Neetu, this is ${user?.name || 'Client'}. Checking in on my plan.`);
               window.open(`https://wa.me/917420082838?text=${text}`, '_blank', 'noopener,noreferrer');
             }}
             className="w-full py-2.5 px-4 bg-[#18181B] hover:bg-[#202024] border border-[#28282D] text-[#F5F5F5] font-medium text-xs font-mono-num uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2 cursor-pointer"

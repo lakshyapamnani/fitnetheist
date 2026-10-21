@@ -142,20 +142,20 @@ export const CHALLENGES_DATA: Challenge[] = [
   {
     id: 'c_90_day_beast',
     title: '90 DAY BEAST MODE',
-    tagline: 'Elite athletic conditioning and extreme conditioning. The ultimate test of will.',
+    tagline: 'Elite physical conditioning and extreme discipline. The ultimate test of will.',
     durationDays: 90,
-    difficulty: 'ELITE ATHLETE',
+    difficulty: 'ELITE TIER',
     goal: 'Peak Human Performance & Chiseled Physique',
     image: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=1200&q=80',
-    description: 'The premier athletic performance curriculum. Three distinct 30-day training phases: Hypertrophy Foundation, Maximum Force Output, and High-Definition Conditioning.',
+    description: 'The premier performance curriculum. Three distinct 30-day training phases: Hypertrophy Foundation, Maximum Force Output, and High-Definition Conditioning.',
     whatIsIncluded: [
-      '3-Phase 90-Day Athletic Curriculum (Strength, Power, Conditioning)',
+      '3-Phase 90-Day Training Curriculum (Strength, Power, Conditioning)',
       '1-on-1 Dedicated Coach Feedback Channels',
       'Custom Grocery Auto-Planner & Weekly Meal Prep Schedulers',
       'Private Masterclass Recordings on Recovery, Sleep, and Biomechanics',
-      'VIP Leaderboard & Lifetime Athlete Status'
+      'VIP Leaderboard & Lifetime Member Status'
     ],
-    workoutOverview: '6-day high-intensity athletic conditioning split with dedicated deload protocols and advanced central nervous system management.',
+    workoutOverview: '6-day high-intensity conditioning split with dedicated deload protocols and advanced central nervous system management.',
     nutritionOverview: 'Full periodized nutrition protocol including refeed days, intra-workout carbohydrate timing, and electrolyte balancing.',
     accountabilityRules: [
       'Mandatory daily logging of sleep duration, morning resting heart rate, and training RPE.',

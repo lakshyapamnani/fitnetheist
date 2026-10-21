@@ -30,7 +30,7 @@ export const MobileBottomNav: React.FC = () => {
     { id: 'home_pricing', label: 'RATE CARDS', icon: CreditCard, desc: 'Monthly & 90-Day Plans', isSection: true, targetId: 'rate-cards-section' },
     { id: 'home_connect', label: 'CONNECT', icon: PhoneCall, desc: 'WhatsApp & Direct Desk', isSection: true, targetId: 'connect-with-us-section' },
     { id: 'challenges', label: 'CHALLENGES', icon: Trophy, desc: 'Earn badges & streaks' },
-    { id: 'community', label: 'THE TRIBE', icon: Users, desc: 'Athlete feed & leaderboard' },
+    { id: 'community', label: 'THE TRIBE', icon: Users, desc: 'Community feed & leaderboard' },
     { id: 'admin', label: 'ADMIN HUB', icon: Shield, desc: 'Leads & analytics backend' },
   ];
 

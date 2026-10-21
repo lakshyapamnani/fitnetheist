@@ -7,7 +7,7 @@ interface ExerciseVideoPlayerProps {
   exerciseName: string;
   className?: string;
   autoPlay?: boolean;
-  aspectRatio?: '9/16' | '16/9' | 'auto';
+  aspectRatio?: '16/9' | '9/16' | 'auto';
 }
 
 export function parseExerciseVideoEmbed(url?: string): {
@@ -92,14 +92,14 @@ export const ExerciseVideoPlayer: React.FC<ExerciseVideoPlayerProps> = ({
   thumbnailUrl,
   exerciseName,
   className = '',
-  aspectRatio = '9/16'
+  aspectRatio = '16/9'
 }) => {
   const parsed = parseExerciseVideoEmbed(videoUrl);
 
-  const aspectClass = aspectRatio === '9/16' 
+  const aspectClass = aspectRatio === '16/9' 
+    ? 'aspect-video w-full max-w-full' 
+    : aspectRatio === '9/16' 
     ? 'aspect-[9/16] max-w-[320px] sm:max-w-[360px] mx-auto w-full' 
-    : aspectRatio === '16/9' 
-    ? 'aspect-video w-full' 
     : 'w-full';
 
   // 1. Placeholder when no video

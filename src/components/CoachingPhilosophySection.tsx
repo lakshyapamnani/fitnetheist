@@ -37,17 +37,21 @@ export const CoachingPhilosophySection: React.FC = () => {
 
             <div className="space-y-4 text-white/70 text-xs sm:text-sm">
               <p>
-                At <strong className="text-white">Fitnetheist</strong>, every coaching protocol is built by Coach Neetu around your specific goals — whether you need a calorie deficit for fat loss, structured strength training for muscle tone, or a flexible vegetarian diet that fits family meals.
+                At <strong className="text-white">Fitnetheist</strong>, clients trust Coach Neetu as the <strong className="text-white">best coach</strong> for personal <strong className="text-white">fitness</strong> and specialized <strong className="text-[#FFC515]">fitness after pregnancy</strong>. Every protocol is built around your biological needs — whether you require a structured fat-loss deficit, muscle toning, or safe postpartum pelvic floor and core rehabilitation.
               </p>
 
-              <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
-                <div className="p-4 bg-[#101014] border border-white/10">
+              <div className="grid sm:grid-cols-3 gap-3 pt-4 border-t border-white/10">
+                <div className="p-3.5 bg-[#101014] border border-white/10">
                   <span className="text-[#FFC515] font-bold text-xs uppercase block mb-1">01 / TAILORED NUTRITION</span>
-                  <p className="text-xs text-white/60">Macro-balanced meal guidance calculated for your daily schedule, dietary choices, and authentic home cooking.</p>
+                  <p className="text-[11px] text-white/60 leading-snug">Macro-balanced meal guidance calculated for your daily schedule, dietary choices, and authentic home cooking.</p>
                 </div>
-                <div className="p-4 bg-[#101014] border border-white/10">
-                  <span className="text-[#FFC515] font-bold text-xs uppercase block mb-1">02 / TARGETED TRAINING</span>
-                  <p className="text-xs text-white/60">Progressive workouts designed for your available equipment — home dumbbells or full commercial gym.</p>
+                <div className="p-3.5 bg-[#101014] border border-white/10">
+                  <span className="text-[#FFC515] font-bold text-xs uppercase block mb-1">02 / TARGETED FITNESS</span>
+                  <p className="text-[11px] text-white/60 leading-snug">Progressive workouts designed for your equipment — home dumbbells or full commercial gym.</p>
+                </div>
+                <div className="p-3.5 bg-[#101014] border border-[#FFC515]/30">
+                  <span className="text-[#FFC515] font-bold text-xs uppercase block mb-1">03 / FITNESS AFTER PREGNANCY</span>
+                  <p className="text-[11px] text-white/60 leading-snug">Safe postpartum core restoration, diastasis recti guidance, energy recovery, and sustainable post-baby body transformation.</p>
                 </div>
               </div>
 

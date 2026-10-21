@@ -1,11 +1,9 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-import { useCoachNeetuPhoto } from './CoachNeetuPhoto';
 
 export const HeroSection: React.FC = () => {
-  const { setActiveTab, openCalorieModal } = useApp();
-  const { photoUrl, filterMode } = useCoachNeetuPhoto();
+  const { openCalorieModal } = useApp();
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -23,7 +21,7 @@ export const HeroSection: React.FC = () => {
       <div className="absolute inset-0 z-0 select-none pointer-events-none">
         <img
           src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=2000&q=85"
-          alt="Athlete Training in High Focus"
+          alt="High Focus Training"
           className="w-full h-full object-cover object-center filter grayscale brightness-35 contrast-125 scale-105"
           referrerPolicy="no-referrer"
         />
@@ -34,40 +32,15 @@ export const HeroSection: React.FC = () => {
 
       {/* Top Brand Label */}
       <div className="relative z-10 max-w-7xl mx-auto w-full">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#101014]/90 border border-white/15 text-[#FFC515] text-[10px] sm:text-[11px] font-mono-num font-bold tracking-[0.25em] uppercase">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#101014]/90 border border-white/15 text-[#FFC515] text-[10px] sm:text-[11px] font-mono-num font-bold tracking-[0.2em] uppercase">
           <span className="w-1.5 h-1.5 bg-[#FFC515]"></span>
-          PERSONALIZED FITNESS COACHING
+          <span>FITNESS • FITNESS AFTER PREGNANCY • BEST COACH NEETU</span>
         </div>
       </div>
 
       {/* Main Campaign Hero Content */}
       <div className="relative z-10 max-w-7xl mx-auto w-full my-auto py-10 sm:py-16">
         <div className="max-w-4xl space-y-6">
-          
-          {/* Supporting Brand Identity with Coach Neetu portrait chip */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => scrollToSection('coach-story-section')}
-              className="flex items-center gap-3 p-1.5 pr-4 bg-[#14141a]/90 hover:bg-[#1c1c24] border border-white/15 hover:border-[#FFC515]/60 transition-all rounded-[2px] group text-left cursor-pointer"
-            >
-              <img
-                src={photoUrl}
-                alt="Coach Neetu"
-                className={`w-10 h-10 object-cover object-top border border-white/20 transition-all ${
-                  filterMode === 'MONO' ? 'grayscale group-hover:grayscale-0' : 'contrast-105'
-                }`}
-              />
-              <div>
-                <p className="text-[#FFC515] font-mono-num text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase">
-                  FITNETHEIST COACHING
-                </p>
-                <p className="text-white font-mono-num text-xs font-semibold tracking-wider uppercase flex items-center gap-1.5">
-                  <span>Head Coach Neetu</span>
-                  <span className="text-[#FFC515] text-[10px]">→ View Story</span>
-                </p>
-              </div>
-            </button>
-          </div>
 
           {/* Huge Display Headline */}
           <h1 
@@ -81,8 +54,8 @@ export const HeroSection: React.FC = () => {
           </h1>
 
           {/* Subtext */}
-          <p className="text-white/70 text-base sm:text-xl font-mono-num max-w-2xl leading-relaxed">
-            Real guidance. Personalized nutrition. Structured training. Zero guesswork.
+          <p className="text-white/80 text-base sm:text-xl font-mono-num max-w-3xl leading-relaxed">
+            Looking for the <strong className="text-white font-bold">best coach</strong> for personal <strong className="text-white font-bold">fitness</strong> and specialized <strong className="text-[#FFC515] font-bold">fitness after pregnancy</strong>? Coach Neetu delivers 1-on-1 customized workouts, postpartum recovery, and bespoke nutrition. Zero guesswork.
           </p>
 
           {/* Action CTAs */}

@@ -37,7 +37,7 @@ export const TransformationsSection: React.FC = () => {
           {/* Filter Pills */}
           <div className="flex items-center gap-1 p-1 bg-[#14141a] border border-white/10 font-mono-num text-xs">
             {[
-              { id: 'ALL', label: 'ALL ATHLETES' },
+              { id: 'ALL', label: 'ALL TRANSFORMATIONS' },
               { id: 'WEIGHT_LOSS', label: 'FAT LOSS' },
               { id: 'MUSCLE_GAIN', label: 'LEAN BULK' },
               { id: 'RECOMP', label: 'RECOMPOSITION' }
@@ -123,7 +123,7 @@ export const TransformationsSection: React.FC = () => {
               <div className="border-t border-white/10 px-6 py-3 flex items-center justify-between text-xs font-mono-num text-white/50 bg-[#0c0c0e]">
                 <span>CATEGORY: {item.category.replace('_', ' ')}</span>
                 <span className="text-[#FFC515] font-bold flex items-center gap-1">
-                  <CheckCircle2 size={12} /> VERIFIED ATHLETE
+                  <CheckCircle2 size={12} /> VERIFIED CLIENT
                 </span>
               </div>
             </div>

@@ -48,7 +48,7 @@ export const ProgressExperienceSection: React.FC = () => {
               <div>
                 <span className="text-xs font-mono-num text-white/40 uppercase tracking-widest block">TELEMETRY VIEW</span>
                 <span className="text-xl font-extrabold font-display uppercase tracking-tight text-white">
-                  ATHLETE COMMAND CENTER // TODAY
+                  CLIENT COMMAND CENTER // TODAY
                 </span>
               </div>
             </div>
@@ -165,7 +165,7 @@ export const ProgressExperienceSection: React.FC = () => {
           {/* Bottom Bar Action CTA */}
           <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs font-mono-num text-white/60">
-              Live athlete profile synchronization active. Every rep, meal, and milliliter is securely recorded.
+              Live profile synchronization active. Every rep, meal, and milliliter is securely recorded.
             </p>
             <button
               onClick={() => setActiveTab('dashboard')}

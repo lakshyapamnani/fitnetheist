@@ -93,7 +93,7 @@ export const PolicyPage: React.FC = () => {
       clientName: clientName.trim(),
       clientAge: clientAge.trim(),
       clientPhone: clientPhone.trim(),
-      clientEmail: user?.email || `${clientName.toLowerCase().replace(/\s+/g, '')}@athlete.fitnetheist.com`,
+      clientEmail: user?.email || `${clientName.toLowerCase().replace(/\s+/g, '')}@client.fitnetheist.com`,
       program: selectedProgram,
       programPrice: programPricingMap[selectedProgram].price,
       pauseAllowance: programPricingMap[selectedProgram].pause,
@@ -124,7 +124,7 @@ export const PolicyPage: React.FC = () => {
 
     captureLead({
       name: clientName.trim(),
-      email: user?.email || `${clientName.toLowerCase().replace(/\s+/g, '')}@athlete.fitnetheist.com`,
+      email: user?.email || `${clientName.toLowerCase().replace(/\s+/g, '')}@client.fitnetheist.com`,
       phone: clientPhone.trim() || '07420082838',
       source: `SIGNED_CONSENT_${selectedProgram}` as any,
       goal: `Enrolled in ${selectedProgram.replace('_', ' ')} with signed consent`
@@ -160,7 +160,7 @@ export const PolicyPage: React.FC = () => {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>COACH NEETU FIT - Coaching Consent Form - ${clientName || 'Athlete'}</title>
+  <title>COACH NEETU FIT - Coaching Consent Form - ${clientName || 'Client'}</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 40px; color: #111; line-height: 1.5; font-size: 13px; }
     .header { border-bottom: 2px solid #000; padding-bottom: 14px; margin-bottom: 16px; text-align: center; }
@@ -241,7 +241,7 @@ export const PolicyPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Coach_Neetu_Fit_Consent_${(clientName || 'Athlete').replace(/\s+/g, '_')}.html`;
+    a.download = `Coach_Neetu_Fit_Consent_${(clientName || 'Client').replace(/\s+/g, '_')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -251,7 +251,7 @@ export const PolicyPage: React.FC = () => {
   const handleSendViaWhatsApp = () => {
     const text = encodeURIComponent(
       `Hello Coach Neetu! I have read, signed and submitted the COACH NEETU FIT Coaching Consent Form.\n\n` +
-      `• Name: ${clientName || 'Athlete'}\n` +
+      `• Name: ${clientName || 'Client'}\n` +
       `• Program: ${selectedProgram.replace('_', ' ')}\n` +
       `• Start Date: ${startDate}\n` +
       `• Digital Signature: ${signatureText}\n` +

@@ -138,7 +138,7 @@ export const DietGenerator: React.FC = () => {
         },
         timestamp: Date.now()
       });
-      openAuthModal('signup', `Your 7-day ${dietType} plan (${targetCalories} kcal) has been generated! Sign in to save your meal schedule to your athlete account.`);
+      openAuthModal('signup', `Your 7-day ${dietType} plan (${targetCalories} kcal) has been generated! Sign in to save your meal schedule to your account.`);
     }
 
     trackLeadEvent('DIET_GENERATED', {
@@ -148,7 +148,7 @@ export const DietGenerator: React.FC = () => {
 
     if (user?.email) {
       captureLead({
-        name: user.name || 'Athlete Visitor',
+        name: user.name || 'Client Visitor',
         email: user.email,
         phone: user.phone || '+91 98000 00000',
         source: 'DIET_GENERATOR',

@@ -3,6 +3,9 @@ import { useApp } from '../../context/AppContext';
 import { useAdmin } from '../../context/AdminContext';
 import { Exercise, MuscleGroup, ExperienceLevel, EquipmentType, WorkoutPlan, WorkoutDay } from '../../types';
 import { ExerciseVideoPlayer } from '../ExerciseVideoPlayer';
+import { DriveVideoBankSection } from './DriveVideoBankSection';
+import { VideoBankSelector } from './VideoBankSelector';
+import { DriveVideoItem } from '../../data/driveVideoBankData';
 import { 
   Dumbbell, 
   Search, 
@@ -44,7 +47,7 @@ export const ExerciseBankAdminView: React.FC = () => {
   const { customers, leads, updateCustomer, logAuditAction } = useAdmin();
 
   // Active view inside Exercise Bank
-  const [activeTab, setActiveTab] = useState<'LIBRARY' | 'ASSIGN' | 'STATUS'>('LIBRARY');
+  const [activeTab, setActiveTab] = useState<'LIBRARY' | 'VIDEO_BANK' | 'ASSIGN' | 'STATUS'>('LIBRARY');
 
   // Categories Filter & Management
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -82,11 +85,11 @@ export const ExerciseBankAdminView: React.FC = () => {
   // ==========================================
   // CLIENT PERSONALIZED ASSIGNMENT STATE
   // ==========================================
-  // List of all clients with clean names and emails (customers + CRM leads + active athlete)
+  // List of all clients with clean names and emails (customers + CRM leads + active client)
   const allClients = React.useMemo(() => {
     const map = new Map<string, any>();
 
-    // 1. Logged-in athlete user
+    // 1. Logged-in user
     if (user && user.email) {
       const emailLower = user.email.toLowerCase();
       const derivedName = user.name || (emailLower.includes('lakshya') ? 'Lakshya Pamnani' : user.email.split('@')[0]);
@@ -100,7 +103,7 @@ export const ExerciseBankAdminView: React.FC = () => {
         dietGoal: user.goal || 'BUILD_MUSCLE',
         workoutSplit: user.assignedWorkoutPlan?.name || 'Awaiting Coach Assignment',
         streakDays: user.streakDays || 1,
-        lastActivity: 'Today (Active Athlete)',
+        lastActivity: 'Today (Active Client)',
         orderIds: [],
         experienceLevel: user.trainingExperience || 'INTERMEDIATE',
         isWorkoutPersonalized: Boolean(user.isWorkoutPlanPersonalized || user.assignedWorkoutPlan?.isPersonalized),
@@ -116,8 +119,8 @@ export const ExerciseBankAdminView: React.FC = () => {
         if (key && !map.has(key)) {
           map.set(key, {
             ...c,
-            name: c.name || (c.email ? c.email.split('@')[0] : 'Athlete Client'),
-            email: c.email || 'athlete@fitnetheist.com',
+            name: c.name || (c.email ? c.email.split('@')[0] : 'Client'),
+            email: c.email || 'client@fitnetheist.com',
             isWorkoutPersonalized: Boolean((c as any).isWorkoutPersonalized || (c as any).assignedWorkoutPlan?.isPersonalized),
             assignedWorkoutPlan: (c as any).assignedWorkoutPlan
           });
@@ -133,7 +136,7 @@ export const ExerciseBankAdminView: React.FC = () => {
         if (key && !map.has(key)) {
           map.set(key, {
             id: l.id,
-            name: l.name || (l.email ? l.email.split('@')[0] : 'Lead Athlete'),
+            name: l.name || (l.email ? l.email.split('@')[0] : 'Lead Client'),
             email: l.email || 'lead@fitnetheist.com',
             phone: l.phone || '+91 98000 00000',
             joinedDate: l.createdAt ? l.createdAt.split('T')[0] : '2026-01-20',
@@ -151,8 +154,8 @@ export const ExerciseBankAdminView: React.FC = () => {
       });
     }
 
-    // 4. Default gym athletes roster ensuring dropdown always has full roster of names & emails
-    const defaultAthletes = [
+    // 4. Default gym clients roster ensuring dropdown always has full roster of names & emails
+    const defaultClients = [
       {
         id: 'cust_lakshya',
         name: 'Lakshya Pamnani',
@@ -166,7 +169,7 @@ export const ExerciseBankAdminView: React.FC = () => {
       {
         id: 'cust_alex',
         name: 'Alex Mercer',
-        email: 'athlete@fitnetheist.com',
+        email: 'client@fitnetheist.com',
         phone: '+91 98000 11223',
         dietGoal: 'FAT_LOSS',
         experienceLevel: 'INTERMEDIATE',
@@ -205,10 +208,10 @@ export const ExerciseBankAdminView: React.FC = () => {
       }
     ];
 
-    defaultAthletes.forEach((athlete) => {
-      const key = athlete.email.toLowerCase();
+    defaultClients.forEach((client) => {
+      const key = client.email.toLowerCase();
       if (!map.has(key)) {
-        map.set(key, athlete);
+        map.set(key, client);
       }
     });
 
@@ -440,6 +443,20 @@ export const ExerciseBankAdminView: React.FC = () => {
     setIsExerciseModalOpen(true);
   };
 
+  const handleSelectVideoFromBank = (video: DriveVideoItem) => {
+    setName(video.name);
+    setCategory(video.muscleGroup);
+    setTargetMuscles(video.targetMuscles);
+    setDifficulty(video.difficulty);
+    setEquipment(video.equipment);
+    setSets(video.suggestedSets);
+    setReps(video.suggestedReps);
+    setRestSeconds(video.suggestedRestSeconds);
+    setKeyFormTip(video.keyFormTip);
+    setVideoUrl(video.driveUrl);
+    setInstructionsText(video.instructions.join('\n'));
+  };
+
   const handleSaveExercise = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
@@ -504,15 +521,15 @@ export const ExerciseBankAdminView: React.FC = () => {
               EXERCISE BANK
             </h1>
             <p className="text-zinc-400 text-xs font-mono-num mt-0.5">
-              Categorized exercise repository with Google Drive video demonstrations. Assign personalized protocols to athletes.
+              Categorized exercise repository with Google Drive video demonstrations. Assign personalized protocols to clients.
             </p>
           </div>
 
           {/* Tab Selector Buttons */}
-          <div className="flex items-center gap-2 bg-[#141418] p-1 border border-white/10 rounded-[4px] font-mono-num text-xs">
+          <div className="flex items-center gap-2 bg-[#141418] p-1 border border-white/10 rounded-[4px] font-mono-num text-xs overflow-x-auto max-w-full">
             <button
               onClick={() => setActiveTab('LIBRARY')}
-              className={`px-3.5 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'LIBRARY' ? 'bg-[#FFC515] text-black' : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -520,8 +537,17 @@ export const ExerciseBankAdminView: React.FC = () => {
               <span>Exercise Library ({safeExercises.length})</span>
             </button>
             <button
+              onClick={() => setActiveTab('VIDEO_BANK')}
+              className={`px-3 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                activeTab === 'VIDEO_BANK' ? 'bg-[#FFC515] text-black' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <Video size={14} className={activeTab === 'VIDEO_BANK' ? 'text-black' : 'text-[#FFC515]'} />
+              <span>Drive Video Bank (638)</span>
+            </button>
+            <button
               onClick={() => setActiveTab('ASSIGN')}
-              className={`px-3.5 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'ASSIGN' ? 'bg-[#FFC515] text-black' : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -530,7 +556,7 @@ export const ExerciseBankAdminView: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('STATUS')}
-              className={`px-3.5 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 font-bold uppercase rounded-[3px] transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'STATUS' ? 'bg-[#FFC515] text-black' : 'text-zinc-400 hover:text-white'
               }`}
             >
@@ -639,6 +665,14 @@ export const ExerciseBankAdminView: React.FC = () => {
                     className="w-full bg-[#141418] border border-white/10 pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 rounded-[3px] focus:outline-none focus:border-[#FFC515]"
                   />
                 </div>
+                <button
+                  onClick={() => setActiveTab('VIDEO_BANK')}
+                  className="px-3.5 py-1.5 bg-[#14141a] hover:bg-[#1c1c24] text-[#FFC515] border border-[#FFC515]/40 hover:border-[#FFC515] font-mono-num font-bold text-xs uppercase rounded-[3px] flex items-center gap-1.5 transition-colors whitespace-nowrap"
+                  title="Browse and import from Google Drive Video Bank"
+                >
+                  <Video size={14} />
+                  <span>Drive Bank (638)</span>
+                </button>
                 <button
                   onClick={openAddModal}
                   className="px-4 py-1.5 bg-[#FFC515] hover:bg-[#eab308] text-black font-mono-num font-bold text-xs uppercase rounded-[3px] flex items-center gap-1.5 transition-colors whitespace-nowrap shadow-sm"
@@ -758,17 +792,28 @@ export const ExerciseBankAdminView: React.FC = () => {
         )}
 
         {/* ========================================================================= */}
+        {/* VIEW: GOOGLE DRIVE VIDEO BANK (638 CLIPS & REPOSITORY)                   */}
+        {/* ========================================================================= */}
+        {activeTab === 'VIDEO_BANK' && (
+          <DriveVideoBankSection
+            exercises={safeExercises}
+            onAddExercise={addExercise}
+            logAuditAction={logAuditAction}
+          />
+        )}
+
+        {/* ========================================================================= */}
         {/* VIEW 2: ASSIGN PERSONALIZED WORKOUT PLANS TO CLIENTS                      */}
         {/* ========================================================================= */}
         {activeTab === 'ASSIGN' && (
           <div className="space-y-6">
             
-            {/* Step 1: Select Athlete / Client */}
+            {/* Step 1: Select Client */}
             <div className="bg-[#0e0e12] border border-white/10 p-5 rounded-[4px] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3 font-mono-num">
                 <div>
                   <span className="text-[10px] text-[#FFC515] font-bold uppercase tracking-widest block">
-                    STEP 1 // SELECT ATHLETE
+                    STEP 1 // SELECT CLIENT
                   </span>
                   <h3 className="text-lg font-bold text-white uppercase font-display">
                     CLIENT PROTOCOL ASSIGNMENT
@@ -787,7 +832,7 @@ export const ExerciseBankAdminView: React.FC = () => {
                     className="bg-[#141418] border border-[#FFC515]/40 hover:border-[#FFC515] text-white text-xs font-semibold px-3.5 py-2.5 rounded focus:outline-none focus:ring-1 focus:ring-[#FFC515] font-mono-num min-w-[320px] sm:min-w-[460px] max-w-full cursor-pointer shadow-inner"
                   >
                     {allClients.map((c) => {
-                      const clientName = c.name?.trim() || 'Athlete Client';
+                      const clientName = c.name?.trim() || 'Client';
                       const clientEmail = c.email?.trim() || 'No email registered';
                       const statusTag = c.isWorkoutPersonalized ? '✓ Active Protocol' : '⚡ Awaiting Personalization';
                       const displayText = `${clientName} (${clientEmail}) — ${statusTag}`;
@@ -807,7 +852,7 @@ export const ExerciseBankAdminView: React.FC = () => {
                 <span className="text-zinc-500 uppercase text-[10px] font-bold tracking-wider">Quick Client Select:</span>
                 {allClients.slice(0, 5).map((c) => {
                   const isSelected = selectedClient?.id === c.id;
-                  const label = c.name || c.email || 'Athlete';
+                  const label = c.name || c.email || 'Client';
                   return (
                     <button
                       key={c.id}
@@ -834,7 +879,7 @@ export const ExerciseBankAdminView: React.FC = () => {
               {selectedClient && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-zinc-900/60 p-4 border border-white/5 rounded text-xs font-mono-num">
                   <div>
-                    <span className="text-[10px] text-zinc-500 uppercase block">ATHLETE NAME</span>
+                    <span className="text-[10px] text-zinc-500 uppercase block">CLIENT NAME</span>
                     <span className="text-white font-bold text-sm">{selectedClient.name}</span>
                     <span className="text-zinc-400 block text-[11px]">{selectedClient.email}</span>
                   </div>
@@ -924,7 +969,7 @@ export const ExerciseBankAdminView: React.FC = () => {
                   value={coachNotes}
                   onChange={(e) => setCoachNotes(e.target.value)}
                   className="w-full bg-[#141418] border border-white/15 p-2.5 text-white focus:border-[#FFC515] focus:outline-none"
-                  placeholder="Direct instructions from Coach Neetu for this athlete..."
+                  placeholder="Direct instructions from Coach Neetu for this client..."
                 />
               </div>
 
@@ -1096,7 +1141,7 @@ export const ExerciseBankAdminView: React.FC = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 3: ATHLETE PRESCRIPTION STATUS AUDIT                                 */}
+        {/* VIEW 3: CLIENT PRESCRIPTION STATUS AUDIT                                  */}
         {/* ========================================================================= */}
         {activeTab === 'STATUS' && (
           <div className="bg-[#0e0e12] border border-white/10 rounded-[4px] p-5 space-y-4 font-mono-num">
@@ -1105,10 +1150,10 @@ export const ExerciseBankAdminView: React.FC = () => {
                 AUDIT & TRACKING
               </span>
               <h3 className="text-lg font-bold uppercase font-display text-white">
-                ATHLETE WORKOUT PERSONALIZATION STATUS
+                CLIENT WORKOUT PERSONALIZATION STATUS
               </h3>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Overview of all registered athletes. Clients without a personalized plan will display the waiting prompt.
+                Overview of all registered clients. Clients without a personalized plan will display the waiting prompt.
               </p>
             </div>
 
@@ -1116,7 +1161,7 @@ export const ExerciseBankAdminView: React.FC = () => {
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-white/10 text-zinc-500 uppercase text-[10px]">
-                    <th className="py-2.5 px-3">Athlete</th>
+                    <th className="py-2.5 px-3">Client</th>
                     <th className="py-2.5 px-3">Phone (Compulsory)</th>
                     <th className="py-2.5 px-3">Goal</th>
                     <th className="py-2.5 px-3">Status</th>
@@ -1177,21 +1222,34 @@ export const ExerciseBankAdminView: React.FC = () => {
       {/* ========================================================================= */}
       {isExerciseModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#0e0e12] border border-white/20 rounded-[6px] max-w-xl w-full p-6 space-y-4 my-auto shadow-2xl font-mono-num">
+          <div className="bg-[#0e0e12] border border-white/20 rounded-[6px] max-w-2xl sm:max-w-3xl w-full p-6 space-y-4 my-auto shadow-2xl font-mono-num max-h-[92vh] overflow-y-auto">
             
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-base font-bold uppercase text-white font-display">
-                {editingExercise ? 'EDIT EXERCISE IN BANK' : 'ADD NEW EXERCISE TO BANK'}
-              </h3>
+              <div>
+                <span className="text-[10px] text-[#FFC515] font-bold uppercase tracking-widest block">
+                  COACHING OS // EXERCISE PROTOCOL
+                </span>
+                <h3 className="text-base font-bold uppercase text-white font-display mt-0.5">
+                  {editingExercise ? 'EDIT EXERCISE IN BANK' : 'ADD NEW EXERCISE TO BANK'}
+                </h3>
+              </div>
               <button
                 onClick={() => setIsExerciseModalOpen(false)}
-                className="text-zinc-400 hover:text-white"
+                className="text-zinc-400 hover:text-white p-1"
+                aria-label="Close modal"
               >
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleSaveExercise} className="space-y-4 text-xs">
+              
+              {/* VIDEO BANK CATEGORY & SEARCHABLE VIDEO SELECTOR */}
+              <VideoBankSelector
+                onSelectVideo={handleSelectVideoFromBank}
+                selectedVideoUrl={videoUrl}
+                currentExerciseName={name}
+              />
               
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -1260,24 +1318,6 @@ export const ExerciseBankAdminView: React.FC = () => {
                 </div>
               </div>
 
-              {/* VIDEO URL FIELD (Google Drive, YouTube, Vimeo, MP4) */}
-              <div>
-                <label className="text-zinc-400 block mb-1 uppercase text-[10px] flex items-center justify-between">
-                  <span>VIDEO URL (GOOGLE DRIVE PREVIEW / YOUTUBE)</span>
-                  <span className="text-[#FFC515] font-bold text-[9px]">GOOGLE DRIVE SUPPORTED</span>
-                </label>
-                <input
-                  type="url"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  placeholder="https://drive.google.com/file/d/1qrB6aZDVWIbzrJ4ZRpGQSttBO0J8HvrL/view?usp=sharing"
-                  className="w-full bg-[#141418] border border-white/15 px-3 py-2 text-white focus:border-[#FFC515] focus:outline-none"
-                />
-                <span className="text-[10px] text-zinc-500 block mt-0.5">
-                  Paste any Google Drive sharing link; the system converts it into native Drive video preview automatically.
-                </span>
-              </div>
-
               <div>
                 <label className="text-zinc-400 block mb-1 uppercase text-[10px]">COACH FORM TIP</label>
                 <input
@@ -1321,35 +1361,62 @@ export const ExerciseBankAdminView: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 9:16 RESPONSIVE VIDEO PREVIEW MODAL (NATIVE DRIVE CONTROLS)                */}
+      {/* 16:9 RESPONSIVE WIDESCREEN VIDEO PREVIEW MODAL                             */}
       {/* ========================================================================= */}
       {previewVideoExercise && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0e0e12] border border-white/20 rounded-[6px] max-w-sm w-full p-4 space-y-3 font-mono-num">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
-              <span className="text-xs font-bold text-white uppercase truncate max-w-[220px]">
-                {previewVideoExercise.name}
-              </span>
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0e0e12] border border-white/20 rounded-[6px] max-w-3xl sm:max-w-4xl w-full p-5 sm:p-6 space-y-4 font-mono-num shadow-2xl relative my-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div>
+                <span className="text-[10px] text-[#FFC515] font-bold uppercase tracking-widest block">
+                  16:9 FORM DEMO PREVIEW
+                </span>
+                <span className="text-base sm:text-lg font-bold text-white uppercase block mt-0.5">
+                  {previewVideoExercise.name}
+                </span>
+              </div>
               <button
                 onClick={() => setPreviewVideoExercise(null)}
-                className="text-zinc-400 hover:text-white text-xs"
+                className="p-1.5 text-zinc-400 hover:text-white bg-zinc-900 border border-white/10 rounded text-xs transition-colors"
+                aria-label="Close preview"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex justify-center">
+            <div className="w-full flex justify-center bg-black rounded-[6px] overflow-hidden">
               <ExerciseVideoPlayer
                 videoUrl={previewVideoExercise.videoUrl}
                 thumbnailUrl={previewVideoExercise.videoThumbnail}
                 exerciseName={previewVideoExercise.name}
-                aspectRatio="9/16"
+                aspectRatio="16/9"
                 autoPlay={false}
+                className="w-full shadow-2xl"
               />
             </div>
 
-            <div className="text-[11px] text-zinc-400 text-center">
-              Native Google Drive video controls active (Bottom-left play/pause, timecode, gear, and fullscreen).
+            <div className="p-3 bg-zinc-900/80 border border-white/5 rounded text-xs text-zinc-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <p className="text-zinc-400">
+                  Target: <strong className="text-white">{previewVideoExercise.targetMuscles}</strong> · Sets: <strong className="text-[#FFC515]">{previewVideoExercise.sets}</strong> · Reps: <strong className="text-[#FFC515]">{previewVideoExercise.reps}</strong>
+                </p>
+                {previewVideoExercise.keyFormTip && (
+                  <p className="text-[11px] text-zinc-400 italic">
+                    "{previewVideoExercise.keyFormTip}"
+                  </p>
+                )}
+              </div>
+              {previewVideoExercise.videoUrl && (
+                <a
+                  href={previewVideoExercise.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#FFC515] hover:underline flex items-center gap-1 shrink-0 text-[11px]"
+                >
+                  <span>Open in Google Drive</span>
+                  <ExternalLink size={12} />
+                </a>
+              )}
             </div>
           </div>
         </div>

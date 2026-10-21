@@ -109,7 +109,7 @@ export const OrdersAndSubscriptionsView: React.FC = () => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by order ID, athlete name, email, or product..."
+          placeholder="Search by order ID, client name, email, or product..."
           className="w-full bg-zinc-950 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 rounded-sm focus:border-[#FFC515] focus:outline-none text-xs"
         />
       </div>
@@ -122,7 +122,7 @@ export const OrdersAndSubscriptionsView: React.FC = () => {
               <thead>
                 <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
                   <th className="p-3.5">ORDER ID</th>
-                  <th className="p-3.5">ATHLETE</th>
+                  <th className="p-3.5">CLIENT</th>
                   <th className="p-3.5">PRODUCT / CHALLENGE</th>
                   <th className="p-3.5">AMOUNT</th>
                   <th className="p-3.5">GATEWAY</th>
@@ -214,7 +214,7 @@ export const OrdersAndSubscriptionsView: React.FC = () => {
               <thead>
                 <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
                   <th className="p-3.5">SUBSCRIPTION ID</th>
-                  <th className="p-3.5">ATHLETE</th>
+                  <th className="p-3.5">CLIENT</th>
                   <th className="p-3.5">MEMBERSHIP PLAN</th>
                   <th className="p-3.5">MONTHLY RATE</th>
                   <th className="p-3.5">STATUS</th>

@@ -42,21 +42,21 @@ export const CustomerManagementView: React.FC = () => {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="h-2 w-2 rounded-full bg-[#FFC515]"></span>
             <span className="text-xs font-mono-num font-bold uppercase tracking-widest text-[#FFC515]">
-              ATHLETE ROSTER
+              CLIENT ROSTER
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display text-white">
-            ACTIVE ATHLETES
+            ACTIVE CLIENTS
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Enrolled athletes with active challenge cohorts, recurring retainers, and accountability streaks.
+            Enrolled clients with active challenge cohorts, recurring retainers, and accountability streaks.
           </p>
         </div>
 
         {/* Stats */}
         <div className="flex items-center gap-3">
           <div className="px-4 py-2 bg-zinc-950 border border-white/10 text-center rounded-sm">
-            <span className="text-[10px] text-zinc-400 uppercase block font-bold">TOTAL ATHLETES</span>
+            <span className="text-[10px] text-zinc-400 uppercase block font-bold">TOTAL CLIENTS</span>
             <span className="text-lg font-extrabold text-white">{customers.length}</span>
           </div>
           <div className="px-4 py-2 bg-zinc-950 border border-white/10 text-center rounded-sm">
@@ -75,7 +75,7 @@ export const CustomerManagementView: React.FC = () => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by athlete name, email, or phone..."
+          placeholder="Search by client name, email, or phone..."
           className="w-full bg-zinc-950 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 rounded-sm focus:border-[#FFC515] focus:outline-none"
         />
       </div>
@@ -89,7 +89,7 @@ export const CustomerManagementView: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
-                  <th className="p-3.5">ATHLETE</th>
+                  <th className="p-3.5">CLIENT</th>
                   <th className="p-3.5">ACTIVE COHORT</th>
                   <th className="p-3.5">STREAK</th>
                   <th className="p-3.5">TOTAL SPENT</th>
@@ -100,7 +100,7 @@ export const CustomerManagementView: React.FC = () => {
                 {filteredCustomers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-zinc-500">
-                      No active athletes found.
+                      No active clients found.
                     </td>
                   </tr>
                 ) : (
@@ -185,7 +185,7 @@ export const CustomerManagementView: React.FC = () => {
                   <h3 className="text-xl font-bold uppercase text-white font-display">{activeCustomer.name}</h3>
                   <p className="text-zinc-400 text-xs">{activeCustomer.email} • {activeCustomer.phone}</p>
                   <span className="text-[10px] text-zinc-500 uppercase mt-1 block">
-                    Athlete ID: {activeCustomer.id}
+                    Client ID: {activeCustomer.id}
                   </span>
                 </div>
               </div>
@@ -194,7 +194,7 @@ export const CustomerManagementView: React.FC = () => {
               <div className="space-y-3">
                 <h4 className="text-xs font-bold uppercase text-white tracking-wider flex items-center gap-2">
                   <Dumbbell size={14} className="text-[#FFC515]" />
-                  ACTIVE ATHLETE PROTOCOL
+                  ACTIVE CLIENT PROTOCOL
                 </h4>
 
                 <div className="p-3.5 bg-zinc-900 border border-white/5 space-y-2 text-xs rounded-sm">
@@ -259,7 +259,7 @@ export const CustomerManagementView: React.FC = () => {
               </div>
             </>
           ) : (
-            <p className="text-zinc-500 text-center py-8">Select an athlete to view complete dossier.</p>
+            <p className="text-zinc-500 text-center py-8">Select a client to view complete dossier.</p>
           )}
         </div>
 

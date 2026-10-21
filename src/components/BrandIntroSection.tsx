@@ -12,7 +12,7 @@ export const BrandIntroSection: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto">
         
-        {/* Editorial Layout: Left (Brand Statement & Pillars) + Right (High-Contrast Athlete Photography) */}
+        {/* Editorial Layout: Left (Brand Statement & Pillars) + Right (High-Contrast Member Photography) */}
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* Left Column (7 cols) */}
@@ -70,12 +70,12 @@ export const BrandIntroSection: React.FC = () => {
 
           </div>
 
-          {/* Right Column: Premium High-Contrast Athlete Photography */}
+          {/* Right Column: Premium High-Contrast Member Photography */}
           <div className="lg:col-span-5 relative">
             <div className="relative border border-white/15 bg-[#101014] overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85"
-                alt="Focused athlete preparing for training"
+                alt="Focused member preparing for training"
                 className="w-full h-[460px] sm:h-[540px] object-cover filter grayscale contrast-125 brightness-90"
                 referrerPolicy="no-referrer"
               />

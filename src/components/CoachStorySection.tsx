@@ -83,6 +83,15 @@ export const CoachStorySection: React.FC = () => {
                     Coach Neetu treats every client as an individual. She looks at your routine, food preferences, stress levels, and daily lifestyle to design nutrition and workouts that fit into your life — building habits that last forever.
                   </p>
                 </div>
+
+                <div>
+                  <h4 className="text-white font-bold uppercase tracking-wider mb-1 text-xs text-[#FFC515]">
+                    SPECIALIZED IN FITNESS & FITNESS AFTER PREGNANCY
+                  </h4>
+                  <p>
+                    From full body transformations to specialized postpartum recovery, Coach Neetu is trusted as the best coach for women reclaiming their strength, healing diastasis recti, and regaining peak fitness after pregnancy safely and sustainably.
+                  </p>
+                </div>
               </div>
 
             </div>

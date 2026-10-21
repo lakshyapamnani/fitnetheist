@@ -84,7 +84,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
   },
   {
     rank: 4,
-    name: 'You (Athlete Profile)',
+    name: 'You (Member Profile)',
     avatar: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
     streakDays: 12,
     challengeProgress: 'Day 12 / 21 (Ignite)',
@@ -114,7 +114,7 @@ export const COACH_DATA = {
   title: 'Founder & Head of Human Performance',
   portrait: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=80',
   experienceYears: 14,
-  athletesCoached: 3200,
+  clientsCoached: 3200,
   certifications: [
     'CSCS (Certified Strength & Conditioning Specialist)',
     'Precision Nutrition Master Coach (Pn2)',
@@ -126,7 +126,7 @@ export const COACH_DATA = {
     'Aggressive Body Recomposition',
     'Macronutrient Periodization & Metabolic Health',
     'Hypertrophy Biomechanics & Injury Prevention',
-    'Athletic Conditioning for High Performers'
+    'Functional Conditioning for High Performers'
   ],
   quote: 'When your nutrition is mathematically sound and your training progressive, transformation is no longer a wish — it is a mathematical inevitability.'
 };
@@ -137,7 +137,7 @@ export const PRICING_DATA = [
     name: 'FREE ARCHETYPE',
     price: '$0',
     frequency: 'FOREVER',
-    tagline: 'Foundational calculators and entry athletic resources.',
+    tagline: 'Foundational calculators and entry fitness resources.',
     features: [
       'Interactive Mifflin-St Jeor Calorie Calculator',
       'Instant Cut / Maintain / Bulk calorie breakdown',
@@ -167,7 +167,7 @@ export const PRICING_DATA = [
   },
   {
     id: 'plan_pro',
-    name: 'PRO ATHLETE',
+    name: 'PRO MEMBER',
     price: '$19',
     frequency: 'PER MONTH',
     tagline: 'Complete adaptive training system & coaching support.',
@@ -180,7 +180,7 @@ export const PRICING_DATA = [
       'Access to All Current and Future Challenges',
       'Priority 1-on-1 Nutritionist Support Channel'
     ],
-    ctaText: 'UNLOCK PRO ATHLETE',
+    ctaText: 'UNLOCK PRO MEMBER',
     popular: false
   }
 ];

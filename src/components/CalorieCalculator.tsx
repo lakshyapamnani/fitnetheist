@@ -115,7 +115,7 @@ export const CalorieCalculator: React.FC = () => {
 
     if (user?.email) {
       captureLead({
-        name: user.name || 'Athlete Visitor',
+        name: user.name || 'Client Visitor',
         email: user.email,
         phone: user.phone || '+91 98000 00000',
         source: 'CALCULATOR',
@@ -298,7 +298,7 @@ export const CalorieCalculator: React.FC = () => {
             <div className="flex items-center justify-between border-b border-white/10 pb-3 sm:pb-4">
               <h2 className="text-xs sm:text-sm font-mono-num font-bold text-white uppercase tracking-wider flex items-center gap-2">
                 <Sliders size={16} className="text-[#d8ff38]" />
-                <span>ATHLETE BIOMETRIC PARAMETERS</span>
+                <span>CLIENT BIOMETRIC PARAMETERS</span>
               </h2>
               <span className="text-[10px] sm:text-[11px] font-mono-num text-zinc-500">ACCURACY ENGINE</span>
             </div>
@@ -585,7 +585,7 @@ export const CalorieCalculator: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => openAuthModal('signup', 'Save your computed targets to your personal athlete profile.')}
+                  onClick={() => openAuthModal('signup', 'Save your computed targets to your personal profile.')}
                   className="shrink-0 px-3.5 py-2 bg-[#d8ff38] text-black font-mono-num font-bold text-xs uppercase tracking-wider hover:bg-[#c9f028] transition-colors"
                 >
                   SAVE & SYNC
@@ -595,7 +595,7 @@ export const CalorieCalculator: React.FC = () => {
               <div className="flex items-center justify-between px-3.5 py-2 bg-zinc-950 border border-white/10 text-[11px] font-mono-num text-zinc-400">
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[#d8ff38]"></span>
-                  <span>SYNCED TO ATHLETE PROFILE: <strong className="text-white">{user.name}</strong></span>
+                  <span>SYNCED TO CLIENT PROFILE: <strong className="text-white">{user.name}</strong></span>
                 </span>
                 <span className="text-[#d8ff38] font-bold">REALTIME DB</span>
               </div>

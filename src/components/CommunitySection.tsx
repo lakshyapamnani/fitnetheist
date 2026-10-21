@@ -35,7 +35,7 @@ export const CommunitySection: React.FC = () => {
               THE <span className="text-[#FFC515]">TRIBE.</span>
             </h1>
             <p className="text-white/70 text-sm max-w-2xl mt-2 font-mono-num">
-              Transformation is easier when you're not doing it alone. Share daily workout streaks, celebrate milestone PRs, and climb the discipline leaderboard alongside dedicated athletes worldwide.
+              Transformation is easier when you're not doing it alone. Share daily workout streaks, celebrate milestone PRs, and climb the discipline leaderboard alongside dedicated members worldwide.
             </p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export const CommunitySection: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                 <span className="text-[11px] font-mono-num text-white/40">
-                  Visible to all active challenge athletes
+                  Visible to all active challenge members
                 </span>
 
                 <button
@@ -134,7 +134,7 @@ export const CommunitySection: React.FC = () => {
                       <div className="h-64 w-full bg-[#14141a] overflow-hidden border border-white/10">
                         <img
                           src={post.imageUrl}
-                          alt="Athlete check in"
+                          alt="Member check in"
                           className="w-full h-full object-cover filter grayscale contrast-125"
                           referrerPolicy="no-referrer"
                         />
@@ -168,7 +168,7 @@ export const CommunitySection: React.FC = () => {
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#FFC515] font-bold block">
-                    GLOBAL ATHLETE STANDINGS
+                    GLOBAL TRIBE STANDINGS
                   </span>
                   <h3 className="text-xl font-bold uppercase font-display text-white mt-0.5">
                     STREAK LEADERBOARD

@@ -49,7 +49,7 @@ export const INITIAL_LEADS: Lead[] = [
   {
     id: 'lead_alex',
     name: 'Alex Mercer',
-    email: 'athlete@fitnetheist.com',
+    email: 'client@fitnetheist.com',
     phone: '+91 98000 11223',
     source: 'WORKOUT_PLANNER',
     goal: 'LOSE_WEIGHT',
@@ -96,7 +96,7 @@ export const INITIAL_CUSTOMERS: Customer[] = [
   {
     id: 'cust_alex',
     name: 'Alex Mercer',
-    email: 'athlete@fitnetheist.com',
+    email: 'client@fitnetheist.com',
     phone: '+91 98000 11223',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     joinedDate: '2026-01-15',
@@ -325,7 +325,7 @@ export const INITIAL_CMS_PAGES: CMSPage[] = [
         enabled: true,
         order: 11,
         heading: 'SOMEONE HAS YOUR BACK.',
-        subtitle: 'Battle-tested coaching methodology developed through over a decade of coaching elite athletes.',
+        subtitle: 'Battle-tested coaching methodology developed through over a decade of coaching dedicated clients.',
         eyebrowText: '10 // HUMAN LEADERSHIP'
       },
       {
@@ -335,7 +335,7 @@ export const INITIAL_CMS_PAGES: CMSPage[] = [
         enabled: true,
         order: 12,
         heading: 'THE TRIBE.',
-        subtitle: "Transformation is easier when you're not doing it alone. Join athletes worldwide.",
+        subtitle: "Transformation is easier when you're not doing it alone. Join members worldwide.",
         eyebrowText: '11 // COMMUNITY NETWORK'
       },
       {
@@ -376,7 +376,7 @@ export const INITIAL_BLOG_POSTS: BlogPost[] = [
     category: 'Nutrition',
     tags: ['Protein', 'Hypertrophy', 'Macros', 'Science'],
     seoTitle: 'Protein Absorption Truth & Leucine Thresholds — Fitnetheist',
-    seoDescription: 'Scientific breakdown of protein synthesis and daily distribution for drug-free natural athletes.',
+    seoDescription: 'Scientific breakdown of protein synthesis and daily distribution for drug-free natural lifters.',
     status: 'PUBLISHED',
     publishDate: '2026-08-15'
   },
@@ -386,7 +386,7 @@ export const INITIAL_BLOG_POSTS: BlogPost[] = [
     slug: 'progressive-overload-advanced-modalities',
     featuredImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
     excerpt: 'How to stimulate mechanical tension when you have hit a strength plateau or have limited dumbbell weights.',
-    content: `Mechanical tension is the primary driver of muscular hypertrophy. When adding load on the barbell is not feasible, intelligent athletes manipulate tempo (eccentric duration), intra-set rest intervals, full range of motion standardization, and peak contraction pauses to enforce greater motor unit recruitment.`,
+    content: `Mechanical tension is the primary driver of muscular hypertrophy. When adding load on the barbell is not feasible, intelligent trainees manipulate tempo (eccentric duration), intra-set rest intervals, full range of motion standardization, and peak contraction pauses to enforce greater motor unit recruitment.`,
     author: 'Head Coach',
     category: 'Workout',
     tags: ['Training', 'Hypertrophy', 'Plateau', 'Technique'],
@@ -401,7 +401,7 @@ export const INITIAL_BLOG_POSTS: BlogPost[] = [
     slug: 'vegetarian-muscle-building-protein-guide',
     featuredImage: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
     excerpt: 'Strategic meal engineering using low-fat paneer, roasted soya chunks, edamame, and Greek yogurt.',
-    content: `A common pitfall for vegetarian athletes trying to hit 160g+ of daily protein is the concurrent accumulation of saturated fats from excessive regular paneer or carbs from lentils. By integrating dry defatted soya chunks (52% protein), low-fat cottage cheese, egg whites or whey isolates, plant-based athletes can comfortably hit precise cutting and bulking targets.`,
+    content: `A common pitfall for vegetarian clients trying to hit 160g+ of daily protein is the concurrent accumulation of saturated fats from excessive regular paneer or carbs from lentils. By integrating dry defatted soya chunks (52% protein), low-fat cottage cheese, egg whites or whey isolates, plant-based trainees can comfortably hit precise cutting and bulking targets.`,
     author: 'Lead Nutritionist',
     category: 'Nutrition',
     tags: ['Vegetarian', 'Indian Diet', 'Protein', 'Meal Prep'],
@@ -441,7 +441,7 @@ export const INITIAL_FAQS: FAQItem[] = [
     id: 'faq_4',
     category: 'MEMBERSHIP',
     question: 'Can I cancel or pause my subscription anytime?',
-    answer: 'Yes. You can manage, pause, or cancel your active subscription with zero hidden fees directly from your athlete dashboard or by contacting our direct support desk.',
+    answer: 'Yes. You can manage, pause, or cancel your active subscription with zero hidden fees directly from your client dashboard or by contacting our direct support desk.',
     order: 4,
     isPublished: true
   }
@@ -450,8 +450,8 @@ export const INITIAL_FAQS: FAQItem[] = [
 export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
   {
     id: 'med_01',
-    filename: 'hero-athlete-dark.jpg',
-    title: 'Hero Athlete Visual',
+    filename: 'hero-fitness-dark.jpg',
+    title: 'Hero Training Visual',
     url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80',
     fileType: 'IMAGE',
     fileSizeMb: 1.8,

@@ -29,7 +29,7 @@ export const ChallengesSection: React.FC = () => {
     });
 
     captureLead({
-      name: user.name || 'Athlete Visitor',
+      name: user.name || 'Member Visitor',
       email: user.email,
       phone: user.phone || '+91 98000 00000',
       source: 'CHALLENGE_ENROLL',
@@ -152,7 +152,7 @@ export const ChallengesSection: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/40 uppercase">COMMUNITY:</span>
-                      <span className="text-[#FFC515] font-bold">{challenge.enrolledCount} Athletes</span>
+                      <span className="text-[#FFC515] font-bold">{challenge.enrolledCount} Enrolled</span>
                     </div>
                   </div>
                 </div>

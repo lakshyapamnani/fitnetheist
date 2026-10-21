@@ -34,14 +34,14 @@ export const TransformationsAndTestimonialsView: React.FC = () => {
           <div className="flex items-center gap-2 mb-2">
             <span className="h-2 w-2 bg-[#FFC515]"></span>
             <span className="text-xs font-mono-num font-bold uppercase tracking-[0.25em] text-[#FFC515]">
-              SOCIAL PROOF & ATHLETE EVIDENCE
+              SOCIAL PROOF & CLIENT EVIDENCE
             </span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold uppercase tracking-tight font-display text-white">
             TRANSFORMATIONS & REVIEWS
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Moderate athlete review submissions, verify photo consent authenticity, and manage before/after cases.
+            Moderate client review submissions, verify photo consent authenticity, and manage before/after cases.
           </p>
         </div>
 

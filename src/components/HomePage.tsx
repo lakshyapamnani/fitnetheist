@@ -15,8 +15,8 @@ export const HomePage: React.FC = () => {
       {/* 1. HERO */}
       <HeroSection />
 
-      {/* 2. ATHLETE STATUS DASHBOARD */}
-      <section id="athlete-status-overview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-10 relative z-20">
+      {/* 2. CLIENT STATUS DASHBOARD */}
+      <section id="client-status-overview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-10 relative z-20">
         <ClientHomeDashboard />
       </section>
 

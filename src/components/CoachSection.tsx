@@ -6,9 +6,9 @@ import { CoachNeetuPhoto } from './CoachNeetuPhoto';
 export const CoachSection: React.FC = () => {
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
   const [consultSubmitted, setConsultSubmitted] = useState(false);
-  const [athleteName, setAthleteName] = useState('');
-  const [athleteEmail, setAthleteEmail] = useState('');
-  const [athleteGoal, setAthleteGoal] = useState('Aggressive Body Recomposition');
+  const [clientName, setClientName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientGoal, setClientGoal] = useState('Aggressive Body Recomposition');
 
   const handleConsultSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +37,7 @@ export const CoachSection: React.FC = () => {
               <span className="text-[#FFC515]">YOUR BACK.</span>
             </h1>
             <p className="text-white/70 text-sm max-w-2xl mt-2 font-mono-num">
-              Behind the algorithms and code is a strict, battle-tested coaching methodology developed through over a decade of coaching competitive athletes and busy professionals.
+              Behind the algorithms and code is a strict, battle-tested coaching methodology developed through over a decade of coaching dedicated clients and busy professionals.
             </p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export const CoachSection: React.FC = () => {
                   <p className="text-white font-bold mt-1">CSCS (NSCA) & ISSN Sports Nutritionist</p>
                 </div>
                 <div className="border border-white/10 p-3 bg-white/5">
-                  <span className="text-white/40 uppercase block text-[10px]">ATHLETES COACHED</span>
+                  <span className="text-white/40 uppercase block text-[10px]">CLIENTS COACHED</span>
                   <p className="text-white font-bold mt-1">1,400+ 1-on-1 Transformations</p>
                 </div>
                 <div className="border border-white/10 p-3 bg-white/5">
@@ -137,8 +137,8 @@ export const CoachSection: React.FC = () => {
                     <input
                       type="text"
                       required
-                      value={athleteName}
-                      onChange={(e) => setAthleteName(e.target.value)}
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
                       placeholder="e.g. Alex Morgan"
                       className="w-full bg-[#14141a] border border-white/10 px-3 py-2 text-white placeholder-white/20 focus:border-[#FFC515] outline-none"
                     />
@@ -149,9 +149,9 @@ export const CoachSection: React.FC = () => {
                     <input
                       type="email"
                       required
-                      value={athleteEmail}
-                      onChange={(e) => setAthleteEmail(e.target.value)}
-                      placeholder="alex@athlete.com"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      placeholder="alex@gmail.com"
                       className="w-full bg-[#14141a] border border-white/10 px-3 py-2 text-white placeholder-white/20 focus:border-[#FFC515] outline-none"
                     />
                   </div>
@@ -160,8 +160,8 @@ export const CoachSection: React.FC = () => {
                     <label className="block text-white/60 uppercase mb-1">PRIMARY ROADBLOCK / GOAL</label>
                     <textarea
                       rows={3}
-                      value={athleteGoal}
-                      onChange={(e) => setAthleteGoal(e.target.value)}
+                      value={clientGoal}
+                      onChange={(e) => setClientGoal(e.target.value)}
                       className="w-full bg-[#14141a] border border-white/10 p-3 text-white placeholder-white/20 focus:border-[#FFC515] outline-none"
                     />
                   </div>

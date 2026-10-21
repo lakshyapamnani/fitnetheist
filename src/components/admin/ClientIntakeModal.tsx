@@ -225,7 +225,7 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) {
-      alert('Please enter at least the Athlete Name and Email Address.');
+      alert('Please enter at least the Client Name and Email Address.');
       return;
     }
 
@@ -392,13 +392,13 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
           {activeFormTab === 'PERSONAL' && (
             <div className="space-y-4 animate-in fade-in duration-100">
               <div className="flex items-center gap-2 border-b border-white/10 pb-2 text-[#FFC515] font-bold uppercase text-xs">
-                <span>ATHLETE IDENTIFICATION & CONTACT CHANNELS</span>
+                <span>CLIENT IDENTIFICATION & CONTACT CHANNELS</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-zinc-400 uppercase font-bold mb-1">
-                    ATHLETE FULL NAME *
+                    CLIENT FULL NAME *
                   </label>
                   <input
                     type="text"
@@ -419,7 +419,7 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. athlete@example.com"
+                    placeholder="e.g. client@example.com"
                     className="w-full bg-[#15151c] border border-white/15 px-3 py-2 text-white font-mono-num rounded-sm focus:border-[#FFC515] focus:outline-none"
                   />
                 </div>
@@ -625,7 +625,7 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
                     <option value="60-Day Recomp Challenge">60-Day Recomp Challenge</option>
                     <option value="21-Day Ignite Shred">21-Day Ignite Shred</option>
                     <option value="Monthly Nutrition & Training Coaching">Monthly Nutrition & Training Coaching</option>
-                    <option value="Custom Elite Athlete Protocol">Custom Elite Athlete Protocol</option>
+                    <option value="Custom Elite Client Protocol">Custom Elite Client Protocol</option>
                   </select>
                 </div>
 
@@ -983,7 +983,7 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
           {/* Modal Footer Actions */}
           <div className="border-t border-white/10 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div className="text-zinc-500 text-[11px]">
-              {existingClient ? 'Editing existing athlete dossier.' : leadToConvert ? `Converting CRM Lead #${leadToConvert.id}.` : 'Directly creating new athlete record.'}
+              {existingClient ? 'Editing existing client dossier.' : leadToConvert ? `Converting CRM Lead #${leadToConvert.id}.` : 'Directly creating new client record.'}
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">

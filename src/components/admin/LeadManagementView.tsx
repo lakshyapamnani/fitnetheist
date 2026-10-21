@@ -162,7 +162,7 @@ export const LeadManagementView: React.FC = () => {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="h-2 w-2 rounded-full bg-[#FFC515]"></span>
             <span className="text-xs font-mono-num font-bold uppercase tracking-widest text-[#FFC515]">
-              ATHLETE PIPELINE & INQUIRIES
+              CLIENT PIPELINE & INQUIRIES
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display text-white">
@@ -274,7 +274,7 @@ export const LeadManagementView: React.FC = () => {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
-                <th className="p-3.5">ATHLETE NAME</th>
+                <th className="p-3.5">CLIENT NAME</th>
                 <th className="p-3.5">MOBILE & CONTACT</th>
                 <th className="p-3.5">SOURCE</th>
                 <th className="p-3.5">INTENT SCORE</th>
@@ -404,9 +404,10 @@ export const LeadManagementView: React.FC = () => {
                             <span>CLIENT CREATED</span>
                             <button
                               onClick={() => {
+                                setSelectedCustomerId(null);
                                 setActiveSubtab('clients');
                               }}
-                              className="ml-1 underline hover:text-white"
+                              className="ml-1 underline hover:text-white cursor-pointer"
                               title="View in Roster"
                             >
                               ROSTER →
@@ -467,7 +468,7 @@ export const LeadManagementView: React.FC = () => {
 
             <form onSubmit={handleCreateManualLead} className="space-y-4">
               <div>
-                <label className="block text-zinc-400 uppercase mb-1">ATHLETE FULL NAME *</label>
+                <label className="block text-zinc-400 uppercase mb-1">CLIENT FULL NAME *</label>
                 <input
                   type="text"
                   required
@@ -515,7 +516,7 @@ export const LeadManagementView: React.FC = () => {
                     <option value="LOGIN_PORTAL">LOGIN PORTAL</option>
                     <option value="WHATSAPP">WHATSAPP DESK</option>
                     <option value="INSTAGRAM">INSTAGRAM DM</option>
-                    <option value="REFERRAL">ATHLETE REFERRAL</option>
+                    <option value="REFERRAL">CLIENT REFERRAL</option>
                   </select>
                 </div>
                 <div>

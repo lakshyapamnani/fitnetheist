@@ -80,7 +80,7 @@ export const AdminDashboardView: React.FC = () => {
             ADMIN DASHBOARD
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            Real-time pipeline metrics, athlete roaster, and business revenue.
+            Real-time pipeline metrics, client roster, and business revenue.
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export const AdminDashboardView: React.FC = () => {
             className="px-4 py-2.5 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold uppercase flex items-center gap-2 transition-colors rounded-sm"
           >
             <Users size={14} />
-            <span>Athletes Pipeline ({leads.length})</span>
+            <span>Client Pipeline ({leads.length})</span>
           </button>
           <button
             onClick={() => setActiveSubtab('orders')}
@@ -145,7 +145,7 @@ export const AdminDashboardView: React.FC = () => {
         {/* Active Customers */}
         <div className="bg-zinc-950 border border-white/10 p-6 relative rounded-sm hover:border-[#FFC515]/40 transition-colors">
           <div className="flex justify-between items-start mb-3">
-            <span className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">ACTIVE ATHLETES</span>
+            <span className="text-[11px] text-zinc-400 uppercase tracking-wider font-bold">ACTIVE CLIENTS</span>
             <div className="p-2 bg-zinc-900 text-zinc-300 rounded-sm">
               <UserCheck size={16} />
             </div>
@@ -187,7 +187,7 @@ export const AdminDashboardView: React.FC = () => {
                 CONVERSION PIPELINE STAGES
               </h3>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Progression from website calculator entries to active paying athletes.
+                Progression from website calculator entries to active paying clients.
               </p>
             </div>
             <button 
@@ -218,7 +218,7 @@ export const AdminDashboardView: React.FC = () => {
             <div className="p-3.5 bg-[#FFC515]/10 border border-[#FFC515]/30 rounded-sm">
               <span className="text-[10px] text-[#FFC515] uppercase block font-bold">CONVERTED</span>
               <span className="text-2xl font-extrabold text-[#FFC515] block my-1">{convertedLeads}</span>
-              <span className="text-[10px] text-white font-bold">Enrolled athletes</span>
+              <span className="text-[10px] text-white font-bold">Enrolled clients</span>
             </div>
           </div>
 
@@ -227,7 +227,7 @@ export const AdminDashboardView: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold text-white uppercase flex items-center gap-1.5">
                 <Flame size={14} className="text-[#FFC515]" />
-                HIGH PRIORITY ATHLETE INQUIRIES ({hotLeads.length})
+                HIGH PRIORITY CLIENT INQUIRIES ({hotLeads.length})
               </span>
             </div>
 
@@ -299,7 +299,7 @@ export const AdminDashboardView: React.FC = () => {
           <div className="p-3.5 bg-zinc-900/60 border border-white/5 text-xs text-zinc-400 space-y-1 rounded-sm">
             <span className="text-white font-bold uppercase block text-[11px]">ATTRIBUTION SUMMARY</span>
             <p className="leading-relaxed text-[11px]">
-              Interactive health tools (Calorie Calculator & Diet Generator) drive 65%+ of high-intent athlete enrollments.
+              Interactive health tools (Calorie Calculator & Diet Generator) drive 65%+ of high-intent client enrollments.
             </p>
           </div>
         </div>

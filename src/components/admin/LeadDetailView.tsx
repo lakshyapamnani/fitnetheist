@@ -136,7 +136,7 @@ export const LeadDetailView: React.FC = () => {
         </div>
       </div>
 
-      {/* Athlete Header Card */}
+      {/* Client Header Card */}
       <div className="bg-zinc-950 border border-white/10 p-6 relative rounded-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           
@@ -233,7 +233,7 @@ export const LeadDetailView: React.FC = () => {
       {/* Grid: Biometrics & Calculators (4 cols) + Followups & Notes (4 cols) + Activity Timeline (4 cols) */}
       <div className="grid lg:grid-cols-12 gap-6">
         
-        {/* Col 1: Athlete Biometrics & Preferences (4 cols) */}
+        {/* Col 1: Client Biometrics & Preferences (4 cols) */}
         <div className="lg:col-span-4 bg-zinc-950 border border-white/10 p-5 space-y-4 rounded-sm">
           <div className="border-b border-white/10 pb-3">
             <h3 className="text-xs font-bold uppercase text-white tracking-wider flex items-center gap-2">
@@ -404,7 +404,7 @@ export const LeadDetailView: React.FC = () => {
               className="w-full py-2.5 bg-[#FFC515] hover:bg-[#e6b010] text-black font-extrabold uppercase tracking-wider text-xs flex items-center justify-center gap-2 rounded-sm shadow-md transition-transform active:scale-95"
             >
               <Sparkles size={16} />
-              <span>CONVERT TO ACTIVE ATHLETE (CLIENT PROFILE)</span>
+              <span>CONVERT TO ACTIVE CLIENT PROFILE</span>
             </button>
           </div>
         </div>

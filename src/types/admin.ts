@@ -125,6 +125,7 @@ export interface ClientCheckIn {
   date: string;
   weightKg: number;
   waistCm?: number;
+  waistCircumferenceCm?: number;
   bodyFatPercent?: number;
   adherenceScore: number; // 1-10
   clientNotes?: string;
@@ -255,7 +256,7 @@ export interface Invoice {
   businessEmail: string;
   businessPhone: string;
   
-  // Customer / Athlete Info
+  // Customer / Client Info
   clientName: string;
   clientEmail: string;
   clientPhone: string;

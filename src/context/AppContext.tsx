@@ -53,7 +53,7 @@ import {
   listenToRealtimeFoods
 } from '../services/firebase';
 
-export interface PendingAthleteDetails {
+export interface PendingClientDetails {
   source: 'CALORIE_CALCULATOR' | 'DIET_PLAN' | 'WORKOUT_PLAN' | 'PROFILE_SETUP';
   title?: string;
   summaryText?: string;
@@ -63,6 +63,7 @@ export interface PendingAthleteDetails {
   workoutPlan?: WorkoutPlan;
   timestamp: number;
 }
+export type PendingAthleteDetails = PendingClientDetails;
 
 interface AppContextType {
   user: UserProfile | null;
@@ -85,6 +86,8 @@ interface AppContextType {
   isAuthModalOpen: boolean;
   authModalMode: 'login' | 'signup' | 'forgot' | 'onboarding';
   authPromptReason: string | null;
+  pendingClientDetails: PendingClientDetails | null;
+  setPendingClientDetails: (details: PendingClientDetails | null) => void;
   pendingAthleteDetails: PendingAthleteDetails | null;
   setPendingAthleteDetails: (details: PendingAthleteDetails | null) => void;
   selectedChallenge: Challenge | null;
@@ -475,7 +478,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         finalProfile = {
           id: fbUser.uid,
           name: fbUser.displayName || 'Alex Mercer',
-          email: fbUser.email || 'athlete@fitnetheist.com',
+          email: fbUser.email || 'client@fitnetheist.com',
           phone: phone || user?.phone || '',
           avatarUrl: fbUser.photoURL || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
           age: pendingAthleteDetails?.userMetrics?.age || 26,
@@ -753,7 +756,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: `act_${Date.now()}`,
           timestamp: new Date().toISOString(),
           type: 'CREATED',
-          description: `New athlete enrolled via Signup Portal with Mobile: ${phone || newUser.phone || 'N/A'}`,
+          description: `New client enrolled via Signup Portal with Mobile: ${phone || newUser.phone || 'N/A'}`,
           performedBy: 'SYSTEM_BOT'
         }
       ]
@@ -906,7 +909,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const pending: PendingAthleteDetails = {
         source: 'CALORIE_CALCULATOR',
         title: 'Calorie & Macro Blueprint',
-        summaryText: `${result.currentTargetCalories} kcal (${goal}) · ${proteinMin}g Protein · ${weightKg}kg athlete`,
+        summaryText: `${result.currentTargetCalories} kcal (${goal}) · ${proteinMin}g Protein · ${weightKg}kg client`,
         calorieResult: result,
         userMetrics: {
           age,
@@ -1133,7 +1136,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       authorAvatar: user.avatarUrl || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=200&q=80',
       timeAgo: 'Just now',
       content,
-      badge: user.joinedChallengeId ? 'CHALLENGE ATHLETE' : 'COMMUNITY ATHLETE',
+      badge: user.joinedChallengeId ? 'CHALLENGE MEMBER' : 'COMMUNITY MEMBER',
       likesCount: 1,
       hasLiked: true,
       commentsCount: 0,
@@ -1230,6 +1233,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isAuthModalOpen,
       authModalMode,
       authPromptReason,
+      pendingClientDetails: pendingAthleteDetails,
+      setPendingClientDetails: setPendingAthleteDetails,
       pendingAthleteDetails,
       setPendingAthleteDetails,
       isFirebaseConnected,

@@ -3,6 +3,8 @@ import { useApp } from '../../context/AppContext';
 import { useAdmin } from '../../context/AdminContext';
 import { Exercise, MuscleGroup, ExperienceLevel, EquipmentType } from '../../types';
 import { ExerciseVideoPlayer } from '../ExerciseVideoPlayer';
+import { VideoBankSelector } from './VideoBankSelector';
+import { DriveVideoItem } from '../../data/driveVideoBankData';
 import { 
   Dumbbell, 
   Search, 
@@ -87,6 +89,19 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
     setVideoUrl(ex.videoUrl || '');
     setVideoThumbnail(ex.videoThumbnail || 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=600&q=80');
     setIsAddModalOpen(true);
+  };
+
+  const handleSelectVideoFromBank = (video: DriveVideoItem) => {
+    setName(video.name);
+    setCategory(video.muscleGroup);
+    setTargetMuscles(video.targetMuscles);
+    setDifficulty(video.difficulty);
+    setEquipment(video.equipment);
+    setSets(video.suggestedSets);
+    setReps(video.suggestedReps);
+    setRestSeconds(video.suggestedRestSeconds);
+    setKeyFormTip(video.keyFormTip);
+    setVideoUrl(video.driveUrl);
   };
 
   const handleSaveExercise = (e: React.FormEvent) => {
@@ -308,10 +323,10 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
         </div>
       </div>
 
-      {/* Add / Edit Exercise Modal with Video URL Input */}
+      {/* Add / Edit Exercise Modal with Video Bank Selector */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-xl w-full font-mono-num text-xs space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-2xl sm:max-w-3xl w-full font-mono-num text-xs space-y-4 max-h-[92vh] overflow-y-auto my-auto shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
                 <span className="text-[10px] text-[#d8ff38] font-bold uppercase tracking-widest block">EXERCISE PROTOCOL</span>
@@ -324,6 +339,13 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
 
             <form onSubmit={handleSaveExercise} className="space-y-4">
               
+              {/* Video Bank Category & Searchable Video Selector */}
+              <VideoBankSelector
+                onSelectVideo={handleSelectVideoFromBank}
+                selectedVideoUrl={videoUrl}
+                currentExerciseName={name}
+              />
+              
               {/* Exercise Name */}
               <div>
                 <label className="block text-zinc-300 uppercase font-bold mb-1">EXERCISE NAME *</label>
@@ -335,31 +357,6 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
                   placeholder="e.g. Incline Dumbbell Press"
                   className="w-full bg-zinc-900 border border-zinc-700 p-2.5 text-white focus:border-[#d8ff38] outline-none"
                 />
-              </div>
-
-              {/* VIDEO URL INPUT FIELD (Google Drive, YouTube, Vimeo, MP4, Loom) */}
-              <div className="p-3.5 bg-black/60 border border-[#d8ff38]/40 rounded-sm space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-[#d8ff38] uppercase font-extrabold text-[11px] flex items-center gap-1.5">
-                    <Video size={13} />
-                    <span>PROPER FORM VIDEO URL (GOOGLE DRIVE / YOUTUBE / VIMEO / MP4 / LOOM)</span>
-                  </label>
-                  {videoUrl && (
-                    <span className="text-[10px] text-green-400 font-bold flex items-center gap-1">
-                      <Check size={10} /> Valid link provided
-                    </span>
-                  )}
-                </div>
-                <input
-                  type="url"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  placeholder="https://drive.google.com/file/d/.../view or https://youtu.be/..."
-                  className="w-full bg-zinc-950 border border-zinc-700 p-2.5 text-white font-mono text-xs focus:border-[#d8ff38] outline-none"
-                />
-                <p className="text-[10px] text-zinc-400 leading-relaxed">
-                  Paste the URL of the proper form demo video. <strong>Google Drive links work seamlessly</strong> (make sure file sharing is set to <em>"Anyone with the link can view"</em>). Clients can play the video directly inside their workout plan.
-                </p>
               </div>
 
               {/* Category & Equipment */}
@@ -488,11 +485,11 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
 
       {/* Video Preview Modal for Admin QA */}
       {previewVideoExercise && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0e0e12] border border-white/20 max-w-2xl w-full p-6 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0e0e12] border border-white/20 max-w-3xl sm:max-w-4xl w-full p-6 space-y-4 shadow-2xl my-auto">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <span className="text-[10px] text-[#d8ff38] font-bold uppercase tracking-widest block">FORM DEMO PREVIEW</span>
+                <span className="text-[10px] text-[#d8ff38] font-bold uppercase tracking-widest block">FORM DEMO PREVIEW (16:9 WIDESCREEN)</span>
                 <h3 className="text-lg font-bold text-white uppercase">{previewVideoExercise.name}</h3>
               </div>
               <button
@@ -508,7 +505,9 @@ export const WorkoutsAndExercisesAdminView: React.FC = () => {
                 videoUrl={previewVideoExercise.videoUrl}
                 thumbnailUrl={previewVideoExercise.videoThumbnail}
                 exerciseName={previewVideoExercise.name}
+                aspectRatio="16/9"
                 autoPlay={true}
+                className="w-full shadow-2xl"
               />
 
               <div className="p-3 bg-zinc-900 border border-white/5 text-xs text-zinc-300 space-y-1">

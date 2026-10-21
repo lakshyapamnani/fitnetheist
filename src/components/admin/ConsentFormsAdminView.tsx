@@ -235,7 +235,7 @@ export const ConsentFormsAdminView: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Coach_Neetu_Fit_Consent_${(consent.clientName || 'Athlete').replace(/\s+/g, '_')}.html`;
+    a.download = `Coach_Neetu_Fit_Consent_${(consent.clientName || 'Client').replace(/\s+/g, '_')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -261,7 +261,7 @@ export const ConsentFormsAdminView: React.FC = () => {
             <span>Coaching Consent Forms & Agreements</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1 max-w-2xl font-sans">
-            Review digitally signed athlete agreements, health declarations, emergency contacts, strict no-refund acknowledgements, and download printable PDF contracts.
+            Review digitally signed client agreements, health declarations, emergency contacts, strict no-refund acknowledgements, and download printable PDF contracts.
           </p>
         </div>
 
@@ -385,7 +385,7 @@ export const ConsentFormsAdminView: React.FC = () => {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-white/10 bg-zinc-950/80 text-[10px] text-zinc-400 uppercase font-bold tracking-wider">
-                  <th className="p-3.5">Athlete / Client</th>
+                  <th className="p-3.5">Client</th>
                   <th className="p-3.5">Program & Fee</th>
                   <th className="p-3.5">Start Date</th>
                   <th className="p-3.5">Health Disclosures</th>
@@ -409,7 +409,7 @@ export const ConsentFormsAdminView: React.FC = () => {
 
                   return (
                     <tr key={consent.id} className="hover:bg-white/[0.02] transition-colors">
-                      {/* Athlete */}
+                      {/* Client */}
                       <td className="p-3.5">
                         <div className="font-bold text-white flex items-center gap-1.5">
                           <span>{consent.clientName}</span>
@@ -497,11 +497,11 @@ export const ConsentFormsAdminView: React.FC = () => {
 
                           <button
                             onClick={() => handlePrintPdf(consent)}
-                            className="px-2 py-1 bg-[#FFC515]/15 hover:bg-[#FFC515]/25 border border-[#FFC515]/30 text-[#FFC515] rounded text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                            title="Print / Save PDF"
+                            className="px-2.5 py-1 bg-[#FFC515] hover:bg-[#e6b010] text-black rounded text-[11px] font-black flex items-center gap-1 transition-colors cursor-pointer shadow-sm"
+                            title="Download official agreement as PDF / Print"
                           >
-                            <Printer size={12} />
-                            <span>PDF</span>
+                            <Download size={12} />
+                            <span>Download PDF</span>
                           </button>
 
                           <button
@@ -768,7 +768,7 @@ export const ConsentFormsAdminView: React.FC = () => {
                 className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold uppercase rounded flex items-center gap-1.5"
               >
                 <MessageCircle size={14} />
-                <span>Message Athlete on WhatsApp</span>
+                <span>Message Client on WhatsApp</span>
               </a>
 
               <div className="flex items-center gap-2">
@@ -781,10 +781,10 @@ export const ConsentFormsAdminView: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handlePrintPdf(activeModalConsent)}
-                  className="px-4 py-1.5 bg-[#FFC515] hover:bg-[#eab308] text-black font-extrabold uppercase rounded flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-1.5 bg-[#FFC515] hover:bg-[#eab308] text-black font-extrabold uppercase rounded flex items-center gap-1.5 cursor-pointer shadow-md"
                 >
-                  <Printer size={13} />
-                  <span>Print / Save as PDF</span>
+                  <Download size={13} />
+                  <span>Download as PDF</span>
                 </button>
               </div>
             </div>

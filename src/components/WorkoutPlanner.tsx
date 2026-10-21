@@ -127,7 +127,7 @@ export const WorkoutPlanner: React.FC = () => {
     });
     if (user?.email) {
       captureLead({
-        name: user.name || 'Athlete Visitor',
+        name: user.name || 'Client Visitor',
         email: user.email,
         phone: user.phone || '+91 98000 00000',
         source: 'WORKOUT_PLANNER',
@@ -263,7 +263,7 @@ export const WorkoutPlanner: React.FC = () => {
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold uppercase font-display text-white">
-                  {workoutPlan?.isPersonalized ? workoutPlan.name : 'Athlete Custom Protocol'}
+                  {workoutPlan?.isPersonalized ? workoutPlan.name : 'Client Custom Protocol'}
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono-num text-zinc-400 pt-0.5">
                   <span className="bg-zinc-900 px-2 py-0.5 rounded-[2px] border border-white/5 text-zinc-300">
@@ -921,12 +921,17 @@ export const WorkoutPlanner: React.FC = () => {
         {/* ========================================================================= */}
         {activeExerciseModal && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b0b0e] border border-white/10 rounded-[6px] max-w-2xl w-full p-5 sm:p-7 space-y-5 shadow-2xl relative my-auto">
+            <div className="bg-[#0b0b0e] border border-white/10 rounded-[6px] max-w-3xl sm:max-w-4xl w-full p-5 sm:p-7 space-y-5 shadow-2xl relative my-auto">
               
               {/* Top Header: Exercise Name & Subtitle */}
               <div className="flex items-start justify-between border-b border-white/10 pb-4">
                 <div className="space-y-0.5">
-                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white tracking-tight">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono-num font-bold text-[#d8ff38] uppercase tracking-wider px-2 py-0.5 bg-[#d8ff38]/10 border border-[#d8ff38]/30 rounded-[2px]">
+                      16:9 FORM DEMONSTRATION
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold uppercase font-display text-white tracking-tight mt-1">
                     {activeExerciseModal.name}
                   </h3>
                   <p className="text-xs font-mono-num text-zinc-400">
@@ -943,15 +948,15 @@ export const WorkoutPlanner: React.FC = () => {
                 </button>
               </div>
 
-              {/* 9:16 Clean Responsive Vertical Video Player */}
+              {/* 16:9 Clean Responsive Widescreen Video Player */}
               <div className="w-full flex justify-center py-1">
                 <ExerciseVideoPlayer
                   videoUrl={activeExerciseModal.videoUrl}
                   thumbnailUrl={activeExerciseModal.videoThumbnail}
                   exerciseName={activeExerciseModal.name}
-                  aspectRatio="9/16"
+                  aspectRatio="16/9"
                   autoPlay={false}
-                  className="rounded-[6px]"
+                  className="rounded-[6px] shadow-2xl w-full"
                 />
               </div>
 

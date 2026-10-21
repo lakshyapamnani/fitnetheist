@@ -113,7 +113,7 @@ export const ClientMeProfileView: React.FC = () => {
                   {user.name}
                 </h1>
                 <span className="px-2 py-0.5 bg-[#18181C] text-[#FFC515] text-[10px] font-mono-num rounded border border-[#2A2A30]">
-                  ACTIVE ATHLETE
+                  ACTIVE CLIENT
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-[#9A9A9A] font-mono-num mt-0.5">

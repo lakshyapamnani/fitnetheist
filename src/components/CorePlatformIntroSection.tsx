@@ -363,7 +363,7 @@ export const CorePlatformIntroSection: React.FC = () => {
               </div>
 
               <div className="text-[11px] font-mono-num text-white/50 pt-6 border-t border-white/10 flex justify-between">
-                <span>TELEMETRY: ATHLETE COMMAND CENTER</span>
+                <span>TELEMETRY: CLIENT COMMAND CENTER</span>
                 <span className="text-[#FFC515] font-bold">ZERO GUESSWORK</span>
               </div>
             </div>

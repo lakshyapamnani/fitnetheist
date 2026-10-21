@@ -126,7 +126,7 @@ export const AuthModal: React.FC = () => {
       setAuthError('Please enter your mobile/phone number.');
       return;
     }
-    // If pending athlete details exist, proceed directly to complete signup!
+    // If pending client details exist, proceed directly to complete signup!
     if (pendingAthleteDetails?.userMetrics) {
       handleCompleteSignup(e);
     } else {
@@ -166,7 +166,7 @@ export const AuthModal: React.FC = () => {
       );
       closeAuthModal();
     } catch (err: any) {
-      setAuthError(err?.message || 'Failed to initialize athlete profile.');
+      setAuthError(err?.message || 'Failed to initialize profile.');
     } finally {
       setLoading(false);
     }
@@ -180,7 +180,7 @@ export const AuthModal: React.FC = () => {
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div>
             <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#d8ff38] font-bold block">
-              ATHLETE SECURITY & CLOUD SYNC
+              ACCOUNT SECURITY & CLOUD SYNC
             </span>
             <h3 className="text-xl font-bold uppercase font-display text-white mt-0.5 tracking-wide">
               {mode === 'login' ? 'SIGN IN TO PROFILE' : step === 'credentials' ? 'SAVE & SYNC BLUEPRINT' : 'BIOMETRIC INITIALIZATION'}
@@ -289,7 +289,7 @@ export const AuthModal: React.FC = () => {
           ) : (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[10px] text-zinc-400 font-mono-num px-0.5">
-                <span>GOOGLE ATHLETE SIGN-IN</span>
+                <span>GOOGLE SIGN-IN</span>
                 <span className="text-[#FFC515] font-bold">● MOBILE NUMBER COMPULSORY</span>
               </div>
               <button
@@ -388,7 +388,7 @@ export const AuthModal: React.FC = () => {
         {mode === 'signup' && step === 'credentials' && (
           <form onSubmit={handleSignupFirstStep} className="space-y-4 font-mono-num text-xs">
             <div>
-              <label className="block text-white/70 uppercase mb-1">FULL ATHLETE NAME *</label>
+              <label className="block text-white/70 uppercase mb-1">FULL NAME *</label>
               <input
                 type="text"
                 required
@@ -421,7 +421,7 @@ export const AuthModal: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="athlete@fitnetheist.com"
+                placeholder="user@fitnetheist.com"
                 className="w-full bg-[#14141a] border border-white/15 px-3 py-2.5 text-white focus:border-[#d8ff38] focus:outline-none transition-colors"
               />
             </div>

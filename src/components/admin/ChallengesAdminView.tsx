@@ -80,7 +80,7 @@ export const ChallengesAdminView: React.FC = () => {
           'Daily progress telemetry & streak validation',
           'Periodized training matrix & video form guides',
           'Smart macro swap engine access',
-          'Private athlete cohort leaderboard'
+          'Private member cohort leaderboard'
         ],
         accountabilityRules: [
           'Log training session within 24 hours of completion',
@@ -169,8 +169,8 @@ export const ChallengesAdminView: React.FC = () => {
                   <span className="text-white font-bold">{ch.durationDays} Days</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-400 uppercase">ENROLLED ATHLETES</span>
-                  <span className="text-white font-bold">{(ch.enrolledCount || 0).toLocaleString()} athletes</span>
+                  <span className="text-zinc-400 uppercase">ENROLLED MEMBERS</span>
+                  <span className="text-white font-bold">{(ch.enrolledCount || 0).toLocaleString()} members</span>
                 </div>
               </div>
             </div>

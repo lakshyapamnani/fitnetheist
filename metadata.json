@@ -1,6 +1,6 @@
 {
   "name": "FITNETHEIST",
-  "description": "FITNETHEIST – BE THE ONE By Coach Neetu. Minimal, premium, personal coaching, transparent rate cards, and scientific fitness tools.",
+  "description": "FITNETHEIST by Coach Neetu – Best coach for fitness and fitness after pregnancy. 1-on-1 personalized workouts, postpartum recovery, and custom nutrition.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
