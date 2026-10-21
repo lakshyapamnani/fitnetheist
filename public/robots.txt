@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/sitemap.xml
+Sitemap: https://www.fitnetheist.com/sitemap.xml

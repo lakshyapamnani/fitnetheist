@@ -173,9 +173,10 @@ const getTabFromLocation = (): string => {
 
   const candidate = tabParam || path || hash;
   if (candidate) {
-    if (['admin', 'dashboard', 'tools', 'calculate', 'nutrition', 'train', 'challenges', 'transform', 'community', 'coach', 'pricing', 'plan', 'progress', 'me', 'results'].includes(candidate)) {
-      if (candidate === 'results') return 'progress';
+    if (['admin', 'dashboard', 'tools', 'calculate', 'nutrition', 'train', 'challenges', 'transform', 'transformations', 'community', 'coach', 'pricing', 'plan', 'progress', 'me', 'results', 'policy', 'consent', 'terms'].includes(candidate)) {
+      if (candidate === 'results' || candidate === 'transformations') return 'progress';
       if (candidate === 'dashboard') return 'me';
+      if (candidate === 'consent' || candidate === 'terms') return 'policy';
       return candidate;
     }
   }

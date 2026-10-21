@@ -27,9 +27,8 @@ async function startServer() {
 
   // Dynamic Sitemap.xml
   app.get('/sitemap.xml', (req: Request, res: Response) => {
-    const proto = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'http');
-    const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || 'ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app';
-    const baseUrl = `${proto}://${host}`;
+    // Canonical domain for Google Search Console is https://www.fitnetheist.com
+    const baseUrl = 'https://www.fitnetheist.com';
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -40,37 +39,37 @@ async function startServer() {
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${baseUrl}/#rate-cards-section</loc>
+    <loc>${baseUrl}/pricing</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${baseUrl}/#fitness-tools</loc>
+    <loc>${baseUrl}/tools</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${baseUrl}/#coach-story-section</loc>
+    <loc>${baseUrl}/coach</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/#coaching-philosophy-section</loc>
-    <lastmod>2026-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/#transformations-section</loc>
+    <loc>${baseUrl}/transformations</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/#policy</loc>
+    <loc>${baseUrl}/challenges</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/policy</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -82,10 +81,8 @@ async function startServer() {
   });
 
   // Robots.txt
-  app.get('/robots.txt', (req: Request, res: Response) => {
-    const proto = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'http');
-    const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || 'ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app';
-    const baseUrl = `${proto}://${host}`;
+  app.get('/robots.txt', (_req: Request, res: Response) => {
+    const baseUrl = 'https://www.fitnetheist.com';
 
     const robots = `User-agent: *
 Allow: /

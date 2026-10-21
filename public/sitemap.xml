@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Homepage: Fitness, Fitness After Pregnancy, Best Coach Neetu -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage: Best Coach for Fitness & Fitness After Pregnancy by Coach Neetu -->
   <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/</loc>
+    <loc>https://www.fitnetheist.com/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -13,15 +10,15 @@
 
   <!-- Rate Cards & Official Coaching Plans (3, 6, 9, 12 Months) -->
   <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#rate-cards-section</loc>
+    <loc>https://www.fitnetheist.com/pricing</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Fitness Tools: Calorie Calculator, Diet Generator & Strength Benchmarks -->
+  <!-- Interactive Fitness Tools: Calorie Calculator & Macro Planner -->
   <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#fitness-tools</loc>
+    <loc>https://www.fitnetheist.com/tools</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -29,31 +26,31 @@
 
   <!-- Coach Neetu Story & Fitness After Pregnancy Specialization -->
   <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#coach-story-section</loc>
+    <loc>https://www.fitnetheist.com/coach</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Coaching Philosophy & Tailored Nutrition Protocols -->
+  <!-- Real Client Transformations & Social Proof -->
   <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#coaching-philosophy-section</loc>
-    <lastmod>2026-10-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Verified Client Transformations & Social Proof -->
-  <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#transformations-section</loc>
+    <loc>https://www.fitnetheist.com/transformations</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Coaching Consent Agreement & Pause/Refund Policies -->
+  <!-- Coaching Challenges & Community Cohorts -->
   <url>
-    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#policy</loc>
+    <loc>https://www.fitnetheist.com/challenges</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Official Coaching Consent Agreement & Pause/Refund Policies -->
+  <url>
+    <loc>https://www.fitnetheist.com/policy</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
