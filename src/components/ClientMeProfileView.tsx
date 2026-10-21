@@ -29,7 +29,7 @@ import {
 } from '../types';
 
 export const ClientMeProfileView: React.FC = () => {
-  const { user, saveUserProfile, setActiveTab } = useApp();
+  const { user, saveUserProfile, setActiveTab, openAuthModal } = useApp();
   
   // Section currently being edited: null | 'PERSONAL' | 'GOALS' | 'NUTRITION' | 'TRAINING' | 'HEALTH' | 'LIFESTYLE'
   const [editingSection, setEditingSection] = useState<string | null>(null);
@@ -38,7 +38,39 @@ export const ClientMeProfileView: React.FC = () => {
   // Form state buffer for the active edit modal
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <div className="bg-[#0E0E10] border border-[#242424] rounded-xl p-8 sm:p-12 space-y-6">
+          <div className="w-14 h-14 mx-auto bg-[#FFC515]/10 border border-[#FFC515]/30 rounded-full flex items-center justify-center text-[#FFC515]">
+            <User size={26} />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold uppercase font-display text-white">
+              CLIENT PROFILE & BIOMETRICS
+            </h2>
+            <p className="text-sm text-zinc-400 font-mono-num max-w-md mx-auto">
+              Sign in or create your client account to access your personalized biometrics, custom nutrition targets, and Coach Neetu's training blueprint.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => openAuthModal('signup', 'Create your profile to save your biometrics and personalized targets.')}
+              className="px-6 py-3 bg-[#FFC515] hover:bg-[#e6b010] text-black font-extrabold font-mono-num text-xs uppercase tracking-wider rounded transition-colors cursor-pointer"
+            >
+              CREATE CLIENT ACCOUNT
+            </button>
+            <button
+              onClick={() => openAuthModal('login')}
+              className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 border border-white/15 text-white font-bold font-mono-num text-xs uppercase tracking-wider rounded transition-colors cursor-pointer"
+            >
+              SIGN IN
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const completeness = calculateProfileCompleteness(user);
 

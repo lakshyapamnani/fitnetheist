@@ -37,6 +37,7 @@ export const AuthModal: React.FC = () => {
   const [dietType, setDietType] = useState<DietType>('NON-VEGETARIAN');
   const [cuisine, setCuisine] = useState<CuisineType>('INDIAN_INTERNATIONAL');
   const [goal, setGoal] = useState<FitnessGoal>('BUILD_MUSCLE');
+  const [isGooglePhonePrompt, setIsGooglePhonePrompt] = useState(false);
 
   // Synchronize initial mode and metrics whenever modal opens
   useEffect(() => {
@@ -44,6 +45,7 @@ export const AuthModal: React.FC = () => {
       setMode(authModalMode === 'signup' ? 'signup' : 'login');
       setStep('credentials');
       setAuthError(null);
+      setIsGooglePhonePrompt(false);
 
       // Auto-populate from pending metrics if available
       if (pendingAthleteDetails?.userMetrics) {
@@ -59,8 +61,6 @@ export const AuthModal: React.FC = () => {
   }, [isAuthModalOpen, authModalMode, pendingAthleteDetails]);
 
   if (!isAuthModalOpen) return null;
-
-  const [isGooglePhonePrompt, setIsGooglePhonePrompt] = useState(false);
 
   const handleGoogleSignIn = async () => {
     // Compulsory check: Mobile phone must be provided and valid (at least 8 digits)
