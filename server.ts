@@ -25,6 +25,79 @@ async function startServer() {
     res.send('google-site-verification: google7f0e06c043119c9b.html');
   });
 
+  // Dynamic Sitemap.xml
+  app.get('/sitemap.xml', (req: Request, res: Response) => {
+    const proto = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'http');
+    const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || 'ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app';
+    const baseUrl = `${proto}://${host}`;
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#rate-cards-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#fitness-tools</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#coach-story-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#coaching-philosophy-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#transformations-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/#policy</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>`;
+
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.send(xml);
+  });
+
+  // Robots.txt
+  app.get('/robots.txt', (req: Request, res: Response) => {
+    const proto = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'http');
+    const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || 'ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app';
+    const baseUrl = `${proto}://${host}`;
+
+    const robots = `User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: ${baseUrl}/sitemap.xml
+`;
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send(robots);
+  });
+
   // Diet Generator Endpoint
   app.post('/api/diet/generate', (req: Request, res: Response) => {
     try {

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Homepage: Fitness, Fitness After Pregnancy, Best Coach Neetu -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Rate Cards & Official Coaching Plans (3, 6, 9, 12 Months) -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#rate-cards-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Fitness Tools: Calorie Calculator, Diet Generator & Strength Benchmarks -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#fitness-tools</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Coach Neetu Story & Fitness After Pregnancy Specialization -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#coach-story-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Coaching Philosophy & Tailored Nutrition Protocols -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#coaching-philosophy-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Verified Client Transformations & Social Proof -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#transformations-section</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Coaching Consent Agreement & Pause/Refund Policies -->
+  <url>
+    <loc>https://ais-pre-5nfynw3savatffj5y7xfla-438395462370.asia-east1.run.app/#policy</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>
