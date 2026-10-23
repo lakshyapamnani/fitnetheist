@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAdmin } from '../context/AdminContext';
 import { Menu, X, ArrowRight, Shield } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { user, activeTab, setActiveTab, openAuthModal, logoutUser, openCalorieModal } = useApp();
+  const { isAdminAuthenticated } = useAdmin();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Regular users must not see or access the Admin portal button
+  const showAdminAccess = !user || isAdminAuthenticated;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,9 +42,9 @@ export const Navbar: React.FC = () => {
 
   const navItems = [
     { id: 'home', label: 'HOME', tabName: 'home' },
-    { id: 'plan', label: 'PLAN', tabName: 'plan' },
+    { id: 'plan', label: 'MY PLAN', tabName: 'plan' },
     { id: 'progress', label: 'PROGRESS', tabName: 'progress' },
-    { id: 'me', label: 'ME', tabName: 'me' },
+    { id: 'me', label: 'PROFILE', tabName: 'me' },
   ];
 
   return (
@@ -65,7 +70,7 @@ export const Navbar: React.FC = () => {
           <span className="h-1.5 w-1.5 bg-[#FFC515] rounded-full inline-block"></span>
         </button>
 
-        {/* Desktop Navigation Links: HOME, PLAN, PROGRESS, ME */}
+        {/* Desktop Navigation Links: HOME, MY PLAN, PROGRESS, PROFILE */}
         <nav id="desktop-navigation-links" className="hidden lg:flex items-center gap-8">
           {navItems.map((item) => {
             const isActive = activeTab === item.tabName || (item.id === 'plan' && ['tools', 'calculate', 'nutrition', 'train'].includes(activeTab));
@@ -107,22 +112,23 @@ export const Navbar: React.FC = () => {
           </button>
         </nav>
 
-        {/* Right CTA Actions: ADMIN, CONNECT, LOGIN, START NOW */}
+        {/* Right CTA Actions */}
         <div id="nav-right-actions" className="hidden lg:flex items-center gap-3">
-          
-          <button
-            id="nav-admin-portal-button"
-            onClick={() => { setActiveTab('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            title="Admin Portal"
-            className={`text-xs font-mono-num font-semibold tracking-wider flex items-center gap-1 px-2.5 py-1.5 border uppercase transition-colors ${
-              activeTab === 'admin'
-                ? 'bg-[#FFC515] text-black border-[#FFC515]'
-                : 'text-white/60 hover:text-[#FFC515] border-white/10 hover:border-[#FFC515]/40 bg-[#101014]'
-            }`}
-          >
-            <Shield size={13} className={activeTab === 'admin' ? 'text-black' : 'text-[#FFC515]'} />
-            <span>ADMIN</span>
-          </button>
+          {showAdminAccess && (
+            <button
+              id="nav-admin-portal-button"
+              onClick={() => { setActiveTab('admin'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              title="Admin Portal"
+              className={`text-xs font-mono-num font-semibold tracking-wider flex items-center gap-1 px-2.5 py-1.5 border uppercase transition-colors ${
+                activeTab === 'admin'
+                  ? 'bg-[#FFC515] text-black border-[#FFC515]'
+                  : 'text-white/60 hover:text-[#FFC515] border-white/10 hover:border-[#FFC515]/40 bg-[#101014]'
+              }`}
+            >
+              <Shield size={13} className={activeTab === 'admin' ? 'text-black' : 'text-[#FFC515]'} />
+              <span>ADMIN</span>
+            </button>
+          )}
 
           <button
             id="nav-connect-button"
@@ -136,14 +142,14 @@ export const Navbar: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 id="nav-dashboard-button"
-                onClick={() => setActiveTab('dashboard')}
+                onClick={() => setActiveTab('plan')}
                 className={`px-3 py-1.5 text-xs font-mono-num font-semibold tracking-wider uppercase border transition-all ${
-                  activeTab === 'dashboard'
+                  activeTab === 'plan' || activeTab === 'me' || activeTab === 'dashboard'
                     ? 'bg-white text-black border-white'
                     : 'text-white border-white/20 hover:border-white/50 bg-[#101014]'
                 }`}
               >
-                PROFILE ({user.streakDays}D)
+                MY DASHBOARD ({user.name.split(' ')[0]})
               </button>
               
               <button
@@ -172,12 +178,12 @@ export const Navbar: React.FC = () => {
               if (!user) {
                 openCalorieModal();
               } else {
-                handleNavClick('rate-cards-section');
+                setActiveTab('plan');
               }
             }}
             className="px-4 py-2 text-xs font-mono-num font-extrabold tracking-wider text-black bg-[#d8ff38] hover:bg-[#c9f028] transition-colors uppercase shadow-[0_0_15px_rgba(216,255,56,0.25)]"
           >
-            START NOW
+            {user ? 'MY PROTOCOL' : 'START NOW'}
           </button>
         </div>
 
@@ -188,12 +194,12 @@ export const Navbar: React.FC = () => {
               if (!user) {
                 openCalorieModal();
               } else {
-                handleNavClick('rate-cards-section');
+                setActiveTab('plan');
               }
             }}
             className="px-3 py-1.5 text-[11px] font-mono-num font-extrabold text-black bg-[#d8ff38] uppercase"
           >
-            START NOW
+            {user ? 'MY PLAN' : 'START NOW'}
           </button>
           <button
             id="mobile-hamburger-button"
@@ -250,13 +256,15 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-white/10 space-y-2">
-            <button
-              onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="w-full py-2.5 px-4 border border-[#FFC515]/40 bg-[#FFC515]/10 text-[#FFC515] font-mono-num text-xs uppercase font-bold flex items-center justify-center gap-2"
-            >
-              <Shield size={14} className="text-[#FFC515]" />
-              <span>ADMIN PORTAL</span>
-            </button>
+            {showAdminAccess && (
+              <button
+                onClick={() => { setActiveTab('admin'); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="w-full py-2.5 px-4 border border-[#FFC515]/40 bg-[#FFC515]/10 text-[#FFC515] font-mono-num text-xs uppercase font-bold flex items-center justify-center gap-2"
+              >
+                <Shield size={14} className="text-[#FFC515]" />
+                <span>ADMIN PORTAL</span>
+              </button>
+            )}
 
             <button
               onClick={() => handleNavClick('connect-with-us-section')}
@@ -266,12 +274,20 @@ export const Navbar: React.FC = () => {
             </button>
             
             {user ? (
-              <button
-                onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
-                className="w-full py-3 bg-white text-black font-mono-num text-xs uppercase font-bold"
-              >
-                DASHBOARD ({user.name})
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => { setActiveTab('plan'); setIsMobileMenuOpen(false); }}
+                  className="w-full py-3 bg-white text-black font-mono-num text-xs uppercase font-bold"
+                >
+                  MY DASHBOARD ({user.name})
+                </button>
+                <button
+                  onClick={() => { logoutUser(); setIsMobileMenuOpen(false); }}
+                  className="w-full py-2.5 border border-white/15 text-white/70 font-mono-num text-xs uppercase"
+                >
+                  LOGOUT
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => { openAuthModal('login'); setIsMobileMenuOpen(false); }}

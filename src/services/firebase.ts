@@ -138,12 +138,8 @@ export const initFirebase = () => {
       console.warn('Realtime Database init notice:', e);
     }
 
-    // Initialize Firestore for dual-persistence support
-    try {
-      firestore = getFirestore(app);
-    } catch (e) {
-      console.warn('Firestore init notice:', e);
-    }
+    // Project fitnetheist-b553b uses Firebase Realtime Database (RTDB) exclusively
+    firestore = null;
 
     return { isConfigured: true, app, auth, db, firestore };
   } catch (err) {
@@ -160,6 +156,17 @@ db = initialized.db;
 firestore = initialized.firestore;
 
 export { app, auth, db, firestore };
+
+/**
+ * Helper to strip undefined values which Firebase Realtime Database rejects
+ */
+const cleanFirebasePayload = <T>(obj: T): T => {
+  try {
+    return JSON.parse(JSON.stringify(obj));
+  } catch {
+    return obj;
+  }
+};
 
 /**
  * Authentication methods with Google OAuth & Email/Password
@@ -212,10 +219,10 @@ export const onAuthChange = (callback: (user: FirebaseUser | null) => void) => {
  * Realtime Database & Firestore Synchronization
  */
 export const syncUserDataToRealtimeDb = async (userId: string, data: Record<string, any>) => {
-  const payload = {
+  const payload = cleanFirebasePayload({
     ...data,
     lastUpdatedAt: new Date().toISOString()
-  };
+  });
 
   // 1. Try Realtime Database
   if (db) {
@@ -335,10 +342,10 @@ export const listenToRealtimeAthletes = (callback: (athletes: any[]) => void) =>
 export const saveLeadToRealtimeDb = async (lead: Record<string, any>) => {
   if (!lead || !lead.id) return;
 
-  const payload = {
+  const payload = cleanFirebasePayload({
     ...lead,
     lastSyncedAt: new Date().toISOString()
-  };
+  });
 
   // 1. Push / set into Realtime Database
   if (db) {
@@ -413,10 +420,10 @@ export const listenToRealtimeLeads = (callback: (leads: any[]) => void) => {
 export const saveCustomerToRealtimeDb = async (customer: Record<string, any>) => {
   if (!customer || !customer.id) return;
 
-  const payload = {
+  const payload = cleanFirebasePayload({
     ...customer,
     lastSyncedAt: new Date().toISOString()
-  };
+  });
 
   if (db) {
     try {
@@ -471,15 +478,15 @@ export const listenToRealtimeCustomers = (callback: (customers: any[]) => void) 
 };
 
 /**
- * Realtime Database Diet Plans Synchronization
+ * Realtime Database Diet Plans & Daily Calorie Tracking Synchronization
  */
 export const saveDietPlanToRealtimeDb = async (userId: string, dietPlan: Record<string, any>) => {
   if (!dietPlan) return;
-  const payload = {
+  const payload = cleanFirebasePayload({
     ...dietPlan,
     userId: userId || 'anonymous',
     generatedAt: new Date().toISOString()
-  };
+  });
 
   if (db) {
     try {
@@ -512,16 +519,102 @@ export const getDietPlanFromRealtimeDb = async (userId: string) => {
   return null;
 };
 
+export const saveCustomDietPlanToRealtimeDb = async (dietPlan: Record<string, any>) => {
+  if (!dietPlan || !dietPlan.id) return;
+  const payload = cleanFirebasePayload({
+    ...dietPlan,
+    lastSyncedAt: new Date().toISOString()
+  });
+  if (db) {
+    try {
+      const dRef = ref(db, `customDietPlans/${dietPlan.id}`);
+      await set(dRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database custom diet plan sync notice:', err);
+    }
+  }
+};
+
+export const deleteCustomDietPlanFromRealtimeDb = async (dietPlanId: string) => {
+  if (!dietPlanId) return;
+  if (db) {
+    try {
+      const dRef = ref(db, `customDietPlans/${dietPlanId}`);
+      await remove(dRef);
+    } catch (err) {
+      console.warn('Realtime Database custom diet plan deletion notice:', err);
+    }
+  }
+};
+
+export const listenToRealtimeCustomDietPlans = (callback: (dietPlans: any[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const dRef = ref(db, 'customDietPlans');
+    const unsubscribe = onValue(dRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map(key => ({ ...val[key], id: val[key].id || key }));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+export const saveDailyDietTrackingToRealtimeDb = async (clientId: string, dateStr: string, record: Record<string, any>) => {
+  if (!clientId || !dateStr || !record) return;
+  const payload = cleanFirebasePayload({
+    ...record,
+    clientId,
+    date: dateStr,
+    updatedAt: new Date().toISOString()
+  });
+  if (db) {
+    try {
+      const trackRef = ref(db, `dailyDietTracking/${clientId}/${dateStr}`);
+      await set(trackRef, payload);
+    } catch (err) {
+      console.warn('Realtime Database daily diet tracking sync notice:', err);
+    }
+  }
+};
+
+export const listenToDailyDietTracking = (callback: (recordsByClient: Record<string, Record<string, any>>) => void) => {
+  if (!db) return () => {};
+  try {
+    const trackRef = ref(db, 'dailyDietTracking');
+    const unsubscribe = onValue(trackRef, (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.val() || {});
+      } else {
+        callback({});
+      }
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
 /**
  * Realtime Database Workout Plans Synchronization
  */
 export const saveWorkoutPlanToRealtimeDb = async (userId: string, workoutPlan: Record<string, any>) => {
   if (!workoutPlan) return;
-  const payload = {
+  const payload = cleanFirebasePayload({
     ...workoutPlan,
     userId: userId || 'anonymous',
     generatedAt: new Date().toISOString()
-  };
+  });
 
   if (db) {
     try {
@@ -1005,10 +1098,10 @@ export interface CoachingConsentRecord {
 
 export const saveConsentFormToRealtimeDb = async (consent: CoachingConsentRecord) => {
   if (!consent || !consent.id) return;
-  const payload = {
+  const payload = cleanFirebasePayload({
     ...consent,
     lastSyncedAt: new Date().toISOString()
-  };
+  });
 
   // 1. Push to Firebase Realtime Database
   if (db) {

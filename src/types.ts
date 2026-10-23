@@ -50,11 +50,93 @@ export interface UserProfile {
   equipmentAvailable?: EquipmentType;
   sessionDurationMinutes?: number;
   assignedWorkoutPlan?: WorkoutPlan;
+  assignedDietPlan?: AdminDietPlan;
+  packageName?: string;
+  packageCategory?: string;
+  subscriptionStartDate?: string;
+  subscriptionEndDate?: string;
   
   // Lifestyle
   dailyStepGoal?: number;
   sleepHoursTarget?: number;
   allergiesIntolerances?: string[];
+}
+
+export interface AdminDietFoodItem {
+  id: string;
+  foodId?: string;
+  name: string;
+  serving: string; // e.g., "150g cooked" or "2 rotis + 100g paneer"
+  servingUnit?: string;
+  quantity: number;
+  calories: number;
+  protein: number;
+  proteinGrams?: number;
+  carbs: number;
+  carbsGrams?: number;
+  fat: number;
+  fatGrams?: number;
+}
+
+export interface AdminDietMeal {
+  id: string;
+  name: string; // e.g., "Breakfast", "Mid-Morning Snack", "Lunch", "Evening Pre-Workout", "Dinner"
+  category: MealCategory;
+  scheduledTime: string; // e.g., "08:00 AM"
+  time?: string;
+  items: AdminDietFoodItem[];
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+  notes?: string;
+}
+
+export interface AdminDietPlan {
+  id: string;
+  name: string;
+  description: string;
+  targetDailyCalories: number;
+  targetCalories?: number;
+  totalDailyCalories: number;
+  totalPlannedCalories?: number;
+  totalDailyProtein: number;
+  totalProteinGrams?: number;
+  totalDailyCarbs: number;
+  totalCarbsGrams?: number;
+  totalDailyFat: number;
+  totalFatGrams?: number;
+  dietType: DietType;
+  meals: AdminDietMeal[];
+  createdAt: string;
+  updatedAt: string;
+  isTemplate?: boolean;
+  assignedClientId?: string;
+  assignedClientName?: string;
+  assignedClientEmail?: string;
+  assignedAt?: string;
+  coachNotes?: string;
+  applicableDays?: string[]; // e.g. ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  mealsCount?: number; // 3 or 4
+  weeklySchedule?: Record<string, AdminDietMeal[]>; // Distinct meals for each day (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+}
+
+export interface DailyDietTrackingRecord {
+  id: string; // `${clientId}_${YYYY-MM-DD}`
+  clientId: string;
+  clientEmail?: string;
+  date: string; // YYYY-MM-DD in local timezone
+  dietPlanId: string;
+  dietPlanName: string;
+  targetCalories: number;
+  plannedCalories: number;
+  checkedItemIds: string[]; // Deduplicated list of checked AdminDietFoodItem IDs
+  consumedCalories: number;
+  consumedProtein: number;
+  consumedCarbs: number;
+  consumedFat: number;
+  remainingCalories: number;
+  updatedAt: string;
 }
 
 export interface CalorieResult {

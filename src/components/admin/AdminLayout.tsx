@@ -75,7 +75,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const isAllowed = (subtab: AdminSubtab): boolean => {
     if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') return true;
     if (currentRole === 'COACH') {
-      return ['clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'workouts', 'exercises'].includes(subtab);
+      return ['clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'diets', 'foods', 'workouts', 'exercises'].includes(subtab);
     }
     if (currentRole === 'CONTENT_MANAGER') {
       return ['cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
@@ -114,7 +114,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         { 
           id: 'clients' as AdminSubtab, 
           label: 'Clients', 
-          desc: 'Clients, Intake & Profiles',
+          desc: 'Packages, Subscriptions & Reports',
           icon: UserCheck, 
           badge: `${customers?.length || 0}` 
         },
@@ -131,6 +131,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           desc: 'Categories & Client Assignment',
           icon: Dumbbell, 
           badge: 'Personalize' 
+        },
+        { 
+          id: 'diets' as AdminSubtab, 
+          label: 'Diet', 
+          desc: 'Custom Meal Plans & Client Assignment',
+          icon: Utensils, 
+          badge: 'Calories' 
         },
         { 
           id: 'invoices' as AdminSubtab, 
@@ -175,6 +182,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               <Dumbbell size={12} />
               <span>Exercise Bank</span>
+            </button>
+
+            {/* Quick Diet Management Direct Shortcut */}
+            <button
+              onClick={() => setActiveSubtab('diets')}
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono-num font-bold uppercase transition-all border ${
+                activeSubtab === 'diets'
+                  ? 'bg-[#FFC515] text-black border-[#FFC515]'
+                  : 'bg-[#14141a] text-[#d8ff38] border-[#d8ff38]/40 hover:bg-[#d8ff38]/10'
+              }`}
+            >
+              <Utensils size={12} />
+              <span>Diet</span>
             </button>
           </div>
         </div>

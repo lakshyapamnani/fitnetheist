@@ -1,47 +1,44 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { LeadStatus, LeadSource } from '../../types/admin';
+import { Lead, LeadStatus, LeadSource, PACKAGE_CATALOG, findPackageOption } from '../../types/admin';
+import { ClientIntakeModal } from './ClientIntakeModal';
 import { 
   Users, 
   Search, 
-  Filter, 
   Download, 
   Plus, 
   Flame, 
   Phone, 
   Mail, 
-  Calendar, 
-  Tag as TagIcon, 
   ChevronRight, 
-  MoreVertical,
   CheckCircle2,
-  Clock,
-  IndianRupee,
-  Sparkles,
   Zap,
   MessageSquare,
   Database,
-  ExternalLink,
-  UserCheck
+  Edit3,
+  Package,
+  X
 } from 'lucide-react';
 
 export const LeadManagementView: React.FC = () => {
   const { 
     leads, 
+    updateLead,
     updateLeadStatus, 
-    assignLead, 
     setSelectedLeadId, 
     setSelectedCustomerId,
     setActiveSubtab, 
-    captureLead,
-    convertLeadToCustomer
+    captureLead
   } = useAdmin();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('ALL');
   const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('ALL');
   const [selectedScoreFilter, setSelectedScoreFilter] = useState<string>('ALL');
+  const [selectedPackageFilter, setSelectedPackageFilter] = useState<string>('ALL');
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [leadToConvertModal, setLeadToConvertModal] = useState<Lead | null>(null);
   const [justConvertedLeadId, setJustConvertedLeadId] = useState<string | null>(null);
 
   // Form state for creating a new manual lead
@@ -49,28 +46,40 @@ export const LeadManagementView: React.FC = () => {
   const [newLeadEmail, setNewLeadEmail] = useState('');
   const [newLeadPhone, setNewLeadPhone] = useState('');
   const [newLeadSource, setNewLeadSource] = useState<LeadSource>('MANUAL_ENTRY');
-  const [newLeadChallenge, setNewLeadChallenge] = useState('21 Day Ignite');
+  const [newLeadPackage, setNewLeadPackage] = useState<string>(PACKAGE_CATALOG[0].name);
+  const [newLeadGoal, setNewLeadGoal] = useState<'LOSE_WEIGHT' | 'BUILD_MUSCLE' | 'STRENGTH' | 'EVERYDAY_HEALTH'>('LOSE_WEIGHT');
   const [newLeadNote, setNewLeadNote] = useState('');
 
-  // Filtering
+  // Form state for editing an existing lead
+  const [editLeadName, setEditLeadName] = useState('');
+  const [editLeadEmail, setEditLeadEmail] = useState('');
+  const [editLeadPhone, setEditLeadPhone] = useState('');
+  const [editLeadSource, setEditLeadSource] = useState<LeadSource>('MANUAL_ENTRY');
+  const [editLeadPackage, setEditLeadPackage] = useState<string>(PACKAGE_CATALOG[0].name);
+  const [editLeadGoal, setEditLeadGoal] = useState<string>('LOSE_WEIGHT');
+  const [editLeadEstimatedValue, setEditLeadEstimatedValue] = useState<number>(8500);
+
   const safeLeads = Array.isArray(leads) ? leads : [];
 
   const filteredLeads = safeLeads.filter(lead => {
     if (!lead) return false;
     const term = (searchTerm || '').toLowerCase();
+    const leadPkg = lead.packageName || lead.challengeInterest || '';
     const nameMatch = (lead.name || '').toLowerCase().includes(term);
     const emailMatch = (lead.email || '').toLowerCase().includes(term);
     const phoneMatch = (lead.phone || '').includes(searchTerm);
+    const pkgMatch = leadPkg.toLowerCase().includes(term);
     const notesMatch = Array.isArray(lead.notes) && lead.notes.some(n => 
       ((n.content || (n as any).text || '')).toLowerCase().includes(term)
     );
 
-    const matchesSearch = !term || nameMatch || emailMatch || phoneMatch || notesMatch;
+    const matchesSearch = !term || nameMatch || emailMatch || phoneMatch || pkgMatch || notesMatch;
     const matchesStatus = selectedStatusFilter === 'ALL' || lead.status === selectedStatusFilter;
     const matchesSource = selectedSourceFilter === 'ALL' || lead.source === selectedSourceFilter;
     const matchesScore = selectedScoreFilter === 'ALL' || lead.scoreClassification === selectedScoreFilter;
+    const matchesPackage = selectedPackageFilter === 'ALL' || leadPkg === selectedPackageFilter;
 
-    return matchesSearch && matchesStatus && matchesSource && matchesScore;
+    return matchesSearch && matchesStatus && matchesSource && matchesScore && matchesPackage;
   });
 
   const handleCreateManualLead = (e: React.FormEvent) => {
@@ -82,8 +91,9 @@ export const LeadManagementView: React.FC = () => {
       email: newLeadEmail.trim(),
       phone: newLeadPhone.trim() || '+91 99999 99999',
       source: newLeadSource,
-      goal: 'FAT_LOSS_AND_MUSCLE',
-      challengeInterest: newLeadChallenge,
+      goal: newLeadGoal,
+      packageName: newLeadPackage,
+      challengeInterest: newLeadPackage,
       dietType: 'Non-Vegetarian',
       preferredCuisine: 'North Indian',
       customNote: newLeadNote.trim() || undefined
@@ -93,16 +103,45 @@ export const LeadManagementView: React.FC = () => {
     setNewLeadName('');
     setNewLeadEmail('');
     setNewLeadPhone('');
+    setNewLeadPackage(PACKAGE_CATALOG[0].name);
     setNewLeadNote('');
   };
 
-  const handleConvertLeadClick = (e: React.MouseEvent, leadId: string) => {
+  const openEditLeadModal = (e: React.MouseEvent, lead: Lead) => {
     e.stopPropagation();
-    const newCust = convertLeadToCustomer(leadId);
-    setJustConvertedLeadId(leadId);
-    setTimeout(() => {
-      setJustConvertedLeadId(null);
-    }, 4000);
+    const pkg = lead.packageName || lead.challengeInterest || PACKAGE_CATALOG[0].name;
+    const matchedOpt = findPackageOption(pkg);
+    setEditingLead(lead);
+    setEditLeadName(lead.name || '');
+    setEditLeadEmail(lead.email || '');
+    setEditLeadPhone(lead.phone || '');
+    setEditLeadSource(lead.source || 'MANUAL_ENTRY');
+    setEditLeadPackage(matchedOpt ? matchedOpt.name : pkg);
+    setEditLeadGoal(lead.goal || 'LOSE_WEIGHT');
+    setEditLeadEstimatedValue(lead.estimatedValue || matchedOpt?.priceINR || 8500);
+  };
+
+  const handleSaveEditedLead = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLead) return;
+    const matchedOpt = findPackageOption(editLeadPackage);
+    updateLead(editingLead.id, {
+      name: editLeadName.trim(),
+      email: editLeadEmail.trim(),
+      phone: editLeadPhone.trim(),
+      source: editLeadSource,
+      goal: editLeadGoal as any,
+      packageName: editLeadPackage,
+      packageCategory: matchedOpt?.category || 'Official Coaching Plan',
+      challengeInterest: editLeadPackage,
+      estimatedValue: Number(editLeadEstimatedValue) || matchedOpt?.priceINR || 8500
+    });
+    setEditingLead(null);
+  };
+
+  const handleConvertLeadClick = (e: React.MouseEvent, lead: Lead) => {
+    e.stopPropagation();
+    setLeadToConvertModal(lead);
   };
 
   const statusTabs = [
@@ -116,9 +155,9 @@ export const LeadManagementView: React.FC = () => {
   ];
 
   const handleExportCSV = () => {
-    const headers = ['ID,Name,Email,Phone,Source,Goal,Score,Classification,Status,AssignedTo,EstimatedValue(INR),CreatedAt'];
-    const rows = leads.map(l => 
-      `"${l.id}","${l.name}","${l.email}","${l.phone}","${l.source}","${l.goal}",${l.score},"${l.scoreClassification}","${l.status}","${l.assignedTo}",${l.estimatedValue},"${l.createdAt}"`
+    const headers = ['ID,Name,Email,Phone,Package,Category,Source,Goal,Score,Classification,Status,AssignedTo,EstimatedValue(INR),CreatedAt'];
+    const rows = safeLeads.map(l => 
+      `"${l.id}","${l.name}","${l.email}","${l.phone}","${l.packageName || l.challengeInterest || ''}","${l.packageCategory || ''}","${l.source}","${l.goal}",${l.score},"${l.scoreClassification}","${l.status}","${l.assignedTo}",${l.estimatedValue},"${l.createdAt}"`
     );
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -152,7 +191,7 @@ export const LeadManagementView: React.FC = () => {
         </div>
 
         <span className="text-[10px] text-zinc-400 font-mono-num">
-          ⚡ All user logins & mobile numbers feed into this pipeline immediately in real-time.
+          ⚡ All user logins, package selections & mobile numbers feed into this pipeline immediately in real-time.
         </span>
       </div>
 
@@ -162,14 +201,14 @@ export const LeadManagementView: React.FC = () => {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="h-2 w-2 rounded-full bg-[#FFC515]"></span>
             <span className="text-xs font-mono-num font-bold uppercase tracking-widest text-[#FFC515]">
-              CLIENT PIPELINE & INQUIRIES
+              CLIENT PIPELINE & PACKAGE ASSIGNMENT
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight font-display text-white">
             LEAD MANAGEMENT
           </h1>
           <p className="text-zinc-400 text-xs sm:text-sm font-mono-num mt-1">
-            User login portal sign-ins, website calculations, and mobile contacts synced live to Realtime DB.
+            Assign coaching packages to leads, edit lead records, and convert leads into active clients with automatic package carry-forward.
           </p>
         </div>
 
@@ -216,7 +255,7 @@ export const LeadManagementView: React.FC = () => {
       </div>
 
       {/* Search & Multifilter Control Bar */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-3 font-mono-num text-xs">
+      <div className="grid sm:grid-cols-2 md:grid-cols-6 gap-3 font-mono-num text-xs">
         
         {/* Search Input */}
         <div className="sm:col-span-2 relative">
@@ -225,9 +264,25 @@ export const LeadManagementView: React.FC = () => {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by Name, Mobile (+91...), or Email..."
+            placeholder="Search by Name, Mobile, Email, or Package..."
             className="w-full bg-zinc-950 border border-white/10 pl-10 pr-4 py-2.5 text-white placeholder-zinc-500 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
           />
+        </div>
+
+        {/* Package Filter */}
+        <div>
+          <select
+            value={selectedPackageFilter}
+            onChange={(e) => setSelectedPackageFilter(e.target.value)}
+            className="w-full bg-zinc-950 border border-white/10 px-3 py-2.5 text-zinc-300 text-xs focus:border-[#FFC515] focus:outline-none rounded-sm"
+          >
+            <option value="ALL">ALL PACKAGES</option>
+            {PACKAGE_CATALOG.map(pkg => (
+              <option key={pkg.id} value={pkg.name}>
+                {pkg.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Source Filter */}
@@ -276,11 +331,11 @@ export const LeadManagementView: React.FC = () => {
               <tr className="bg-zinc-900/80 border-b border-white/10 text-[10px] text-zinc-400 uppercase tracking-wider font-bold">
                 <th className="p-3.5">CLIENT NAME</th>
                 <th className="p-3.5">MOBILE & CONTACT</th>
-                <th className="p-3.5">SOURCE</th>
-                <th className="p-3.5">INTENT SCORE</th>
+                <th className="p-3.5">SELECTED PACKAGE</th>
+                <th className="p-3.5">SOURCE & SCORE</th>
                 <th className="p-3.5">STAGE STATUS</th>
                 <th className="p-3.5 text-center">CONVERT TO CLIENT</th>
-                <th className="p-3.5 text-right">ACTION</th>
+                <th className="p-3.5 text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -296,6 +351,8 @@ export const LeadManagementView: React.FC = () => {
                   const isWarm = lead.scoreClassification === 'WARM';
                   const isConverted = lead.status === 'CONVERTED';
                   const cleanPhone = (lead.phone || '').replace(/[^0-9]/g, '');
+                  const selectedPkgName = lead.packageName || lead.challengeInterest || PACKAGE_CATALOG[0].name;
+                  const matchedPkg = findPackageOption(selectedPkgName);
 
                   return (
                     <tr 
@@ -330,7 +387,7 @@ export const LeadManagementView: React.FC = () => {
                           </div>
                           {cleanPhone && (
                             <a
-                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hi ${lead.name}, this is the Fitnetheist coaching desk regarding your fitness plan.`)}`}
+                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hi ${lead.name}, this is the Fitnetheist coaching desk regarding your ${selectedPkgName} fitness plan.`)}`}
                               target="_blank"
                               rel="noreferrer"
                               title="Direct WhatsApp"
@@ -346,29 +403,54 @@ export const LeadManagementView: React.FC = () => {
                         </div>
                       </td>
 
-                      {/* Source */}
-                      <td className="p-3.5 text-zinc-300">
-                        <span className="px-2 py-0.5 bg-zinc-900 border border-white/10 text-zinc-300 text-[10px] font-bold rounded-xs uppercase">
-                          {lead.source.replace(/_/g, ' ')}
-                        </span>
-                        <span className="text-[10px] text-zinc-500 block mt-1">
-                          {new Date(lead.createdAt).toLocaleDateString()}
-                        </span>
+                      {/* Package Selector Dropdown */}
+                      <td className="p-3.5" onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={matchedPkg ? matchedPkg.name : selectedPkgName}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            updateLead(lead.id, { packageName: val });
+                          }}
+                          className="w-full max-w-[220px] bg-zinc-900 border border-[#FFC515]/30 hover:border-[#FFC515] text-white font-bold text-[10px] px-2 py-1.5 rounded-xs focus:outline-none focus:border-[#FFC515]"
+                        >
+                          {!matchedPkg && selectedPkgName && (
+                            <option value={selectedPkgName}>{selectedPkgName}</option>
+                          )}
+                          {PACKAGE_CATALOG.map(pkg => (
+                            <option key={pkg.id} value={pkg.name}>
+                              {pkg.name} (₹{pkg.priceINR.toLocaleString('en-IN')})
+                            </option>
+                          ))}
+                        </select>
+                        <div className="flex items-center gap-2 mt-1 text-[10px]">
+                          <span className="text-zinc-400">
+                            {lead.packageCategory || matchedPkg?.category || 'Coaching Plan'}
+                          </span>
+                          <span className="text-[#FFC515] font-bold">
+                            ₹{(lead.estimatedValue || matchedPkg?.priceINR || 8500).toLocaleString('en-IN')}
+                          </span>
+                        </div>
                       </td>
 
-                      {/* Score Badge */}
-                      <td className="p-3.5">
+                      {/* Source & Score */}
+                      <td className="p-3.5 text-zinc-300">
                         <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 text-[10px] font-extrabold border rounded-xs ${
+                          <span className="px-2 py-0.5 bg-zinc-900 border border-white/10 text-zinc-300 text-[10px] font-bold rounded-xs uppercase">
+                            {lead.source.replace(/_/g, ' ')}
+                          </span>
+                          <span className={`px-1.5 py-0.5 text-[10px] font-extrabold border rounded-xs ${
                             isHot 
                               ? 'bg-[#FFC515]/20 text-[#FFC515] border-[#FFC515]/50' 
                               : isWarm 
                                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' 
                                 : 'bg-zinc-800 text-zinc-400 border-white/10'
                           }`}>
-                            {lead.score} / 100
+                            {lead.score}/100
                           </span>
                         </div>
+                        <span className="text-[10px] text-zinc-500 block mt-1">
+                          {new Date(lead.createdAt).toLocaleDateString()}
+                        </span>
                       </td>
 
                       {/* Status Selector dropdown inline */}
@@ -416,9 +498,9 @@ export const LeadManagementView: React.FC = () => {
                         ) : (
                           <button
                             type="button"
-                            onClick={(e) => handleConvertLeadClick(e, lead.id)}
+                            onClick={(e) => handleConvertLeadClick(e, lead)}
                             className="px-3 py-1.5 bg-[#FFC515] hover:bg-[#e6b010] text-black font-extrabold uppercase text-[10px] tracking-wider inline-flex items-center gap-1.5 transition-transform active:scale-95 shadow-sm rounded-xs"
-                            title="Instantly convert this lead into an active coaching client in Realtime DB"
+                            title="Convert this lead into an active coaching client with package & subscription dates"
                           >
                             <Zap size={11} className="fill-black" />
                             <span>CONVERT INTO CLIENT</span>
@@ -426,18 +508,27 @@ export const LeadManagementView: React.FC = () => {
                         )}
                       </td>
 
-                      {/* Action Button */}
-                      <td className="p-3.5 text-right">
-                        <button
-                          onClick={() => {
-                            setSelectedLeadId(lead.id);
-                            setActiveSubtab('leads-detail');
-                          }}
-                          className="px-2.5 py-1 bg-zinc-900 hover:bg-[#FFC515] hover:text-black text-white text-[10px] uppercase font-bold border border-white/10 transition-colors inline-flex items-center gap-1 rounded-xs"
-                        >
-                          <span>DOSSIER</span>
-                          <ChevronRight size={12} />
-                        </button>
+                      {/* Action Buttons */}
+                      <td className="p-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="inline-flex items-center gap-1.5">
+                          <button
+                            onClick={(e) => openEditLeadModal(e, lead)}
+                            className="p-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-[#FFC515] border border-white/10 rounded-xs transition-colors"
+                            title="Edit Lead & Package"
+                          >
+                            <Edit3 size={12} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedLeadId(lead.id);
+                              setActiveSubtab('leads-detail');
+                            }}
+                            className="px-2.5 py-1 bg-zinc-900 hover:bg-[#FFC515] hover:text-black text-white text-[10px] uppercase font-bold border border-white/10 transition-colors inline-flex items-center gap-1 rounded-xs"
+                          >
+                            <span>DOSSIER</span>
+                            <ChevronRight size={12} />
+                          </button>
+                        </div>
                       </td>
 
                     </tr>
@@ -462,7 +553,7 @@ export const LeadManagementView: React.FC = () => {
                 onClick={() => setIsAddLeadModalOpen(false)}
                 className="text-zinc-400 hover:text-white"
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
@@ -475,7 +566,7 @@ export const LeadManagementView: React.FC = () => {
                   value={newLeadName}
                   onChange={(e) => setNewLeadName(e.target.value)}
                   placeholder="e.g. Rahul Sen"
-                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
+                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs focus:border-[#FFC515] focus:outline-none"
                 />
               </div>
 
@@ -488,7 +579,7 @@ export const LeadManagementView: React.FC = () => {
                     value={newLeadEmail}
                     onChange={(e) => setNewLeadEmail(e.target.value)}
                     placeholder="e.g. rahul@example.com"
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs focus:border-[#FFC515] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -499,9 +590,26 @@ export const LeadManagementView: React.FC = () => {
                     value={newLeadPhone}
                     onChange={(e) => setNewLeadPhone(e.target.value)}
                     placeholder="e.g. +91 98200 11223"
-                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs focus:border-[#FFC515] focus:outline-none"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[#FFC515] font-bold uppercase mb-1 flex items-center gap-1.5">
+                  <Package size={13} /> PACKAGE SELECTED *
+                </label>
+                <select
+                  value={newLeadPackage}
+                  onChange={(e) => setNewLeadPackage(e.target.value)}
+                  className="w-full bg-zinc-900 border border-[#FFC515]/40 px-3 py-2 text-white font-bold rounded-xs focus:border-[#FFC515] focus:outline-none"
+                >
+                  {PACKAGE_CATALOG.map(pkg => (
+                    <option key={pkg.id} value={pkg.name}>
+                      {pkg.name} — ₹{pkg.priceINR.toLocaleString('en-IN')} ({pkg.durationDays} Days)
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -520,15 +628,16 @@ export const LeadManagementView: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-zinc-400 uppercase mb-1">CHALLENGE INTEREST</label>
+                  <label className="block text-zinc-400 uppercase mb-1">PRIMARY GOAL</label>
                   <select
-                    value={newLeadChallenge}
-                    onChange={(e) => setNewLeadChallenge(e.target.value)}
+                    value={newLeadGoal}
+                    onChange={(e) => setNewLeadGoal(e.target.value as any)}
                     className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
                   >
-                    <option value="21 Day Ignite">21 Day Ignite (Fat Loss)</option>
-                    <option value="60 Day Transform">60 Day Transform (Body Recomp)</option>
-                    <option value="90 Day Beast Mode">90 Day Beast Mode (Hypertrophy)</option>
+                    <option value="LOSE_WEIGHT">FAT LOSS</option>
+                    <option value="BUILD_MUSCLE">MUSCLE GAIN</option>
+                    <option value="STRENGTH">STRENGTH</option>
+                    <option value="EVERYDAY_HEALTH">POSTPARTUM / RECOMP</option>
                   </select>
                 </div>
               </div>
@@ -562,6 +671,158 @@ export const LeadManagementView: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Edit Existing Lead Modal (Retains Selected Package) */}
+      {editingLead && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0e0e12] border border-white/20 p-6 sm:p-8 max-w-lg w-full font-mono-num text-xs space-y-5 rounded-sm">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                <Edit3 size={16} className="text-[#FFC515]" />
+                EDIT LEAD & PACKAGE: {editingLead.name}
+              </h3>
+              <button 
+                onClick={() => setEditingLead(null)}
+                className="text-zinc-400 hover:text-white"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditedLead} className="space-y-4">
+              <div>
+                <label className="block text-zinc-400 uppercase mb-1">CLIENT FULL NAME *</label>
+                <input
+                  type="text"
+                  required
+                  value={editLeadName}
+                  onChange={(e) => setEditLeadName(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs focus:border-[#FFC515] focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-zinc-400 uppercase mb-1">EMAIL ADDRESS *</label>
+                  <input
+                    type="email"
+                    required
+                    value={editLeadEmail}
+                    onChange={(e) => setEditLeadEmail(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs focus:border-[#FFC515] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-zinc-400 uppercase mb-1">MOBILE NUMBER *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editLeadPhone}
+                    onChange={(e) => setEditLeadPhone(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs focus:border-[#FFC515] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#FFC515] font-bold uppercase mb-1 flex items-center gap-1.5">
+                  <Package size={13} /> ASSIGNED PACKAGE *
+                </label>
+                <select
+                  value={editLeadPackage}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditLeadPackage(val);
+                    const pkg = findPackageOption(val);
+                    if (pkg) {
+                      setEditLeadEstimatedValue(pkg.priceINR);
+                    }
+                  }}
+                  className="w-full bg-zinc-900 border border-[#FFC515]/40 px-3 py-2 text-white font-bold rounded-xs focus:border-[#FFC515] focus:outline-none"
+                >
+                  {PACKAGE_CATALOG.map(pkg => (
+                    <option key={pkg.id} value={pkg.name}>
+                      {pkg.name} — ₹{pkg.priceINR.toLocaleString('en-IN')} ({pkg.durationDays} Days)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-zinc-400 uppercase mb-1">SOURCE</label>
+                  <select
+                    value={editLeadSource}
+                    onChange={(e) => setEditLeadSource(e.target.value as any)}
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
+                  >
+                    <option value="MANUAL_ENTRY">MANUAL ENTRY</option>
+                    <option value="LOGIN_PORTAL">LOGIN PORTAL</option>
+                    <option value="SIGNUP">SIGNUP</option>
+                    <option value="WHATSAPP">WHATSAPP</option>
+                    <option value="CALORIE_CALCULATOR">CALCULATOR</option>
+                    <option value="DIET_GENERATOR">DIET GENERATOR</option>
+                    <option value="WORKOUT_PLANNER">WORKOUT PLANNER</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-zinc-400 uppercase mb-1">PRIMARY GOAL</label>
+                  <select
+                    value={editLeadGoal}
+                    onChange={(e) => setEditLeadGoal(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-white rounded-xs"
+                  >
+                    <option value="LOSE_WEIGHT">FAT LOSS</option>
+                    <option value="BUILD_MUSCLE">MUSCLE GAIN</option>
+                    <option value="STRENGTH">STRENGTH</option>
+                    <option value="EVERYDAY_HEALTH">POSTPARTUM / HEALTH</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-zinc-400 uppercase mb-1">PACKAGE VALUE (₹)</label>
+                  <input
+                    type="number"
+                    value={editLeadEstimatedValue}
+                    onChange={(e) => setEditLeadEstimatedValue(Number(e.target.value))}
+                    className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-[#FFC515] font-bold rounded-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setEditingLead(null)}
+                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 uppercase font-bold rounded-xs"
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#FFC515] hover:bg-[#e6b010] text-black font-bold uppercase rounded-xs"
+                >
+                  UPDATE LEAD & PACKAGE
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Convert Lead to Client Intake Modal (Carries Forward Selected Package & Captures Subscription Dates) */}
+      {leadToConvertModal && (
+        <ClientIntakeModal
+          isOpen={Boolean(leadToConvertModal)}
+          onClose={() => setLeadToConvertModal(null)}
+          leadToConvert={leadToConvertModal}
+          onSuccess={(newCustomer) => {
+            setJustConvertedLeadId(leadToConvertModal.id);
+            setLeadToConvertModal(null);
+            setSelectedCustomerId(newCustomer.id);
+            setActiveSubtab('clients');
+          }}
+        />
       )}
 
     </div>

@@ -1,28 +1,20 @@
 import React, { useState } from 'react';
 import { useAdmin } from '../../context/AdminContext';
-import { LeadStatus, LeadTag } from '../../types/admin';
+import { LeadStatus, LeadTag, PACKAGE_CATALOG, findPackageOption } from '../../types/admin';
 import { ClientIntakeModal } from './ClientIntakeModal';
 import { 
   ArrowLeft, 
-  Flame, 
   Phone, 
   Mail, 
   MessageSquare, 
   Calendar, 
   Clock, 
-  UserCheck, 
   Tag as TagIcon, 
-  Plus, 
-  CheckCircle2, 
   FileText, 
   Activity, 
-  Utensils, 
-  Dumbbell, 
-  AlertCircle,
-  ExternalLink,
   Trash2,
-  IndianRupee,
-  Sparkles
+  Sparkles,
+  Package
 } from 'lucide-react';
 
 export const LeadDetailView: React.FC = () => {
@@ -31,6 +23,7 @@ export const LeadDetailView: React.FC = () => {
     selectedLeadId, 
     setActiveSubtab, 
     setSelectedCustomerId,
+    updateLead,
     updateLeadStatus, 
     assignLead, 
     addLeadNote, 
@@ -69,6 +62,9 @@ export const LeadDetailView: React.FC = () => {
     'VEGETARIAN', 'NON_VEGETARIAN', 'VEGAN'
   ];
 
+  const selectedPackageName = currentLead.packageName || currentLead.challengeInterest || PACKAGE_CATALOG[0].name;
+  const matchedPkg = findPackageOption(selectedPackageName);
+
   const handleAddNote = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNoteText.trim()) return;
@@ -86,10 +82,20 @@ export const LeadDetailView: React.FC = () => {
   };
 
   const handleWhatsAppDirect = () => {
-    const cleanPhone = currentLead.phone.replace(/[^0-9]/g, '');
-    const msg = encodeURIComponent(`Hi ${currentLead.name}, this is the Fitnetheist coaching team regarding your ${currentLead.goal?.replace(/_/g, ' ') || 'transformation'} inquiry. Are you ready to review your personalized protocol?`);
+    const cleanPhone = (currentLead.phone || '').replace(/[^0-9]/g, '');
+    const msg = encodeURIComponent(`Hi ${currentLead.name}, this is the Fitnetheist coaching team regarding your ${selectedPackageName} inquiry. Are you ready to review your personalized protocol?`);
     window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
   };
+
+  const timelineEvents = Array.isArray((currentLead as any).timeline)
+    ? (currentLead as any).timeline
+    : Array.isArray(currentLead.activities)
+      ? currentLead.activities.map(act => ({
+          event: act.type || 'ACTIVITY',
+          date: act.timestamp ? new Date(act.timestamp).toLocaleDateString() : '',
+          details: act.description
+        }))
+      : [];
 
   return (
     <div id="lead-detail-dossier" className="space-y-6 font-mono-num text-xs max-w-7xl mx-auto">
@@ -142,7 +148,7 @@ export const LeadDetailView: React.FC = () => {
           
           {/* Main identity */}
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h2 className="text-2xl sm:text-3xl font-extrabold uppercase text-white font-display">
                 {currentLead.name}
               </h2>
@@ -154,6 +160,9 @@ export const LeadDetailView: React.FC = () => {
                     : 'bg-zinc-800 text-zinc-400 border-white/10'
               }`}>
                 INTENT SCORE: {currentLead.score} / 100 ({currentLead.scoreClassification})
+              </span>
+              <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 text-xs font-extrabold rounded-xs uppercase">
+                {selectedPackageName}
               </span>
             </div>
 
@@ -169,8 +178,28 @@ export const LeadDetailView: React.FC = () => {
             </div>
           </div>
 
-          {/* Status & Assignment Quick Switches */}
+          {/* Package, Status & Assignment Quick Switches */}
           <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <label className="block text-[10px] text-[#FFC515] uppercase font-bold mb-1 flex items-center gap-1">
+                <Package size={11} /> ASSIGNED PACKAGE
+              </label>
+              <select
+                value={matchedPkg ? matchedPkg.name : selectedPackageName}
+                onChange={(e) => updateLead(currentLead.id, { packageName: e.target.value })}
+                className="bg-zinc-900 border border-[#FFC515]/50 px-3 py-2 text-white font-bold uppercase focus:border-[#FFC515] focus:outline-none rounded-xs"
+              >
+                {!matchedPkg && selectedPackageName && (
+                  <option value={selectedPackageName}>{selectedPackageName}</option>
+                )}
+                {PACKAGE_CATALOG.map(pkg => (
+                  <option key={pkg.id} value={pkg.name}>
+                    {pkg.name} (₹{pkg.priceINR.toLocaleString('en-IN')})
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div>
               <label className="block text-[10px] text-zinc-500 uppercase font-bold mb-1">STAGE STATUS</label>
               <select
@@ -195,7 +224,7 @@ export const LeadDetailView: React.FC = () => {
                 onChange={(e) => assignLead(currentLead.id, e.target.value)}
                 className="bg-zinc-900 border border-white/20 px-3 py-2 text-white font-bold uppercase focus:border-[#FFC515] focus:outline-none rounded-xs"
               >
-                <option value="Alex Mercer (Head Coach)">Alex Mercer (Head Coach)</option>
+                <option value="Coach Neetu (Head Coach)">Coach Neetu (Head Coach)</option>
                 <option value="Vikram Mehta (Sales Lead)">Vikram Mehta (Sales Lead)</option>
                 <option value="Ananya Roy (Coach/Advisor)">Ananya Roy (Coach/Advisor)</option>
                 <option value="Unassigned">Unassigned</option>
@@ -211,7 +240,7 @@ export const LeadDetailView: React.FC = () => {
             <TagIcon size={12} /> TAGS:
           </span>
           {availableTags.map(tag => {
-            const isSelected = currentLead.tags.includes(tag);
+            const isSelected = (currentLead.tags || []).includes(tag);
             return (
               <button
                 key={tag}
@@ -238,19 +267,24 @@ export const LeadDetailView: React.FC = () => {
           <div className="border-b border-white/10 pb-3">
             <h3 className="text-xs font-bold uppercase text-white tracking-wider flex items-center gap-2">
               <Activity size={14} className="text-[#FFC515]" />
-              BIOMETRICS & CALCULATED DATA
+              BIOMETRICS & PACKAGE DETAILS
             </h3>
           </div>
 
           <div className="space-y-2.5">
             <div className="flex justify-between py-1 border-b border-white/5">
-              <span className="text-zinc-500 uppercase">PRIMARY GOAL</span>
-              <span className="text-white font-bold">{currentLead.goal.replace(/_/g, ' ')}</span>
+              <span className="text-zinc-500 uppercase">SELECTED PACKAGE</span>
+              <span className="text-[#FFC515] font-bold text-right">{selectedPackageName}</span>
             </div>
 
             <div className="flex justify-between py-1 border-b border-white/5">
-              <span className="text-zinc-500 uppercase">CHALLENGE INTEREST</span>
-              <span className="text-[#FFC515] font-bold">{currentLead.challengeInterest || 'Not specified'}</span>
+              <span className="text-zinc-500 uppercase">PACKAGE CATEGORY</span>
+              <span className="text-emerald-400 font-bold">{currentLead.packageCategory || matchedPkg?.category || 'Coaching Plan'}</span>
+            </div>
+
+            <div className="flex justify-between py-1 border-b border-white/5">
+              <span className="text-zinc-500 uppercase">PRIMARY GOAL</span>
+              <span className="text-white font-bold">{(currentLead.goal || 'LOSE_WEIGHT').replace(/_/g, ' ')}</span>
             </div>
 
             <div className="flex justify-between py-1 border-b border-white/5">
@@ -287,8 +321,8 @@ export const LeadDetailView: React.FC = () => {
             </div>
 
             <div className="flex justify-between py-1">
-              <span className="text-zinc-500 uppercase">ESTIMATED VALUE</span>
-              <span className="text-[#FFC515] font-extrabold text-sm">₹{currentLead.estimatedValue.toLocaleString('en-IN')}</span>
+              <span className="text-zinc-500 uppercase">ESTIMATED PACKAGE VALUE</span>
+              <span className="text-[#FFC515] font-extrabold text-sm">₹{(currentLead.estimatedValue || matchedPkg?.priceINR || 8500).toLocaleString('en-IN')}</span>
             </div>
           </div>
 
@@ -314,21 +348,21 @@ export const LeadDetailView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <h3 className="text-xs font-bold uppercase text-white tracking-wider flex items-center gap-2">
                 <Calendar size={14} className="text-[#FFC515]" />
-                FOLLOW-UP LOG ({currentLead.followUpHistory.length})
+                FOLLOW-UP LOG ({(currentLead.followUpHistory || []).length})
               </h3>
             </div>
 
             <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
-              {currentLead.followUpHistory.length === 0 ? (
+              {!currentLead.followUpHistory || currentLead.followUpHistory.length === 0 ? (
                 <p className="text-zinc-500 py-2">No follow-ups recorded yet.</p>
               ) : (
-                currentLead.followUpHistory.map((fu, idx) => (
+                currentLead.followUpHistory.map((fu: any, idx: number) => (
                   <div key={idx} className="p-2.5 bg-zinc-900 border border-white/5 text-[11px] rounded-xs">
                     <div className="flex justify-between text-zinc-400 mb-1">
-                      <span className="text-white font-bold">{fu.type} • {fu.date}</span>
-                      <span>by {fu.loggedBy}</span>
+                      <span className="text-white font-bold">{fu.type || fu.channel} • {fu.date || fu.scheduledFor}</span>
+                      <span>by {fu.loggedBy || 'Coach Neetu'}</span>
                     </div>
-                    <p className="text-zinc-300">{fu.notes}</p>
+                    <p className="text-zinc-300">{fu.notes || fu.summary}</p>
                   </div>
                 ))
               )}
@@ -339,7 +373,7 @@ export const LeadDetailView: React.FC = () => {
           <div className="space-y-3 pt-3 border-t border-white/10">
             <h3 className="text-xs font-bold uppercase text-white tracking-wider flex items-center gap-2">
               <FileText size={14} className="text-[#FFC515]" />
-              COACH & SALES NOTES ({currentLead.notes.length})
+              COACH & SALES NOTES ({(currentLead.notes || []).length})
             </h3>
 
             {/* Add note form */}
@@ -360,15 +394,19 @@ export const LeadDetailView: React.FC = () => {
             </form>
 
             <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-              {currentLead.notes.map(note => (
-                <div key={note.id} className="p-2.5 bg-zinc-900/40 border border-white/5 rounded-xs text-[11px]">
-                  <div className="flex justify-between text-zinc-500 mb-1">
-                    <span className="font-bold text-white">{note.author}</span>
-                    <span>{new Date(note.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              {(currentLead.notes || []).map((note: any) => {
+                const ts = note.createdAt || note.timestamp || new Date().toISOString();
+                const content = note.content || note.text || '';
+                return (
+                  <div key={note.id} className="p-2.5 bg-zinc-900/40 border border-white/5 rounded-xs text-[11px]">
+                    <div className="flex justify-between text-zinc-500 mb-1">
+                      <span className="font-bold text-white">{note.author}</span>
+                      <span>{new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <p className="text-zinc-300">{content}</p>
                   </div>
-                  <p className="text-zinc-300">{note.text}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -383,12 +421,12 @@ export const LeadDetailView: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {currentLead.timeline.map((event, idx) => (
+            {timelineEvents.map((event: any, idx: number) => (
               <div key={idx} className="flex items-start gap-3 text-[11px]">
                 <div className="mt-1 h-2 w-2 rounded-full bg-[#FFC515] flex-shrink-0" />
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-bold uppercase">{event.event.replace(/_/g, ' ')}</span>
+                    <span className="text-white font-bold uppercase">{(event.event || 'ACTIVITY').replace(/_/g, ' ')}</span>
                     <span className="text-zinc-500 text-[10px]">{event.date}</span>
                   </div>
                   <p className="text-zinc-400">{event.details}</p>

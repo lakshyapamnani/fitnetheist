@@ -5,7 +5,7 @@ import { Exercise, MuscleGroup, ExperienceLevel, EquipmentType, WorkoutPlan, Wor
 import { ExerciseVideoPlayer } from '../ExerciseVideoPlayer';
 import { DriveVideoBankSection } from './DriveVideoBankSection';
 import { VideoBankSelector } from './VideoBankSelector';
-import { DriveVideoItem } from '../../data/driveVideoBankData';
+import { DriveVideoItem, DEFAULT_DRIVE_VIDEOS } from '../../data/driveVideoBankData';
 import { 
   Dumbbell, 
   Search, 
@@ -44,10 +44,12 @@ export const ExerciseBankAdminView: React.FC = () => {
     assignPersonalizedWorkoutToClient,
     setActiveTab: setAppActiveTab 
   } = useApp();
-  const { customers, leads, updateCustomer, logAuditAction } = useAdmin();
+  const { customers, leads, updateCustomer, logAuditAction, selectedCustomerId } = useAdmin();
 
   // Active view inside Exercise Bank
   const [activeTab, setActiveTab] = useState<'LIBRARY' | 'VIDEO_BANK' | 'ASSIGN' | 'STATUS'>('LIBRARY');
+  const [openDayPicker, setOpenDayPicker] = useState<{ dayIdx: number; category: string } | null>(null);
+  const [daySearchQuery, setDaySearchQuery] = useState<Record<number, string>>({});
 
   // Categories Filter & Management
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -219,13 +221,37 @@ export const ExerciseBankAdminView: React.FC = () => {
   }, [customers, leads, user]);
 
   const [selectedClientId, setSelectedClientId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const preselected = sessionStorage.getItem('fitnetheist_exercise_assign_client');
+        if (preselected) return preselected;
+      } catch {}
+    }
+    if (selectedCustomerId) return selectedCustomerId;
     if (user?.id) return user.id;
     if (user?.email) return user.email;
     return 'cust_lakshya';
   });
 
+  // Check if navigated from Client Profile "Assign Exercise Plan" button
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const preselected = sessionStorage.getItem('fitnetheist_exercise_assign_client');
+        if (preselected) {
+          setSelectedClientId(preselected);
+          setActiveTab('ASSIGN');
+          sessionStorage.removeItem('fitnetheist_exercise_assign_client');
+        }
+      } catch {}
+    }
+  }, []);
+
   const selectedClient = allClients.find(
-    c => c.id === selectedClientId || (c.email && c.email.toLowerCase() === selectedClientId.toLowerCase())
+    c => c.id === selectedClientId || 
+         `cust_${(c.id || '').replace('lead_', '')}` === selectedClientId ||
+         (c.convertedFromLeadId && c.convertedFromLeadId === selectedClientId) ||
+         (c.email && c.email.toLowerCase() === selectedClientId.toLowerCase())
   ) || allClients[0];
 
   // Builder State for Selected Client
@@ -275,8 +301,10 @@ export const ExerciseBankAdminView: React.FC = () => {
       if (Array.isArray(p.days) && p.days.length > 0) {
         setPlanDays(p.days);
       }
+    } else if (selectedClient) {
+      setSplitName(selectedClient.workoutSplit && selectedClient.workoutSplit !== 'Awaiting Coach Assignment' ? selectedClient.workoutSplit : 'Coach Neetu Bespoke 4-Day Protocol');
     }
-  }, [selectedClientId]);
+  }, [selectedClientId, selectedClient?.id]);
 
   // Adjust number of days when daysPerWeek changes
   const handleDaysPerWeekChange = (newCount: number) => {
@@ -358,12 +386,18 @@ export const ExerciseBankAdminView: React.FC = () => {
       coachNotes: coachNotes.trim()
     };
 
-    // 1. Update customer record in Admin
+    // 1. Update customer record in Admin (include name/email/phone so upsert works even for new leads or default clients)
     updateCustomer(selectedClient.id, {
+      name: selectedClient.name,
+      email: selectedClient.email,
+      phone: selectedClient.phone,
+      dietGoal: selectedClient.dietGoal,
+      experienceLevel: selectedClient.experienceLevel,
+      trainingDaysPerWeek: daysPerWeek,
       isWorkoutPersonalized: true,
       assignedWorkoutPlan: personalizedWorkout,
       workoutSplit: personalizedWorkout.name
-    });
+    } as any);
 
     // 2. Persist in localStorage keys specifically for this client and globally
     try {
@@ -1038,11 +1072,15 @@ export const ExerciseBankAdminView: React.FC = () => {
                                   value={item.customSets || '4'}
                                   onChange={(e) => {
                                     const val = e.target.value;
-                                    setPlanDays(prev => {
-                                      const c = [...prev];
-                                      c[dayIdx].exercises[exIdx].customSets = val;
-                                      return c;
-                                    });
+                                    setPlanDays(prev => prev.map((d, dIdx) => {
+                                      if (dIdx !== dayIdx) return d;
+                                      return {
+                                        ...d,
+                                        exercises: d.exercises.map((exItem, eIdx) =>
+                                          eIdx === exIdx ? { ...exItem, customSets: val } : exItem
+                                        )
+                                      };
+                                    }));
                                   }}
                                   className="w-14 bg-zinc-900 border border-white/20 px-1.5 py-0.5 text-center text-white"
                                 />
@@ -1054,18 +1092,23 @@ export const ExerciseBankAdminView: React.FC = () => {
                                   value={item.customReps || '8-10'}
                                   onChange={(e) => {
                                     const val = e.target.value;
-                                    setPlanDays(prev => {
-                                      const c = [...prev];
-                                      c[dayIdx].exercises[exIdx].customReps = val;
-                                      return c;
-                                    });
+                                    setPlanDays(prev => prev.map((d, dIdx) => {
+                                      if (dIdx !== dayIdx) return d;
+                                      return {
+                                        ...d,
+                                        exercises: d.exercises.map((exItem, eIdx) =>
+                                          eIdx === exIdx ? { ...exItem, customReps: val } : exItem
+                                        )
+                                      };
+                                    }));
                                   }}
                                   className="w-16 bg-zinc-900 border border-white/20 px-1.5 py-0.5 text-center text-white"
                                 />
                               </div>
                               <button
+                                type="button"
                                 onClick={() => handleRemoveExerciseFromDay(dayIdx, exIdx)}
-                                className="p-1 text-zinc-500 hover:text-red-400 transition-colors"
+                                className="p-1 text-zinc-500 hover:text-red-400 transition-colors cursor-pointer"
                                 title="Remove exercise from day"
                               >
                                 <Trash2 size={14} />
@@ -1076,41 +1119,146 @@ export const ExerciseBankAdminView: React.FC = () => {
 
                         {day.exercises.length === 0 && (
                           <p className="text-xs text-zinc-500 italic py-2">
-                            No exercises added yet for {day.dayName}. Select from the categories below.
+                            No exercises added yet for {day.dayName}. Click any muscle category below or search to add exercises.
                           </p>
                         )}
                       </div>
 
-                      {/* Quick Exercise Add Bar from Bank */}
-                      <div className="pt-2 border-t border-white/5 flex flex-wrap items-center gap-2 font-mono-num text-xs">
-                        <span className="text-zinc-500 text-[11px]">+ Add from Bank:</span>
-                        {customCategories.slice(0, 6).map(cat => (
-                          <div key={cat} className="relative group/picker">
-                            <button
-                              type="button"
-                              className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] rounded transition-colors"
-                            >
-                              {cat} ▾
-                            </button>
-                            <div className="absolute left-0 bottom-full mb-1 hidden group-hover/picker:block z-30 bg-[#121216] border border-white/20 rounded shadow-2xl p-2 w-64 max-h-56 overflow-y-auto">
-                              <span className="text-[10px] text-[#FFC515] font-bold block mb-1 uppercase">
-                                {cat} Exercises
+                      {/* Interactive Click & Search Exercise Add Bar from Bank & Drive Videos */}
+                      <div className="pt-3 border-t border-white/10 space-y-2.5 font-mono-num text-xs">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[#FFC515] font-bold text-[11px] mr-1">+ Add Exercise:</span>
+                            {customCategories.map(cat => {
+                              const isOpen = openDayPicker?.dayIdx === dayIdx && openDayPicker?.category === cat;
+                              return (
+                                <button
+                                  key={cat}
+                                  type="button"
+                                  onClick={() => setOpenDayPicker(isOpen ? null : { dayIdx, category: cat })}
+                                  className={`px-2.5 py-1 text-[11px] font-bold uppercase rounded transition-colors cursor-pointer ${
+                                    isOpen
+                                      ? 'bg-[#FFC515] text-black'
+                                      : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/10'
+                                  }`}
+                                >
+                                  {cat} {isOpen ? '▴' : '▾'}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Search Any Exercise / Drive Video for this Day */}
+                          <div className="relative min-w-[220px]">
+                            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+                            <input
+                              type="text"
+                              value={daySearchQuery[dayIdx] || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setDaySearchQuery(prev => ({ ...prev, [dayIdx]: val }));
+                                if (val.trim()) {
+                                  setOpenDayPicker({ dayIdx, category: 'SEARCH' });
+                                }
+                              }}
+                              placeholder="Search 638+ exercises to add..."
+                              className="w-full bg-[#141418] border border-white/15 pl-7 pr-6 py-1 text-[11px] text-white rounded focus:border-[#FFC515] focus:outline-none"
+                            />
+                            {daySearchQuery[dayIdx] && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDaySearchQuery(prev => ({ ...prev, [dayIdx]: '' }));
+                                  if (openDayPicker?.dayIdx === dayIdx && openDayPicker?.category === 'SEARCH') {
+                                    setOpenDayPicker(null);
+                                  }
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Expanded Exercise Picker Drawer for this Day */}
+                        {openDayPicker?.dayIdx === dayIdx && (
+                          <div className="bg-[#121218] border border-[#FFC515]/40 rounded p-3 space-y-2 shadow-xl">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                              <span className="text-[10px] text-[#FFC515] font-bold uppercase tracking-wider">
+                                {openDayPicker.category === 'SEARCH'
+                                  ? `SEARCH RESULTS FOR "${daySearchQuery[dayIdx] || ''}"`
+                                  : `${openDayPicker.category} EXERCISES (CLICK TO ADD TO ${day.dayName.toUpperCase()})`}
                               </span>
-                              {safeExercises
-                                .filter(e => e.category === cat)
-                                .map(e => (
+                              <button
+                                type="button"
+                                onClick={() => setOpenDayPicker(null)}
+                                className="text-[10px] text-zinc-400 hover:text-white uppercase font-bold cursor-pointer"
+                              >
+                                Close ✕
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto pr-1">
+                              {(() => {
+                                const q = (daySearchQuery[dayIdx] || '').trim().toLowerCase();
+                                const libMatches = safeExercises.filter(e =>
+                                  openDayPicker.category === 'SEARCH'
+                                    ? (e.name.toLowerCase().includes(q) || e.targetMuscles.toLowerCase().includes(q) || e.category.toLowerCase().includes(q))
+                                    : e.category === openDayPicker.category
+                                );
+
+                                // Also include matching items from DEFAULT_DRIVE_VIDEOS not already in libMatches
+                                const existingNames = new Set(libMatches.map(x => x.name.toLowerCase()));
+                                const driveMatches: Exercise[] = DEFAULT_DRIVE_VIDEOS
+                                  .filter(v => {
+                                    if (existingNames.has(v.name.toLowerCase())) return false;
+                                    if (openDayPicker.category === 'SEARCH') {
+                                      return v.name.toLowerCase().includes(q) || v.muscleGroup.toLowerCase().includes(q) || v.targetMuscles.toLowerCase().includes(q);
+                                    }
+                                    return v.muscleGroup === openDayPicker.category;
+                                  })
+                                  .slice(0, 36)
+                                  .map(v => ({
+                                    id: v.id,
+                                    name: v.name,
+                                    category: v.muscleGroup,
+                                    targetMuscles: v.targetMuscles,
+                                    difficulty: v.difficulty,
+                                    equipment: v.equipment,
+                                    sets: v.suggestedSets || '4',
+                                    reps: v.suggestedReps || '10-12',
+                                    restSeconds: v.suggestedRestSeconds || 90,
+                                    instructions: v.instructions,
+                                    keyFormTip: v.keyFormTip,
+                                    videoThumbnail: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=600&q=80',
+                                    videoUrl: v.driveUrl
+                                  }));
+
+                                const combined = [...libMatches, ...driveMatches];
+                                if (combined.length === 0) {
+                                  return (
+                                    <p className="text-[11px] text-zinc-500 col-span-full py-2">
+                                      No matching exercises found.
+                                    </p>
+                                  );
+                                }
+
+                                return combined.map(e => (
                                   <button
                                     key={e.id}
                                     type="button"
                                     onClick={() => handleAddExerciseToDay(dayIdx, e)}
-                                    className="w-full text-left p-1 text-[11px] text-zinc-300 hover:text-white hover:bg-zinc-800 truncate block transition-colors"
+                                    className="text-left px-2.5 py-1.5 bg-zinc-900/90 hover:bg-[#FFC515] text-zinc-200 hover:text-black border border-white/10 rounded text-[11px] flex items-center justify-between gap-2 transition-colors cursor-pointer group"
                                   >
-                                    + {e.name}
+                                    <span className="truncate font-semibold">+ {e.name}</span>
+                                    <span className="text-[9px] opacity-70 shrink-0">{e.sets}×{e.reps}</span>
                                   </button>
-                                ))}
+                                ));
+                              })()}
                             </div>
                           </div>
-                        ))}
+                        )}
                       </div>
 
                     </div>

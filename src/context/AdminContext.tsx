@@ -23,8 +23,16 @@ import {
   AdminNotification,
   LeadScoringRules,
   OrderStatus,
-  SubscriptionStatus
+  SubscriptionStatus,
+  PACKAGE_CATALOG,
+  findPackageOption,
+  getLocalDateString,
+  calculateEndDateFromPackage
 } from '../types/admin';
+import {
+  AdminDietPlan,
+  DailyDietTrackingRecord
+} from '../types';
 import {
   INITIAL_LEADS,
   INITIAL_CUSTOMERS,
@@ -54,7 +62,12 @@ import {
   listenToRealtimeConsentForms,
   updateConsentFormStatusInRealtimeDb,
   deleteConsentFormFromRealtimeDb,
-  saveConsentFormToRealtimeDb
+  saveConsentFormToRealtimeDb,
+  saveCustomDietPlanToRealtimeDb,
+  deleteCustomDietPlanFromRealtimeDb,
+  listenToRealtimeCustomDietPlans,
+  saveDietPlanToRealtimeDb,
+  listenToDailyDietTracking
 } from '../services/firebase';
 
 export type AdminSubtab = 
@@ -136,10 +149,14 @@ interface AdminContextType {
     activityLevel?: any;
     calculatedCalories?: number;
     challengeInterest?: string;
+    packageName?: string;
+    packageCategory?: string;
+    packagePrice?: number;
     workoutPreferences?: any;
     dietPreferences?: any;
     customNote?: string;
   }) => Lead;
+  updateLead: (leadId: string, updates: Partial<Lead>, note?: string) => void;
   updateLeadStatus: (leadId: string, status: LeadStatus, note?: string) => void;
   assignLead: (leadId: string, assignedTo: string) => void;
   addLeadNote: (leadId: string, noteText: string) => void;
@@ -156,6 +173,13 @@ interface AdminContextType {
   deleteCustomer: (customerId: string) => void;
   addClientCheckIn: (customerId: string, checkIn: Omit<ClientCheckIn, 'id'>) => void;
   addClientCoachNote: (customerId: string, note: Omit<ClientCoachNote, 'id' | 'createdAt'>) => void;
+
+  // Admin Diet Plans & Client Daily Tracking
+  customDietPlans: AdminDietPlan[];
+  saveCustomDietPlan: (plan: AdminDietPlan) => void;
+  deleteCustomDietPlan: (id: string) => void;
+  assignDietPlanToClient: (client: { id: string; name: string; email?: string } | string, plan: AdminDietPlan | string) => void;
+  dailyDietTrackingByClient: Record<string, Record<string, DailyDietTrackingRecord>>;
 
   // Orders & Subscriptions
   orders: Order[];
@@ -220,6 +244,313 @@ interface AdminContextType {
   updateConsentFormStatus: (id: string, status: 'SIGNED' | 'VERIFIED' | 'REVIEWED', notes?: string) => Promise<void>;
   deleteConsentForm: (id: string) => Promise<void>;
 }
+
+const INITIAL_CUSTOM_DIET_PLANS: AdminDietPlan[] = [
+  {
+    id: 'diet_tpl_indian_veg_1800',
+    name: '1800 kcal Indian Vegetarian Fat Loss & Postpartum Protocol',
+    description: 'High-protein Indian vegetarian nutrition blueprint designed for sustainable fat loss, hormone balance, and postpartum recovery.',
+    targetDailyCalories: 1800,
+    totalDailyCalories: 1810,
+    totalDailyProtein: 118,
+    totalDailyCarbs: 182,
+    totalDailyFat: 58,
+    dietType: 'VEGETARIAN',
+    isTemplate: true,
+    createdAt: '2026-10-01T08:00:00.000Z',
+    updatedAt: '2026-10-01T08:00:00.000Z',
+    coachNotes: 'Drink 3.5L water daily. Take 15-min walk after lunch and dinner.',
+    meals: [
+      {
+        id: 'meal_bf_1',
+        name: 'Breakfast',
+        category: 'BREAKFAST',
+        scheduledTime: '08:30 AM',
+        notes: 'High protein morning kickstart with slow-digesting carbs.',
+        totalCalories: 440,
+        totalProtein: 32,
+        totalCarbs: 48,
+        totalFat: 12,
+        items: [
+          {
+            id: 'dfi_101',
+            name: 'Moong Dal Chilla with Paneer Stuffing',
+            serving: '2 medium chillas + 60g grated low-fat paneer',
+            quantity: 1,
+            calories: 320,
+            protein: 24,
+            carbs: 34,
+            fat: 9
+          },
+          {
+            id: 'dfi_102',
+            name: 'Greek Yogurt / Hung Curd + Mint Chutney',
+            serving: '100g bowl',
+            quantity: 1,
+            calories: 120,
+            protein: 8,
+            carbs: 14,
+            fat: 3
+          }
+        ]
+      },
+      {
+        id: 'meal_ln_1',
+        name: 'Lunch',
+        category: 'LUNCH',
+        scheduledTime: '01:30 PM',
+        notes: 'Balanced macro plate with fiber-rich salad.',
+        totalCalories: 540,
+        totalProtein: 34,
+        totalCarbs: 62,
+        totalFat: 16,
+        items: [
+          {
+            id: 'dfi_103',
+            name: 'Multigrain / Whole Wheat Roti',
+            serving: '2 medium rotis (60g flour)',
+            quantity: 2,
+            calories: 210,
+            protein: 7,
+            carbs: 42,
+            fat: 2
+          },
+          {
+            id: 'dfi_104',
+            name: 'Soya Chunk & Matar Bhurji / Subzi',
+            serving: '50g raw weight soya chunks cooked',
+            quantity: 1,
+            calories: 240,
+            protein: 25,
+            carbs: 15,
+            fat: 8
+          },
+          {
+            id: 'dfi_105',
+            name: 'Cucumber, Tomato & Carrot Salad + 1 tsp Desi Ghee',
+            serving: '1 large bowl + 5g ghee',
+            quantity: 1,
+            calories: 90,
+            protein: 2,
+            carbs: 5,
+            fat: 6
+          }
+        ]
+      },
+      {
+        id: 'meal_sn_1',
+        name: 'Evening Pre-Workout Snack',
+        category: 'SNACK',
+        scheduledTime: '05:00 PM',
+        notes: 'Clean energy & amino acid support before training.',
+        totalCalories: 310,
+        totalProtein: 26,
+        totalCarbs: 32,
+        totalFat: 8,
+        items: [
+          {
+            id: 'dfi_106',
+            name: 'Whey Protein Isolate Shake (in Water)',
+            serving: '1 scoop (30g)',
+            quantity: 1,
+            calories: 120,
+            protein: 24,
+            carbs: 2,
+            fat: 1
+          },
+          {
+            id: 'dfi_107',
+            name: 'Roasted Makhana (Foxnuts) + 6 Soaked Almonds',
+            serving: '30g makhana + 6 almonds',
+            quantity: 1,
+            calories: 190,
+            protein: 2,
+            carbs: 30,
+            fat: 7
+          }
+        ]
+      },
+      {
+        id: 'meal_dn_1',
+        name: 'Dinner',
+        category: 'DINNER',
+        scheduledTime: '08:30 PM',
+        notes: 'Light, protein-dense evening meal 2 hours before sleep.',
+        totalCalories: 520,
+        totalProtein: 26,
+        totalCarbs: 40,
+        totalFat: 22,
+        items: [
+          {
+            id: 'dfi_108',
+            name: 'Grilled Paneer Tikka + Bell Peppers & Onions',
+            serving: '120g paneer + 150g veggies',
+            quantity: 1,
+            calories: 340,
+            protein: 21,
+            carbs: 12,
+            fat: 20
+          },
+          {
+            id: 'dfi_109',
+            name: 'Yellow Dal Tadka + Steamed Brown Rice',
+            serving: '150g dal + 80g cooked rice',
+            quantity: 1,
+            calories: 180,
+            protein: 5,
+            carbs: 28,
+            fat: 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'diet_tpl_nonveg_recomp_2200',
+    name: '2200 kcal Lean Muscle & Body Recomposition (Non-Veg)',
+    description: 'High-bioavailability lean protein protocol with Indian & International staples for maximum hypertrophy and fat oxidation.',
+    targetDailyCalories: 2200,
+    totalDailyCalories: 2190,
+    totalDailyProtein: 168,
+    totalDailyCarbs: 215,
+    totalDailyFat: 64,
+    dietType: 'NON-VEGETARIAN',
+    isTemplate: true,
+    createdAt: '2026-10-05T08:00:00.000Z',
+    updatedAt: '2026-10-05T08:00:00.000Z',
+    coachNotes: 'Hit protein target every single day. Weigh chicken and rice cooked.',
+    meals: [
+      {
+        id: 'meal_bf_2',
+        name: 'Breakfast',
+        category: 'BREAKFAST',
+        scheduledTime: '08:00 AM',
+        totalCalories: 540,
+        totalProtein: 36,
+        totalCarbs: 52,
+        totalFat: 18,
+        items: [
+          {
+            id: 'dfi_201',
+            name: 'Whole Eggs + Egg Whites Masala Omelette',
+            serving: '3 whole eggs + 3 egg whites',
+            quantity: 1,
+            calories: 270,
+            protein: 28,
+            carbs: 3,
+            fat: 15
+          },
+          {
+            id: 'dfi_202',
+            name: 'Rolled Oats Porridge with Berries & Cinnamon',
+            serving: '60g dry oats cooked in water',
+            quantity: 1,
+            calories: 270,
+            protein: 8,
+            carbs: 49,
+            fat: 3
+          }
+        ]
+      },
+      {
+        id: 'meal_ln_2',
+        name: 'Lunch',
+        category: 'LUNCH',
+        scheduledTime: '01:30 PM',
+        totalCalories: 660,
+        totalProtein: 54,
+        totalCarbs: 74,
+        totalFat: 14,
+        items: [
+          {
+            id: 'dfi_203',
+            name: 'Tandoori / Grilled Chicken Breast',
+            serving: '180g raw weight (140g cooked)',
+            quantity: 1,
+            calories: 300,
+            protein: 46,
+            carbs: 2,
+            fat: 8
+          },
+          {
+            id: 'dfi_204',
+            name: 'Steamed Basmati Rice + Dal Bowl',
+            serving: '180g cooked rice + 100g dal',
+            quantity: 1,
+            calories: 360,
+            protein: 8,
+            carbs: 72,
+            fat: 6
+          }
+        ]
+      },
+      {
+        id: 'meal_sn_2',
+        name: 'Pre/Post Workout Fuel',
+        category: 'SNACK',
+        scheduledTime: '05:30 PM',
+        totalCalories: 390,
+        totalProtein: 32,
+        totalCarbs: 45,
+        totalFat: 9,
+        items: [
+          {
+            id: 'dfi_205',
+            name: 'Whey Protein Isolate + 1 Large Banana',
+            serving: '1 scoop (30g) + 1 banana',
+            quantity: 1,
+            calories: 230,
+            protein: 25,
+            carbs: 29,
+            fat: 1
+          },
+          {
+            id: 'dfi_206',
+            name: 'Whole Grain Rice Cakes + Natural Peanut Butter',
+            serving: '2 rice cakes + 15g peanut butter',
+            quantity: 1,
+            calories: 160,
+            protein: 7,
+            carbs: 16,
+            fat: 8
+          }
+        ]
+      },
+      {
+        id: 'meal_dn_2',
+        name: 'Dinner',
+        category: 'DINNER',
+        scheduledTime: '08:45 PM',
+        totalCalories: 600,
+        totalProtein: 46,
+        totalCarbs: 44,
+        totalFat: 23,
+        items: [
+          {
+            id: 'dfi_207',
+            name: 'Pan-Seared Fish / Chicken Tikka Breast',
+            serving: '180g fillet/breast',
+            quantity: 1,
+            calories: 340,
+            protein: 42,
+            carbs: 4,
+            fat: 16
+          },
+          {
+            id: 'dfi_208',
+            name: 'Sautéed Broccoli, Zucchini & Sweet Potato Mash',
+            serving: '150g veggies + 120g sweet potato',
+            quantity: 1,
+            calories: 260,
+            protein: 4,
+            carbs: 40,
+            fat: 7
+          }
+        ]
+      }
+    ]
+  }
+];
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
@@ -499,6 +830,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const startingWeight = l.weightKg || 75;
             const targetWeight = l.goal === 'LOSE_WEIGHT' ? startingWeight - 6 : startingWeight + 4;
             const calTarget = l.calculatedCalories || 2100;
+            const pkgOpt = findPackageOption(l.packageName || l.challengeInterest) || PACKAGE_CATALOG[0];
+            const startStr = getLocalDateString();
+            const endStr = calculateEndDateFromPackage(startStr, pkgOpt.name);
             const newCust: Customer = {
               id: `cust_${l.id.replace('lead_', '')}`,
               name: l.name || 'Converted Client',
@@ -507,13 +841,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               avatarUrl: l.sex === 'female' 
                 ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
                 : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-              joinedDate: l.createdAt ? l.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
-              totalSpent: l.estimatedValue || 7500,
+              joinedDate: l.createdAt ? l.createdAt.split('T')[0] : startStr,
+              totalSpent: l.packagePrice || l.estimatedValue || pkgOpt.price,
               status: 'ACTIVE',
-              programTier: l.challengeInterest || '90-Day VIP 1-on-1 Transformation',
+              programTier: l.packageName || l.challengeInterest || pkgOpt.name,
+              packageName: l.packageName || pkgOpt.name,
+              packageCategory: l.packageCategory || pkgOpt.category,
+              packagePrice: l.packagePrice || pkgOpt.price,
               assignedCoach: l.assignedTo && l.assignedTo !== 'Unassigned' ? l.assignedTo : 'Coach Neetu (Head Coach)',
-              startDate: new Date().toISOString().split('T')[0],
-              endDate: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+              startDate: startStr,
+              endDate: endStr,
               age: l.age || 28,
               gender: l.sex === 'female' ? 'FEMALE' : 'MALE',
               city: 'India',
@@ -576,7 +913,192 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('fitnetheist_consent_forms', JSON.stringify(consentForms));
   }, [consentForms]);
 
-  // Real-time Firebase database listeners for Leads, Customers & Consent Forms
+  // Custom Diet Plans State (Admin Only)
+  const [customDietPlans, setCustomDietPlans] = useState<AdminDietPlan[]>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_custom_diet_plans');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return INITIAL_CUSTOM_DIET_PLANS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('fitnetheist_custom_diet_plans', JSON.stringify(customDietPlans));
+    } catch (e) {}
+  }, [customDietPlans]);
+
+  // Daily Diet Tracking Records across all clients (for Admin monitoring)
+  const [dailyDietTrackingByClient, setDailyDietTrackingByClient] = useState<Record<string, Record<string, DailyDietTrackingRecord>>>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_daily_diet_tracking_all');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('fitnetheist_daily_diet_tracking_all', JSON.stringify(dailyDietTrackingByClient));
+    } catch (e) {}
+  }, [dailyDietTrackingByClient]);
+
+  const saveCustomDietPlan = (plan: AdminDietPlan) => {
+    // Recalculate meal & daily totals strictly before saving
+    const recalculatedMeals = (plan.meals || []).map(meal => {
+      const items = Array.isArray(meal.items) ? meal.items : [];
+      const totalCalories = items.reduce((s, item) => s + (Number(item.calories) || 0), 0);
+      const totalProtein = items.reduce((s, item) => s + (Number(item.protein) || 0), 0);
+      const totalCarbs = items.reduce((s, item) => s + (Number(item.carbs) || 0), 0);
+      const totalFat = items.reduce((s, item) => s + (Number(item.fat) || 0), 0);
+      return {
+        ...meal,
+        totalCalories,
+        totalProtein,
+        totalCarbs,
+        totalFat
+      };
+    });
+
+    const totalDailyCalories = recalculatedMeals.reduce((s, m) => s + m.totalCalories, 0);
+    const totalDailyProtein = recalculatedMeals.reduce((s, m) => s + m.totalProtein, 0);
+    const totalDailyCarbs = recalculatedMeals.reduce((s, m) => s + m.totalCarbs, 0);
+    const totalDailyFat = recalculatedMeals.reduce((s, m) => s + m.totalFat, 0);
+
+    const normalizedPlan: AdminDietPlan = {
+      ...plan,
+      meals: recalculatedMeals,
+      totalDailyCalories,
+      totalDailyProtein,
+      totalDailyCarbs,
+      totalDailyFat,
+      targetDailyCalories: Number(plan.targetDailyCalories) || totalDailyCalories,
+      updatedAt: new Date().toISOString()
+    };
+
+    setCustomDietPlans(prev => {
+      const list = prev || [];
+      const idx = list.findIndex(p => p.id === normalizedPlan.id);
+      if (idx >= 0) {
+        const next = [...list];
+        next[idx] = normalizedPlan;
+        return next;
+      }
+      return [normalizedPlan, ...list];
+    });
+
+    saveCustomDietPlanToRealtimeDb(normalizedPlan);
+    logAuditAction('SAVED_CUSTOM_DIET_PLAN', normalizedPlan.name, undefined, `${normalizedPlan.totalDailyCalories} kcal (${normalizedPlan.meals.length} meals)`);
+  };
+
+  const deleteCustomDietPlan = (id: string) => {
+    setCustomDietPlans(prev => (prev || []).filter(p => p.id !== id));
+    deleteCustomDietPlanFromRealtimeDb(id);
+    logAuditAction('DELETED_CUSTOM_DIET_PLAN', id);
+  };
+
+  const assignDietPlanToClient = (
+    clientInput: { id: string; name: string; email?: string } | string,
+    planInput: AdminDietPlan | string
+  ) => {
+    let client: { id: string; name: string; email: string };
+    if (typeof clientInput === 'string') {
+      const found = (customers || []).find(c => c.id === clientInput) || (leads || []).find(l => l.id === clientInput);
+      if (found) {
+        client = { id: found.id, name: found.name, email: found.email || '' };
+      } else {
+        client = { id: clientInput, name: 'Client', email: '' };
+      }
+    } else {
+      client = {
+        id: clientInput.id,
+        name: clientInput.name,
+        email: clientInput.email || ''
+      };
+    }
+
+    let plan: AdminDietPlan | undefined;
+    if (typeof planInput === 'string') {
+      plan = (customDietPlans || []).find(p => p.id === planInput);
+    } else {
+      plan = planInput;
+    }
+
+    if (!plan) {
+      console.warn('Cannot assign diet plan: plan not found', { planInput });
+      return;
+    }
+
+    // Deep-clone the diet plan so future template edits never overwrite the client's active or historical diet plan
+    const clonedMeals = (plan.meals || []).map(meal => {
+      const items = (meal.items || []).map(item => ({ ...item }));
+      const totalCalories = items.reduce((s, i) => s + (Number(i.calories) || 0), 0);
+      const totalProtein = items.reduce((s, i) => s + (Number(i.protein) || 0), 0);
+      const totalCarbs = items.reduce((s, i) => s + (Number(i.carbs) || 0), 0);
+      const totalFat = items.reduce((s, i) => s + (Number(i.fat) || 0), 0);
+      return {
+        ...meal,
+        items,
+        totalCalories,
+        totalProtein,
+        totalCarbs,
+        totalFat
+      };
+    });
+
+    const totalDailyCalories = clonedMeals.reduce((s, m) => s + m.totalCalories, 0);
+    const totalDailyProtein = clonedMeals.reduce((s, m) => s + m.totalProtein, 0);
+    const totalDailyCarbs = clonedMeals.reduce((s, m) => s + m.totalCarbs, 0);
+    const totalDailyFat = clonedMeals.reduce((s, m) => s + m.totalFat, 0);
+
+    const assignedSnapshot: AdminDietPlan = {
+      ...plan,
+      meals: clonedMeals,
+      weeklySchedule: plan.weeklySchedule ? JSON.parse(JSON.stringify(plan.weeklySchedule)) : undefined,
+      totalDailyCalories,
+      totalDailyProtein,
+      totalDailyCarbs,
+      totalDailyFat,
+      targetDailyCalories: Number(plan.targetDailyCalories) || totalDailyCalories,
+      isTemplate: false,
+      assignedClientId: client.id,
+      assignedClientName: client.name,
+      assignedClientEmail: client.email,
+      assignedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Update the customer record in AdminContext & Firebase Realtime DB
+    updateCustomer(client.id, {
+      name: client.name,
+      email: client.email,
+      assignedDietPlan: assignedSnapshot,
+      dailyCalories: assignedSnapshot.targetDailyCalories,
+      proteinGrams: assignedSnapshot.totalDailyProtein,
+      carbsGrams: assignedSnapshot.totalDailyCarbs,
+      fatsGrams: assignedSnapshot.totalDailyFat,
+      mealsPerDay: assignedSnapshot.meals.length,
+      lastActivity: `Assigned Diet: ${assignedSnapshot.name}`
+    });
+
+    // Save to client-specific localStorage keys and Firebase dietPlans node
+    try {
+      localStorage.setItem('fitnetheist_assigned_diet', JSON.stringify(assignedSnapshot));
+      localStorage.setItem(`fitnetheist_client_diet_${client.id}`, JSON.stringify(assignedSnapshot));
+      if (client.email) {
+        localStorage.setItem(`fitnetheist_client_diet_${client.email.toLowerCase()}`, JSON.stringify(assignedSnapshot));
+      }
+      window.dispatchEvent(new CustomEvent('fitnetheist-diet-assigned', { detail: assignedSnapshot }));
+    } catch (e) {}
+
+    saveDietPlanToRealtimeDb(client.id, assignedSnapshot);
+    logAuditAction('ASSIGNED_DIET_PLAN_TO_CLIENT', client.name, undefined, `${assignedSnapshot.name} (${assignedSnapshot.targetDailyCalories} kcal)`);
+  };
+
+  // Real-time Firebase database listeners for Leads, Customers, Invoices, Consent Forms, Diet Plans & Daily Tracking
   useEffect(() => {
     const unsubLeads = listenToRealtimeLeads((remoteLeads) => {
       if (Array.isArray(remoteLeads) && remoteLeads.length > 0) {
@@ -646,11 +1168,35 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     });
 
+    const unsubDietPlans = listenToRealtimeCustomDietPlans((remoteDietPlans) => {
+      if (Array.isArray(remoteDietPlans) && remoteDietPlans.length > 0) {
+        setCustomDietPlans(prev => {
+          const map = new Map<string, AdminDietPlan>();
+          (prev || []).forEach(p => { if (p && p.id) map.set(p.id, p); });
+          remoteDietPlans.forEach((rp: any) => {
+            if (rp && rp.id) map.set(rp.id, { ...map.get(rp.id), ...rp });
+          });
+          return Array.from(map.values());
+        });
+      }
+    });
+
+    const unsubDailyTracking = listenToDailyDietTracking((remoteTracking) => {
+      if (remoteTracking && typeof remoteTracking === 'object') {
+        setDailyDietTrackingByClient(prev => ({
+          ...prev,
+          ...remoteTracking
+        }));
+      }
+    });
+
     return () => {
       unsubLeads();
       unsubCust();
       unsubInvoices();
       unsubConsent();
+      unsubDietPlans();
+      unsubDailyTracking();
     };
   }, []);
 
@@ -778,21 +1324,29 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     activityLevel?: any;
     calculatedCalories?: number;
     challengeInterest?: string;
+    packageName?: string;
+    packageCategory?: string;
+    packagePrice?: number;
     workoutPreferences?: any;
     dietPreferences?: any;
     customNote?: string;
   }): Lead => {
     const cleanEmail = data.email.trim().toLowerCase();
     const existingIndex = leads.findIndex(l => l.email.toLowerCase() === cleanEmail);
+    const pkgOpt = findPackageOption(data.packageName || data.challengeInterest);
+    const resolvedPackageName = data.packageName || pkgOpt?.name || data.challengeInterest;
+    const resolvedPackageCategory = data.packageCategory || pkgOpt?.category;
+    const resolvedPackagePrice = data.packagePrice ?? pkgOpt?.price ?? (data.challengeInterest ? 8000 : 8000);
+
     const calculatedScore = computeScore(
       data.source, 
-      !!data.challengeInterest, 
+      !!(data.challengeInterest || resolvedPackageName), 
       !!data.calculatedCalories, 
       !!(data.dietPreferences || data.workoutPreferences)
     );
 
     const classification = calculatedScore >= 70 ? 'HOT' : calculatedScore >= 35 ? 'WARM' : 'COLD';
-    const assignedStaff = data.challengeInterest ? 'Vikram Mehta (Sales Lead)' : 'Ananya Roy (Advisor)';
+    const assignedStaff = (data.challengeInterest || resolvedPackageName) ? 'Vikram Mehta (Sales Lead)' : 'Ananya Roy (Advisor)';
 
     if (existingIndex >= 0) {
       // Update existing lead without duplicate
@@ -804,7 +1358,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         id: `act_${Date.now()}`,
         timestamp: new Date().toISOString(),
         type: 'TOOL_INTERACTION' as const,
-        description: `Lead re-engaged via ${data.source.replace(/_/g, ' ')}${data.challengeInterest ? ` (${data.challengeInterest})` : ''}`,
+        description: `Lead re-engaged via ${data.source.replace(/_/g, ' ')}${resolvedPackageName ? ` (${resolvedPackageName})` : ''}`,
         performedBy: 'SYSTEM_BOT'
       };
 
@@ -820,7 +1374,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         heightCm: data.heightCm || existing.heightCm,
         weightKg: data.weightKg || existing.weightKg,
         calculatedCalories: data.calculatedCalories || existing.calculatedCalories,
-        challengeInterest: data.challengeInterest || existing.challengeInterest,
+        challengeInterest: resolvedPackageName || existing.challengeInterest,
+        packageName: resolvedPackageName || existing.packageName,
+        packageCategory: resolvedPackageCategory || existing.packageCategory,
+        packagePrice: data.packagePrice ?? existing.packagePrice ?? resolvedPackagePrice,
+        estimatedValue: data.packagePrice ?? existing.estimatedValue ?? resolvedPackagePrice,
         score: updatedScore,
         scoreClassification: updatedClassification,
         activities: [newActivity, ...existing.activities]
@@ -865,10 +1423,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       else if (classification === 'WARM') defaultTags.push('WARM');
       else defaultTags.push('COLD');
 
-      if (data.challengeInterest) {
-        if (data.challengeInterest.includes('21')) defaultTags.push('21_DAY');
-        if (data.challengeInterest.includes('60')) defaultTags.push('60_DAY');
-        if (data.challengeInterest.includes('90')) defaultTags.push('90_DAY');
+      if (resolvedPackageName) {
+        if (resolvedPackageName.includes('21')) defaultTags.push('21_DAY');
+        if (resolvedPackageName.includes('60')) defaultTags.push('60_DAY');
+        if (resolvedPackageName.includes('90') || resolvedPackageName.includes('3 Month')) defaultTags.push('90_DAY');
       }
       if (data.dietType === 'VEGETARIAN') defaultTags.push('VEGETARIAN');
       if (data.dietType === 'NON-VEGETARIAN') defaultTags.push('NON_VEGETARIAN');
@@ -893,7 +1451,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         status: 'NEW',
         assignedTo: assignedStaff,
         createdAt: new Date().toISOString(),
-        estimatedValue: data.challengeInterest ? 249 : 149,
+        estimatedValue: resolvedPackagePrice,
+        packageName: resolvedPackageName,
+        packageCategory: resolvedPackageCategory,
+        packagePrice: resolvedPackagePrice,
         score: calculatedScore,
         scoreClassification: classification,
         age: data.age,
@@ -902,7 +1463,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         weightKg: data.weightKg,
         activityLevel: data.activityLevel,
         calculatedCalories: data.calculatedCalories,
-        challengeInterest: data.challengeInterest,
+        challengeInterest: resolvedPackageName,
         workoutPreferences: data.workoutPreferences,
         dietPreferences: data.dietPreferences,
         tags: defaultTags,
@@ -912,7 +1473,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             id: `act_${Date.now()}`,
             timestamp: new Date().toISOString(),
             type: 'CREATED',
-            description: `Lead auto-captured via ${data.source.replace(/_/g, ' ')} with score ${calculatedScore}`,
+            description: `Lead captured via ${data.source.replace(/_/g, ' ')}${resolvedPackageName ? ` · Package: ${resolvedPackageName}` : ''}`,
             performedBy: 'SYSTEM_BOT'
           }
         ],
@@ -929,7 +1490,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         id: `notif_${Date.now()}`,
         timestamp: 'Just now',
         title: `New Lead: ${newLead.name} (${classification})`,
-        message: `Captured via ${data.source}. Score: ${calculatedScore}. Assigned to ${assignedStaff}.`,
+        message: `Captured via ${data.source}. Package: ${resolvedPackageName || 'TBD'}. Assigned to ${assignedStaff}.`,
         type: classification === 'HOT' ? 'HOT_LEAD' : 'NEW_LEAD',
         read: false,
         linkSubtab: 'leads'
@@ -938,6 +1499,46 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       return newLead;
     }
+  };
+
+  const updateLead = (leadId: string, updates: Partial<Lead>, note?: string) => {
+    let syncedLead: Lead | null = null;
+    setLeads(prev => (prev || []).map(l => {
+      if (l.id === leadId) {
+        const pkgOpt = updates.packageName ? findPackageOption(updates.packageName) : undefined;
+        const packageCategory = updates.packageCategory || pkgOpt?.category || l.packageCategory;
+        const packagePrice = updates.packagePrice ?? pkgOpt?.price ?? l.packagePrice;
+        const estimatedValue = updates.estimatedValue ?? packagePrice ?? l.estimatedValue;
+        const challengeInterest = updates.packageName || updates.challengeInterest || l.challengeInterest;
+
+        const currentActivities = Array.isArray(l.activities) ? l.activities : [];
+        const newActivity = {
+          id: `act_${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          type: 'NOTE' as const,
+          description: note || `Updated lead details${updates.packageName ? ` · Package: ${updates.packageName}` : ''}`,
+          performedBy: currentRole.replace('_', ' ')
+        };
+
+        const updated: Lead = {
+          ...l,
+          ...updates,
+          packageCategory,
+          packagePrice,
+          estimatedValue,
+          challengeInterest,
+          activities: [newActivity, ...currentActivities]
+        };
+        syncedLead = updated;
+        return updated;
+      }
+      return l;
+    }));
+
+    if (syncedLead) {
+      saveLeadToRealtimeDb(syncedLead);
+    }
+    logAuditAction('UPDATED_LEAD_DETAILS', leadId, undefined, updates.packageName || 'Lead Edited');
   };
 
   const updateLeadStatus = (leadId: string, status: LeadStatus, note?: string) => {
@@ -1103,7 +1704,85 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateCustomer = (customerId: string, data: Partial<Customer>) => {
-    setCustomers(prev => (prev || []).map(c => c.id === customerId ? { ...c, ...data } : c));
+    setCustomers(prev => {
+      const list = prev || [];
+      const existingIndex = list.findIndex(
+        c => c.id === customerId ||
+             (c.convertedFromLeadId && c.convertedFromLeadId === customerId) ||
+             (c.convertedFromLeadId && `cust_${c.convertedFromLeadId.replace('lead_', '')}` === customerId) ||
+             (data.email && c.email && c.email.toLowerCase() === data.email.toLowerCase()) ||
+             (customerId.includes('@') && c.email && c.email.toLowerCase() === customerId.toLowerCase())
+      );
+
+      if (existingIndex >= 0) {
+        const updatedCustomer: Customer = {
+          ...list[existingIndex],
+          ...data
+        };
+        const nextList = [...list];
+        nextList[existingIndex] = updatedCustomer;
+        saveCustomerToRealtimeDb(updatedCustomer);
+        return nextList;
+      }
+
+      // If not yet in customers (e.g. converted lead, default client, or logged-in user), synthesize and insert
+      const matchingLead = (leads || []).find(
+        l => l.id === customerId ||
+             `cust_${l.id.replace('lead_', '')}` === customerId ||
+             l.id === customerId.replace('cust_', 'lead_') ||
+             (data.email && l.email && l.email.toLowerCase() === data.email.toLowerCase())
+      );
+
+      const startingWeight = data.startingWeightKg || matchingLead?.weightKg || 75;
+      const calTarget = data.dailyCalories || matchingLead?.calculatedCalories || 2100;
+      const upsertedCustomer: Customer = {
+        id: customerId.startsWith('lead_') ? `cust_${customerId.replace('lead_', '')}` : customerId,
+        name: data.name || ( data as any )?.assignedWorkoutPlan?.assignedClientName || matchingLead?.name || 'Client',
+        email: data.email || ( data as any )?.assignedWorkoutPlan?.assignedClientEmail || matchingLead?.email || 'client@fitnetheist.com',
+        phone: data.phone || matchingLead?.phone || '+91 98765 43210',
+        avatarUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        joinedDate: data.joinedDate || new Date().toISOString().split('T')[0],
+        totalSpent: data.totalSpent ?? (matchingLead?.estimatedValue || 8000),
+        status: data.status || 'ACTIVE',
+        programTier: data.programTier || matchingLead?.challengeInterest || '90-Day VIP 1-on-1 Transformation',
+        assignedCoach: data.assignedCoach || 'Coach Neetu (Head Coach)',
+        startDate: data.startDate || new Date().toISOString().split('T')[0],
+        endDate: data.endDate || new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+        age: data.age || matchingLead?.age || 28,
+        gender: data.gender || (matchingLead?.sex === 'female' ? 'FEMALE' : 'MALE'),
+        city: data.city || 'India',
+        emergencyContact: data.emergencyContact || '',
+        heightCm: data.heightCm || matchingLead?.heightCm || 175,
+        startingWeightKg: startingWeight,
+        currentWeightKg: data.currentWeightKg || startingWeight,
+        targetWeightKg: data.targetWeightKg || (startingWeight - 5),
+        targetDate: data.targetDate || '',
+        injuriesOrMedicalConditions: data.injuriesOrMedicalConditions || 'None reported.',
+        dietGoal: data.dietGoal || (matchingLead?.goal as any) || 'BUILD_MUSCLE',
+        dietType: data.dietType || (matchingLead?.dietType as any) || 'VEGETARIAN',
+        dailyCalories: calTarget,
+        proteinGrams: data.proteinGrams || Math.round(startingWeight * 2),
+        carbsGrams: data.carbsGrams || Math.round((calTarget * 0.45) / 4),
+        fatsGrams: data.fatsGrams || Math.round((calTarget * 0.25) / 9),
+        waterLitres: data.waterLitres || 3.5,
+        mealsPerDay: data.mealsPerDay || 4,
+        allergiesOrRestrictions: data.allergiesOrRestrictions || 'None',
+        cheatMealProtocol: data.cheatMealProtocol || '1 clean cheat meal weekly',
+        workoutSplit: data.workoutSplit || 'Push / Pull / Legs',
+        trainingDaysPerWeek: data.trainingDaysPerWeek || (data as any)?.assignedWorkoutPlan?.daysPerWeek || 4,
+        experienceLevel: data.experienceLevel || 'INTERMEDIATE',
+        cardioProtocol: data.cardioProtocol || '8,500 daily steps',
+        strengthBenchmarks: data.strengthBenchmarks || { benchPressKg: 70, squatKg: 90, deadliftKg: 120, overheadPressKg: 40 },
+        streakDays: 1,
+        lastActivity: 'Updated by Coach',
+        orderIds: [],
+        convertedFromLeadId: matchingLead?.id,
+        ...data
+      };
+
+      saveCustomerToRealtimeDb(upsertedCustomer);
+      return [upsertedCustomer, ...list];
+    });
     logAuditAction('UPDATED_CUSTOMER_PROFILE', customerId);
   };
 
@@ -1114,19 +1793,30 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const targetWeight = data.targetWeightKg || (data.dietGoal === 'LOSE_WEIGHT' ? startingWeight - 6 : startingWeight + 4);
     const calTarget = data.dailyCalories || 2100;
 
+    const pkgOpt = findPackageOption(data.packageName || data.programTier) || PACKAGE_CATALOG[0];
+    const resolvedPkgName = data.packageName || data.programTier || pkgOpt.name;
+    const resolvedPkgCat = data.packageCategory || pkgOpt.category;
+    const resolvedPkgPrice = data.packagePrice ?? data.totalSpent ?? pkgOpt.price;
+    const startStr = data.startDate || getLocalDateString();
+    const endStr = data.endDate || calculateEndDateFromPackage(startStr, resolvedPkgName);
+
     const newCustomer: Customer = {
       id: newId,
       name: data.name || 'New Client',
       email: data.email || `client_${Date.now()}@domain.com`,
       phone: data.phone || '',
       avatarUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      joinedDate: data.joinedDate || new Date().toISOString().split('T')[0],
-      totalSpent: data.totalSpent ?? 0,
+      joinedDate: data.joinedDate || startStr,
+      totalSpent: data.totalSpent ?? resolvedPkgPrice,
       status: data.status || 'ACTIVE',
-      programTier: data.programTier || '90-Day VIP 1-on-1 Transformation',
+      programTier: resolvedPkgName,
+      packageName: resolvedPkgName,
+      packageCategory: resolvedPkgCat,
+      packagePrice: resolvedPkgPrice,
+      paymentStatus: data.paymentStatus || 'PAID',
       assignedCoach: data.assignedCoach || (currentRole === 'COACH' ? 'Assigned Coach' : 'Coach Neetu (Head Coach)'),
-      startDate: data.startDate || new Date().toISOString().split('T')[0],
-      endDate: data.endDate || new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+      startDate: startStr,
+      endDate: endStr,
       age: data.age || 28,
       gender: data.gender || 'MALE',
       city: data.city || 'India',
@@ -1158,7 +1848,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       checkIns: data.checkIns || [
         {
           id: `chk_${Date.now()}`,
-          date: new Date().toISOString().split('T')[0],
+          date: startStr,
           weightKg: currentWeight,
           adherenceScore: 10,
           clientNotes: 'Client profile initialized. Ready to begin training.',
@@ -1172,20 +1862,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           createdAt: new Date().toISOString(),
           author: currentRole === 'SUPER_ADMIN' ? 'Admin' : currentRole.replace('_', ' '),
           type: 'GENERAL',
-          content: `Client enrolled into ${data.programTier || 'Coaching Program'}. Initial protocol active.`
+          content: `Client enrolled into ${resolvedPkgName} (${startStr} to ${endStr}). Initial protocol active.`
         }
       ]
     };
 
     setCustomers(prev => [newCustomer, ...(prev || [])]);
     saveCustomerToRealtimeDb(newCustomer);
-    logAuditAction('CREATED_NEW_CLIENT', newCustomer.name, undefined, `${newCustomer.programTier} (Assigned: ${newCustomer.assignedCoach})`);
+    logAuditAction('CREATED_NEW_CLIENT', newCustomer.name, undefined, `${newCustomer.packageName} (Assigned: ${newCustomer.assignedCoach})`);
 
     const newNotif: AdminNotification = {
       id: `notif_${Date.now()}`,
       timestamp: 'Just now',
       title: `New Client Enrolled: ${newCustomer.name}`,
-      message: `Directly onboarded to ${newCustomer.programTier}. Assigned to ${newCustomer.assignedCoach}.`,
+      message: `Directly onboarded to ${newCustomer.packageName}. Assigned to ${newCustomer.assignedCoach}.`,
       type: 'NEW_LEAD',
       read: false,
       linkSubtab: 'clients'
@@ -1204,19 +1894,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const targetWeight = clientDetails?.targetWeightKg || (lead?.goal === 'LOSE_WEIGHT' ? startingWeight - 6 : startingWeight + 4);
     const calTarget = clientDetails?.dailyCalories || lead?.calculatedCalories || 2000;
 
+    // Carry forward selected package from Lead or ClientIntakeModal
+    const pkgCandidate = clientDetails?.packageName || clientDetails?.programTier || lead?.packageName || lead?.challengeInterest;
+    const pkgOpt = findPackageOption(pkgCandidate) || PACKAGE_CATALOG[0];
+    const resolvedPkgName = pkgCandidate || pkgOpt.name;
+    const resolvedPkgCat = clientDetails?.packageCategory || lead?.packageCategory || pkgOpt.category;
+    const resolvedPkgPrice = clientDetails?.packagePrice ?? clientDetails?.totalSpent ?? lead?.packagePrice ?? lead?.estimatedValue ?? pkgOpt.price;
+    const startStr = clientDetails?.startDate || getLocalDateString();
+    const endStr = clientDetails?.endDate || calculateEndDateFromPackage(startStr, resolvedPkgName);
+
     const newCustomer: Customer = {
       id: existingCust ? existingCust.id : `cust_${Date.now()}`,
       name: clientDetails?.name || lead?.name || 'New Client',
       email: clientDetails?.email || lead?.email || `client_${Date.now()}@domain.com`,
       phone: clientDetails?.phone || lead?.phone || '',
       avatarUrl: clientDetails?.avatarUrl || existingCust?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      joinedDate: new Date().toISOString().split('T')[0],
-      totalSpent: clientDetails?.totalSpent ?? (lead?.estimatedValue || 7500),
+      joinedDate: startStr,
+      totalSpent: resolvedPkgPrice,
       status: clientDetails?.status || 'ACTIVE',
-      programTier: clientDetails?.programTier || lead?.challengeInterest || '90-Day VIP 1-on-1 Transformation',
+      programTier: resolvedPkgName,
+      packageName: resolvedPkgName,
+      packageCategory: resolvedPkgCat,
+      packagePrice: resolvedPkgPrice,
+      paymentStatus: clientDetails?.paymentStatus || 'PAID',
       assignedCoach: clientDetails?.assignedCoach || (lead?.assignedTo && lead.assignedTo !== 'Unassigned' ? lead.assignedTo : 'Coach Neetu (Head Coach)'),
-      startDate: clientDetails?.startDate || new Date().toISOString().split('T')[0],
-      endDate: clientDetails?.endDate || new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+      startDate: startStr,
+      endDate: endStr,
       age: clientDetails?.age || lead?.age || 29,
       gender: clientDetails?.gender || (lead?.sex === 'female' ? 'FEMALE' : 'MALE'),
       city: clientDetails?.city || 'India',
@@ -1246,10 +1949,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       lastActivity: 'Converted from Lead',
       orderIds: existingCust ? existingCust.orderIds : [],
       convertedFromLeadId: leadId,
+      assignedWorkoutPlan: existingCust?.assignedWorkoutPlan,
+      assignedDietPlan: existingCust?.assignedDietPlan,
       checkIns: existingCust?.checkIns || [
         {
           id: `chk_${Date.now()}`,
-          date: new Date().toISOString().split('T')[0],
+          date: startStr,
           weightKg: currentWeight,
           adherenceScore: 10,
           clientNotes: 'Initial onboarding check-in. Ready to begin protocol.',
@@ -1263,7 +1968,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           createdAt: new Date().toISOString(),
           author: currentRole === 'SUPER_ADMIN' ? 'Admin' : currentRole.replace('_', ' '),
           type: 'GENERAL',
-          content: `Converted from CRM Lead (${lead?.source?.replace(/_/g, ' ') || 'CRM'}). Starting: ${startingWeight}kg, Goal: ${targetWeight}kg.`
+          content: `Converted from CRM Lead (${lead?.source?.replace(/_/g, ' ') || 'CRM'}). Package: ${resolvedPkgName} (${startStr} to ${endStr}). Starting: ${startingWeight}kg, Goal: ${targetWeight}kg.`
         },
         ...(existingCust?.coachNotes || [])
       ]
@@ -1337,15 +2042,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...checkIn
     };
     setCustomers(prev => (prev || []).map(c => {
-      if (c.id === customerId) {
+      if (c.id === customerId || c.convertedFromLeadId === customerId || (c.convertedFromLeadId && `cust_${c.convertedFromLeadId.replace('lead_', '')}` === customerId)) {
         const existingCheckIns = Array.isArray(c.checkIns) ? c.checkIns : [];
-        return {
+        const updated: Customer = {
           ...c,
           currentWeightKg: checkIn.weightKg || c.currentWeightKg,
           lastActivity: 'Logged Check-in',
           streakDays: (c.streakDays || 0) + 1,
           checkIns: [newCheckIn, ...existingCheckIns]
         };
+        saveCustomerToRealtimeDb(updated);
+        return updated;
       }
       return c;
     }));
@@ -1359,13 +2066,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       ...note
     };
     setCustomers(prev => (prev || []).map(c => {
-      if (c.id === customerId) {
+      if (c.id === customerId || c.convertedFromLeadId === customerId || (c.convertedFromLeadId && `cust_${c.convertedFromLeadId.replace('lead_', '')}` === customerId)) {
         const existingNotes = Array.isArray(c.coachNotes) ? c.coachNotes : [];
-        return {
+        const updated: Customer = {
           ...c,
           lastActivity: 'Coach Note Added',
           coachNotes: [newNote, ...existingNotes]
         };
+        saveCustomerToRealtimeDb(updated);
+        return updated;
       }
       return c;
     }));
@@ -1587,6 +2296,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       updateScoringRules,
       trackLeadEvent,
       captureLead,
+      updateLead,
       updateLeadStatus,
       assignLead,
       addLeadNote,
@@ -1601,6 +2311,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       deleteCustomer,
       addClientCheckIn,
       addClientCoachNote,
+      customDietPlans,
+      saveCustomDietPlan,
+      deleteCustomDietPlan,
+      assignDietPlanToClient,
+      dailyDietTrackingByClient,
       orders,
       updateOrderStatus,
       subscriptions,

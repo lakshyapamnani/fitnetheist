@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Customer, ClientCheckIn, ClientCoachNote, Lead } from '../../types/admin';
+import {
+  Customer,
+  Lead,
+  PACKAGE_CATALOG,
+  findPackageOption,
+  getLocalDateString,
+  calculateEndDateFromPackage,
+  getSubscriptionStatusInfo
+} from '../../types/admin';
 import { FitnessGoal } from '../../types';
 import { useAdmin } from '../../context/AdminContext';
 import { 
   UserPlus, 
   X, 
   CheckCircle2, 
-  Sparkles, 
   Dumbbell, 
   Utensils, 
   HeartPulse, 
-  Phone, 
   Mail, 
-  MapPin, 
   Calendar, 
   Calculator, 
-  ShieldAlert,
   Flame,
-  Award
+  Award,
+  Package
 } from 'lucide-react';
 
 interface ClientIntakeModalProps {
@@ -38,8 +43,7 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
   const { 
     addCustomer, 
     updateCustomer, 
-    convertLeadToCustomer, 
-    currentRole 
+    convertLeadToCustomer
   } = useAdmin();
 
   const [activeFormTab, setActiveFormTab] = useState<'PERSONAL' | 'BIOMETRICS' | 'PROGRAM' | 'NUTRITION' | 'WORKOUT'>('PERSONAL');
@@ -62,13 +66,13 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
   const [targetDate, setTargetDate] = useState('');
   const [injuries, setInjuries] = useState('');
 
-  // Program & Coaching
-  const [programTier, setProgramTier] = useState('90-Day VIP 1-on-1 Transformation');
+  // Program, Package & Subscription Dates
+  const [programTier, setProgramTier] = useState(PACKAGE_CATALOG[0].name);
   const [assignedCoach, setAssignedCoach] = useState('Coach Neetu (Head Coach)');
   const [status, setStatus] = useState<'ACTIVE' | 'ONBOARDING' | 'PAUSED' | 'COMPLETED'>('ACTIVE');
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0]);
-  const [totalSpent, setTotalSpent] = useState<number>(15000);
+  const [startDate, setStartDate] = useState(getLocalDateString());
+  const [endDate, setEndDate] = useState(calculateEndDateFromPackage(getLocalDateString(), PACKAGE_CATALOG[0].name));
+  const [totalSpent, setTotalSpent] = useState<number>(PACKAGE_CATALOG[0].priceINR);
 
   // Nutrition Protocol
   const [dietGoal, setDietGoal] = useState<FitnessGoal>('BUILD_MUSCLE');
@@ -92,11 +96,9 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
   const [deadliftKg, setDeadliftKg] = useState<number>(120);
   const [overheadPressKg, setOverheadPressKg] = useState<number>(40);
 
-  // Initial Coach Note
-  const [initialCoachNote, setInitialCoachNote] = useState('');
-
   // Populate when modal opens
   useEffect(() => {
+    const todayLocal = getLocalDateString();
     if (existingClient) {
       setName(existingClient.name || '');
       setEmail(existingClient.email || '');
@@ -112,12 +114,15 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
       setTargetWeightKg(existingClient.targetWeightKg || 72);
       setTargetDate(existingClient.targetDate || '');
       setInjuries(existingClient.injuriesOrMedicalConditions || '');
-      setProgramTier(existingClient.programTier || '90-Day VIP 1-on-1 Transformation');
+      const existingPkg = existingClient.packageName || existingClient.programTier || PACKAGE_CATALOG[0].name;
+      const matchedOpt = findPackageOption(existingPkg);
+      setProgramTier(matchedOpt ? matchedOpt.name : existingPkg);
       setAssignedCoach(existingClient.assignedCoach || 'Coach Neetu (Head Coach)');
       setStatus(existingClient.status || 'ACTIVE');
-      setStartDate(existingClient.startDate || new Date().toISOString().split('T')[0]);
-      setEndDate(existingClient.endDate || new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0]);
-      setTotalSpent(existingClient.totalSpent || 0);
+      const initStart = existingClient.startDate || todayLocal;
+      setStartDate(initStart);
+      setEndDate(existingClient.endDate || calculateEndDateFromPackage(initStart, matchedOpt ? matchedOpt.name : existingPkg));
+      setTotalSpent(existingClient.totalSpent || existingClient.packagePrice || matchedOpt?.priceINR || 8500);
       setDietGoal(existingClient.dietGoal || 'BUILD_MUSCLE');
       setDietType(existingClient.dietType || 'VEGETARIAN');
       setDailyCalories(existingClient.dailyCalories || 2200);
@@ -152,8 +157,13 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
       setTargetWeightKg(isLose ? Math.max(wt - 7, 50) : wt + 4);
       setDietGoal(leadToConvert.goal || 'BUILD_MUSCLE');
       setDietType((leadToConvert.dietType as any) || 'VEGETARIAN');
-      setTotalSpent(leadToConvert.estimatedValue || 12000);
-      setProgramTier(leadToConvert.challengeInterest || '90-Day VIP 1-on-1 Transformation');
+
+      const rawPkg = leadToConvert.packageName || leadToConvert.challengeInterest || PACKAGE_CATALOG[0].name;
+      const matchedOpt = findPackageOption(rawPkg) || PACKAGE_CATALOG[0];
+      setProgramTier(matchedOpt.name);
+      setStartDate(todayLocal);
+      setEndDate(calculateEndDateFromPackage(todayLocal, matchedOpt.name));
+      setTotalSpent(leadToConvert.estimatedValue || matchedOpt.priceINR || 8500);
       setAssignedCoach(leadToConvert.assignedTo && leadToConvert.assignedTo !== 'Unassigned' ? leadToConvert.assignedTo : 'Coach Neetu (Head Coach)');
       
       const cals = leadToConvert.calculatedCalories || (isLose ? 1800 : 2500);
@@ -169,7 +179,6 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
       if (leadToConvert.workoutPreferences?.experience) {
         setExperienceLevel(leadToConvert.workoutPreferences.experience as any);
       }
-      setInitialCoachNote(`Converted from CRM Lead (${leadToConvert.source}). Captured on ${new Date(leadToConvert.createdAt).toLocaleDateString()}.`);
     } else {
       // Clean New Client default
       setName('');
@@ -187,19 +196,37 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
       setProteinGrams(150);
       setCarbsGrams(220);
       setFatsGrams(50);
-      setTotalSpent(15000);
-      setInitialCoachNote('');
+      const defaultPkg = PACKAGE_CATALOG[0];
+      setProgramTier(defaultPkg.name);
+      setStartDate(todayLocal);
+      setEndDate(calculateEndDateFromPackage(todayLocal, defaultPkg.name));
+      setTotalSpent(defaultPkg.priceINR);
     }
   }, [existingClient, leadToConvert, isOpen]);
 
   if (!isOpen) return null;
 
+  const handlePackageChange = (newPkgName: string) => {
+    setProgramTier(newPkgName);
+    const matchedOpt = findPackageOption(newPkgName);
+    if (matchedOpt) {
+      setTotalSpent(matchedOpt.priceINR);
+      setEndDate(calculateEndDateFromPackage(startDate, matchedOpt.name));
+    }
+  };
+
+  const handleStartDateChange = (newStart: string) => {
+    setStartDate(newStart);
+    if (newStart) {
+      setEndDate(calculateEndDateFromPackage(newStart, programTier));
+    }
+  };
+
   // Auto calculate recommended macros
   const handleAutoCalculateMacros = () => {
-    // Mifflin-St Jeor formula
     const s = gender === 'MALE' ? 5 : -161;
     const bmr = 10 * currentWeightKg + 6.25 * heightCm - 5 * age + s;
-    const tdee = bmr * 1.45; // intermediate active factor
+    const tdee = bmr * 1.45;
     
     let targetCals = Math.round(tdee);
     if (dietGoal === 'LOSE_WEIGHT') {
@@ -225,9 +252,10 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim()) {
-      alert('Please enter at least the Client Name and Email Address.');
       return;
     }
+
+    const matchedPkg = findPackageOption(programTier);
 
     const clientPayload: Partial<Customer> = {
       name: name.trim(),
@@ -245,11 +273,14 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
       targetDate,
       injuriesOrMedicalConditions: injuries.trim() || 'None reported.',
       programTier,
+      packageName: programTier,
+      packageCategory: matchedPkg?.category || 'Official Coaching Plan',
+      packagePrice: Number(totalSpent) || matchedPkg?.priceINR || 8500,
       assignedCoach,
       status,
       startDate,
       endDate,
-      totalSpent: Number(totalSpent) || 0,
+      totalSpent: Number(totalSpent) || matchedPkg?.priceINR || 0,
       dietGoal,
       dietType,
       dailyCalories: Number(dailyCalories) || 2100,
@@ -290,6 +321,8 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
   };
 
   const calculatedTotalMacroCals = (proteinGrams * 4) + (carbsGrams * 4) + (fatsGrams * 9);
+  const subPreview = getSubscriptionStatusInfo(startDate, endDate);
+  const selectedPkgObj = findPackageOption(programTier);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
@@ -308,12 +341,12 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
                 </h2>
                 {leadToConvert && (
                   <span className="px-2 py-0.5 bg-[#FFC515] text-black font-extrabold text-[10px] rounded-xs uppercase">
-                    FROM CRM LEAD
+                    PACKAGE CARRIED FORWARD
                   </span>
                 )}
               </div>
               <p className="text-zinc-400 text-[11px] font-mono-num mt-0.5">
-                Set required identity, physical biometrics, macro prescription, workout split, and coach assignment.
+                Confirm package selected, subscription start/end dates, biometrics, macros, and coach assignment.
               </p>
             </div>
           </div>
@@ -325,6 +358,72 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
           >
             <X size={18} />
           </button>
+        </div>
+
+        {/* Always-Visible Package & Subscription Dates Bar (Required when creating client or converting lead) */}
+        <div className="bg-[#14141d] border-b border-[#FFC515]/30 px-6 py-3.5 shrink-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#FFC515] flex items-center gap-1.5">
+              <Package size={13} /> PACKAGE & SUBSCRIPTION TIMELINE (REQUIRED)
+            </span>
+            <span className={`px-2 py-0.5 text-[10px] font-extrabold uppercase rounded-xs border ${
+              subPreview.status === 'SUBSCRIPTION_OVER'
+                ? 'bg-red-500/20 text-red-400 border-red-500/40'
+                : subPreview.status === 'EXPIRING_SOON'
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+            }`}>
+              {subPreview.badgeText}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block text-[10px] text-zinc-400 uppercase font-bold mb-1">
+                PACKAGE SELECTED * {selectedPkgObj ? `(${selectedPkgObj.category})` : ''}
+              </label>
+              <select
+                value={programTier}
+                onChange={(e) => handlePackageChange(e.target.value)}
+                className="w-full bg-[#0c0c10] border border-[#FFC515]/50 px-3 py-2 text-white font-bold rounded-xs focus:border-[#FFC515] focus:outline-none"
+              >
+                {!selectedPkgObj && programTier && (
+                  <option value={programTier}>{programTier}</option>
+                )}
+                {PACKAGE_CATALOG.map(pkg => (
+                  <option key={pkg.id} value={pkg.name}>
+                    {pkg.name} — ₹{pkg.priceINR.toLocaleString('en-IN')} ({pkg.durationDays}d)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-zinc-400 uppercase font-bold mb-1">
+                SUBSCRIPTION START DATE *
+              </label>
+              <input
+                type="date"
+                required
+                value={startDate}
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                className="w-full bg-[#0c0c10] border border-white/20 px-3 py-2 text-white font-bold rounded-xs focus:border-[#FFC515] focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-zinc-400 uppercase font-bold mb-1">
+                SUBSCRIPTION END DATE *
+              </label>
+              <input
+                type="date"
+                required
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full bg-[#0c0c10] border border-white/20 px-3 py-2 text-[#FFC515] font-bold rounded-xs focus:border-[#FFC515] focus:outline-none"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Multi-step Form Navigation Tabs */}
@@ -618,14 +717,17 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
                   </label>
                   <select
                     value={programTier}
-                    onChange={(e) => setProgramTier(e.target.value)}
-                    className="w-full bg-[#15151c] border border-white/15 px-3 py-2 text-white font-mono-num rounded-sm focus:border-[#FFC515] focus:outline-none uppercase"
+                    onChange={(e) => handlePackageChange(e.target.value)}
+                    className="w-full bg-[#15151c] border border-white/15 px-3 py-2 text-white font-mono-num rounded-sm focus:border-[#FFC515] focus:outline-none"
                   >
-                    <option value="90-Day VIP 1-on-1 Transformation">90-Day VIP 1-on-1 Transformation</option>
-                    <option value="60-Day Recomp Challenge">60-Day Recomp Challenge</option>
-                    <option value="21-Day Ignite Shred">21-Day Ignite Shred</option>
-                    <option value="Monthly Nutrition & Training Coaching">Monthly Nutrition & Training Coaching</option>
-                    <option value="Custom Elite Client Protocol">Custom Elite Client Protocol</option>
+                    {!selectedPkgObj && programTier && (
+                      <option value={programTier}>{programTier}</option>
+                    )}
+                    {PACKAGE_CATALOG.map(pkg => (
+                      <option key={pkg.id} value={pkg.name}>
+                        {pkg.name} — ₹{pkg.priceINR.toLocaleString('en-IN')} ({pkg.category})
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -675,19 +777,19 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
 
                 <div>
                   <label className="block text-zinc-400 uppercase font-bold mb-1">
-                    START DATE
+                    SUBSCRIPTION START DATE *
                   </label>
                   <input
                     type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
                     className="w-full bg-[#15151c] border border-white/15 px-3 py-2 text-white font-mono-num rounded-sm focus:border-[#FFC515] focus:outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-zinc-400 uppercase font-bold mb-1">
-                    END / RENEWAL DATE
+                    SUBSCRIPTION END DATE *
                   </label>
                   <input
                     type="date"
@@ -983,7 +1085,7 @@ export const ClientIntakeModal: React.FC<ClientIntakeModalProps> = ({
           {/* Modal Footer Actions */}
           <div className="border-t border-white/10 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
             <div className="text-zinc-500 text-[11px]">
-              {existingClient ? 'Editing existing client dossier.' : leadToConvert ? `Converting CRM Lead #${leadToConvert.id}.` : 'Directly creating new client record.'}
+              {existingClient ? 'Editing existing client dossier.' : leadToConvert ? `Converting CRM Lead #${leadToConvert.id} (${programTier}).` : 'Directly creating new client record.'}
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">

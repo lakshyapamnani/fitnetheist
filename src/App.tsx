@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import { AdminProvider } from './context/AdminContext';
+import { AdminProvider, useAdmin } from './context/AdminContext';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { FitnessToolsPage } from './components/FitnessToolsPage';
@@ -22,8 +22,18 @@ import { ClientMeProfileView } from './components/ClientMeProfileView';
 import { PolicyPage } from './components/PolicyPage';
 
 const AppContent: React.FC = () => {
-  const { activeTab, user, openCalorieModal } = useApp();
-  const isAdmin = activeTab === 'admin';
+  const { activeTab, setActiveTab, user, openCalorieModal } = useApp();
+  const { isAdminAuthenticated } = useAdmin();
+
+  // Regular users (logged-in non-admin users) must never access admin routes even via manual URL entry
+  const isRegularUserBlockedFromAdmin = Boolean(user && !isAdminAuthenticated && activeTab === 'admin');
+  const isAdmin = activeTab === 'admin' && !isRegularUserBlockedFromAdmin;
+
+  useEffect(() => {
+    if (isRegularUserBlockedFromAdmin) {
+      setActiveTab('plan');
+    }
+  }, [isRegularUserBlockedFromAdmin, setActiveTab]);
 
   // Scroll to top upon tab switch
   useEffect(() => {
@@ -40,7 +50,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'home' && <HomePage />}
 
         {/* Plan Core Pillar */}
-        {(activeTab === 'plan' || activeTab === 'tools' || activeTab === 'calculate' || activeTab === 'nutrition' || activeTab === 'train') && (
+        {(activeTab === 'plan' || activeTab === 'tools' || activeTab === 'calculate' || activeTab === 'nutrition' || activeTab === 'train' || isRegularUserBlockedFromAdmin) && (
           <ClientPlanView />
         )}
 
@@ -60,7 +70,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'coach' && <CoachSection />}
         {activeTab === 'pricing' && <PricingSection />}
         {(activeTab === 'policy' || activeTab === 'consent' || activeTab === 'terms') && <PolicyPage />}
-        {activeTab === 'admin' && <AdminDashboard />}
+        {activeTab === 'admin' && !isRegularUserBlockedFromAdmin && <AdminDashboard />}
       </main>
 
       {/* Footer (hidden on Admin OS) */}

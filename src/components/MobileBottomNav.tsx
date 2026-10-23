@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAdmin } from '../context/AdminContext';
 import { 
   Flame, 
   Calendar, 
@@ -17,13 +18,14 @@ import {
 
 export const MobileBottomNav: React.FC = () => {
   const { activeTab, setActiveTab, user, openAuthModal } = useApp();
+  const { isAdminAuthenticated } = useAdmin();
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
 
   const primaryNavItems = [
     { id: 'home', label: 'HOME', icon: Flame },
-    { id: 'plan', label: 'PLAN', icon: Calendar },
+    { id: 'plan', label: 'MY PLAN', icon: Calendar },
     { id: 'progress', label: 'PROGRESS', icon: TrendingUp },
-    { id: 'me', label: 'ME', icon: User },
+    { id: 'me', label: 'PROFILE', icon: User },
   ];
 
   const secondaryNavItems = [
@@ -31,7 +33,9 @@ export const MobileBottomNav: React.FC = () => {
     { id: 'home_connect', label: 'CONNECT', icon: PhoneCall, desc: 'WhatsApp & Direct Desk', isSection: true, targetId: 'connect-with-us-section' },
     { id: 'challenges', label: 'CHALLENGES', icon: Trophy, desc: 'Earn badges & streaks' },
     { id: 'community', label: 'THE TRIBE', icon: Users, desc: 'Community feed & leaderboard' },
-    { id: 'admin', label: 'ADMIN HUB', icon: Shield, desc: 'Leads & analytics backend' },
+    ...((!user || isAdminAuthenticated)
+      ? [{ id: 'admin', label: 'ADMIN HUB', icon: Shield, desc: 'Leads & analytics backend' }]
+      : [])
   ];
 
   const handleSelectTab = (tabId: string) => {

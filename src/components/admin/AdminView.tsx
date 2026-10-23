@@ -18,6 +18,7 @@ import { AdminUsersView } from './AdminUsersView';
 import { AdminSettingsView } from './AdminSettingsView';
 import { ExerciseBankAdminView } from './ExerciseBankAdminView';
 import { ConsentFormsAdminView } from './ConsentFormsAdminView';
+import { DietManagementAdminView } from './DietManagementAdminView';
 
 export const AdminView: React.FC = () => {
   const { activeSubtab, isAdminAuthenticated } = useAdmin();
@@ -72,7 +73,7 @@ export const AdminView: React.FC = () => {
         return <ChallengesAdminView />;
       case 'foods':
       case 'diets':
-        return <FoodAndDietAdminView />;
+        return <DietManagementAdminView />;
       case 'transformations':
       case 'testimonials':
         return <TransformationsAndTestimonialsView />;

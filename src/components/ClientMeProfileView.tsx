@@ -481,15 +481,12 @@ export const ClientMeProfileView: React.FC = () => {
           </div>
 
           <div className="p-4 bg-[#141416] rounded border border-[#222226]">
-            <span className="text-[#9A9A9A] block">ADMINISTRATOR DESK</span>
-            <button
-              onClick={() => setActiveTab('admin')}
-              className="text-xs font-bold text-[#FFC515] hover:underline block mt-1"
-            >
-              Open Coach Admin Portal →
-            </button>
+            <span className="text-[#9A9A9A] block">ACTIVE PACKAGE</span>
+            <span className="text-xs font-bold text-[#FFC515] block mt-1">
+              {user.packageName || '3 Months Transformation Protocol'}
+            </span>
             <span className="text-[10px] text-[#9A9A9A] mt-1 block">
-              Manage client inquiries, roster & analytics.
+              {user.subscriptionEndDate ? `Valid until ${user.subscriptionEndDate}` : 'Managed by Coach Neetu'}
             </span>
           </div>
 

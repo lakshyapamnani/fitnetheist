@@ -19,8 +19,11 @@ import {
   Challenge,
   FoodItem,
   Exercise,
-  TransformationStory
+  TransformationStory,
+  AdminDietPlan,
+  DailyDietTrackingRecord
 } from '../types';
+import { getLocalDateString } from '../types/admin';
 import { FOOD_DATABASE, generateSevenDayDietPlan, generateGroceryList, getMealAlternatives } from '../data/nutritionDatabase';
 import { EXERCISE_DATABASE, generateWorkoutPlan } from '../data/workoutDatabase';
 import { CHALLENGES_DATA, TRANSFORMATIONS_DATA } from '../data/challengesData';
@@ -39,6 +42,8 @@ import {
   getSavedFirebaseConfig,
   saveLeadToRealtimeDb,
   saveDietPlanToRealtimeDb,
+  getDietPlanFromRealtimeDb,
+  saveDailyDietTrackingToRealtimeDb,
   saveWorkoutPlanToRealtimeDb,
   saveCalorieCalculationToRealtimeDb,
   saveDailyLogToRealtimeDb,
@@ -71,6 +76,10 @@ interface AppContextType {
   setActiveTab: (tab: string) => void;
   calorieResult: CalorieResult | null;
   dietPlan: SevenDayDietPlan | null;
+  assignedDietPlan: AdminDietPlan | null;
+  dailyDietTracking: Record<string, DailyDietTrackingRecord>;
+  getDailyDietTrackingForDate: (dateStr?: string) => DailyDietTrackingRecord;
+  toggleDietFoodItemCheck: (itemId: string, dateStr?: string) => void;
   workoutPlan: WorkoutPlan | null;
   groceryList: GroceryItem[];
   dailyLogs: DailyLog[];
@@ -142,6 +151,10 @@ interface AppContextType {
   assignPersonalizedWorkoutToClient: (
     client: { id: string; name: string; email: string },
     plan: WorkoutPlan
+  ) => void;
+  assignPersonalizedDietToClient: (
+    client: { id: string; name: string; email: string },
+    plan: AdminDietPlan
   ) => void;
   toggleGroceryItemCheck: (id: string) => void;
   enrollInChallenge: (challengeId: string) => void;
@@ -336,6 +349,276 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [dietPlan, setDietPlan] = useState<SevenDayDietPlan | null>(() => {
     return generateSevenDayDietPlan(2050, 'NON-VEGETARIAN', 'INDIAN_INTERNATIONAL', 4);
   });
+
+  // Assigned Coach Diet Plan (Admin-Only Assigned Protocol)
+  const [assignedDietPlan, setAssignedDietPlan] = useState<AdminDietPlan | null>(() => {
+    try {
+      const currentProfile = getProfile();
+      if (currentProfile?.assignedDietPlan && Array.isArray(currentProfile.assignedDietPlan.meals)) {
+        return currentProfile.assignedDietPlan;
+      }
+      if (currentProfile?.id) {
+        const byId = localStorage.getItem(`fitnetheist_client_diet_${currentProfile.id}`);
+        if (byId) {
+          const parsed = JSON.parse(byId);
+          if (parsed && Array.isArray(parsed.meals)) return parsed;
+        }
+      }
+      if (currentProfile?.email) {
+        const byEmail = localStorage.getItem(`fitnetheist_client_diet_${currentProfile.email.toLowerCase()}`);
+        if (byEmail) {
+          const parsed = JSON.parse(byEmail);
+          if (parsed && Array.isArray(parsed.meals)) return parsed;
+        }
+      }
+      // Also check customers list in localStorage
+      const savedCusts = localStorage.getItem('fitnetheist_customers');
+      if (savedCusts && currentProfile) {
+        const custs = JSON.parse(savedCusts);
+        if (Array.isArray(custs)) {
+          const match = custs.find((c: any) =>
+            c.id === currentProfile.id ||
+            (c.email && currentProfile.email && c.email.toLowerCase() === currentProfile.email.toLowerCase())
+          );
+          if (match?.assignedDietPlan && Array.isArray(match.assignedDietPlan.meals)) {
+            return match.assignedDietPlan;
+          }
+        }
+      }
+      const fallback = localStorage.getItem('fitnetheist_assigned_diet');
+      if (fallback) {
+        const parsed = JSON.parse(fallback);
+        if (parsed && Array.isArray(parsed.meals)) return parsed;
+      }
+    } catch {}
+    return null;
+  });
+
+  // Daily Diet & Calorie Check-Off Tracking State (keyed by YYYY-MM-DD in local timezone)
+  const [dailyDietTracking, setDailyDietTracking] = useState<Record<string, DailyDietTrackingRecord>>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_user_daily_diet_tracking');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('fitnetheist_user_daily_diet_tracking', JSON.stringify(dailyDietTracking));
+    } catch {}
+  }, [dailyDietTracking]);
+
+  // Keep assignedDietPlan synchronized when user changes or admin assigns a diet
+  useEffect(() => {
+    const syncAssignedDiet = async () => {
+      try {
+        if (user?.id) {
+          const byId = localStorage.getItem(`fitnetheist_client_diet_${user.id}`);
+          if (byId) {
+            const parsed = JSON.parse(byId);
+            if (parsed && Array.isArray(parsed.meals)) {
+              setAssignedDietPlan(parsed);
+              return;
+            }
+          }
+          const remoteDiet = await getDietPlanFromRealtimeDb(user.id);
+          if (remoteDiet && Array.isArray(remoteDiet.meals)) {
+            setAssignedDietPlan(remoteDiet as AdminDietPlan);
+            return;
+          }
+        }
+        if (user?.email) {
+          const byEmail = localStorage.getItem(`fitnetheist_client_diet_${user.email.toLowerCase()}`);
+          if (byEmail) {
+            const parsed = JSON.parse(byEmail);
+            if (parsed && Array.isArray(parsed.meals)) {
+              setAssignedDietPlan(parsed);
+              return;
+            }
+          }
+        }
+        const savedCusts = localStorage.getItem('fitnetheist_customers');
+        if (savedCusts && user) {
+          const custs = JSON.parse(savedCusts);
+          if (Array.isArray(custs)) {
+            const match = custs.find((c: any) =>
+              c.id === user.id ||
+              (c.email && user.email && c.email.toLowerCase() === user.email.toLowerCase())
+            );
+            if (match?.assignedDietPlan && Array.isArray(match.assignedDietPlan.meals)) {
+              setAssignedDietPlan(match.assignedDietPlan);
+              return;
+            }
+          }
+        }
+      } catch {}
+    };
+
+    syncAssignedDiet();
+
+    const handleDietAssignedEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<AdminDietPlan>;
+      const plan = customEvent.detail;
+      if (!plan) return;
+      if (
+        !user ||
+        plan.assignedClientId === user.id ||
+        (plan.assignedClientEmail && user.email && plan.assignedClientEmail.toLowerCase() === user.email.toLowerCase())
+      ) {
+        setAssignedDietPlan(plan);
+      }
+    };
+
+    window.addEventListener('fitnetheist-diet-assigned', handleDietAssignedEvent);
+    return () => {
+      window.removeEventListener('fitnetheist-diet-assigned', handleDietAssignedEvent);
+    };
+  }, [user?.id, user?.email]);
+
+  const getDailyDietTrackingForDate = (dateStr?: string): DailyDietTrackingRecord => {
+    const targetDate = dateStr || getLocalDateString();
+    const clientId = user?.id || assignedDietPlan?.assignedClientId || 'client_default';
+    const key = `${clientId}_${targetDate}`;
+    const existing = dailyDietTracking[key] || dailyDietTracking[targetDate];
+
+    const plannedCalories = assignedDietPlan
+      ? assignedDietPlan.meals.reduce((s, m) => s + m.items.reduce((is, i) => is + (Number(i.calories) || 0), 0), 0)
+      : (calorieResult?.currentTargetCalories || 2000);
+    const targetCalories = assignedDietPlan?.targetDailyCalories || plannedCalories;
+
+    if (existing && assignedDietPlan) {
+      // Re-verify consumed calories against current assignedDietPlan items to guarantee zero drift
+      const checkedSet = new Set(existing.checkedItemIds || []);
+      let consumedCalories = 0;
+      let consumedProtein = 0;
+      let consumedCarbs = 0;
+      let consumedFat = 0;
+
+      assignedDietPlan.meals.forEach(meal => {
+        meal.items.forEach(item => {
+          if (checkedSet.has(item.id)) {
+            consumedCalories += Number(item.calories) || 0;
+            consumedProtein += Number(item.protein) || 0;
+            consumedCarbs += Number(item.carbs) || 0;
+            consumedFat += Number(item.fat) || 0;
+          }
+        });
+      });
+
+      return {
+        ...existing,
+        date: targetDate,
+        dietPlanId: assignedDietPlan.id,
+        dietPlanName: assignedDietPlan.name,
+        targetCalories,
+        plannedCalories,
+        checkedItemIds: Array.from(checkedSet),
+        consumedCalories,
+        consumedProtein,
+        consumedCarbs,
+        consumedFat,
+        remainingCalories: Math.max(0, targetCalories - consumedCalories)
+      };
+    }
+
+    if (existing) {
+      return existing;
+    }
+
+    return {
+      id: key,
+      clientId,
+      clientEmail: user?.email || assignedDietPlan?.assignedClientEmail,
+      date: targetDate,
+      dietPlanId: assignedDietPlan?.id || 'unassigned',
+      dietPlanName: assignedDietPlan?.name || 'No Diet Plan Assigned',
+      targetCalories,
+      plannedCalories,
+      checkedItemIds: [],
+      consumedCalories: 0,
+      consumedProtein: 0,
+      consumedCarbs: 0,
+      consumedFat: 0,
+      remainingCalories: targetCalories,
+      updatedAt: new Date().toISOString()
+    };
+  };
+
+  const toggleDietFoodItemCheck = (itemId: string, dateStr?: string) => {
+    if (!assignedDietPlan) return;
+    const targetDate = dateStr || getLocalDateString();
+    const clientId = user?.id || assignedDietPlan.assignedClientId || 'client_default';
+    const key = `${clientId}_${targetDate}`;
+
+    setDailyDietTracking(prev => {
+      const currentRecord = prev[key] || prev[targetDate];
+      const checkedSet = new Set<string>(currentRecord?.checkedItemIds || []);
+
+      if (checkedSet.has(itemId)) {
+        checkedSet.delete(itemId);
+      } else {
+        checkedSet.add(itemId);
+      }
+
+      const checkedItemIds = Array.from(checkedSet);
+      let consumedCalories = 0;
+      let consumedProtein = 0;
+      let consumedCarbs = 0;
+      let consumedFat = 0;
+      let plannedCalories = 0;
+
+      assignedDietPlan.meals.forEach(meal => {
+        meal.items.forEach(item => {
+          const cals = Number(item.calories) || 0;
+          plannedCalories += cals;
+          if (checkedSet.has(item.id)) {
+            consumedCalories += cals;
+            consumedProtein += Number(item.protein) || 0;
+            consumedCarbs += Number(item.carbs) || 0;
+            consumedFat += Number(item.fat) || 0;
+          }
+        });
+      });
+
+      const targetCalories = assignedDietPlan.targetDailyCalories || plannedCalories;
+      const remainingCalories = Math.max(0, targetCalories - consumedCalories);
+
+      const updatedRecord: DailyDietTrackingRecord = {
+        id: key,
+        clientId,
+        clientEmail: user?.email || assignedDietPlan.assignedClientEmail,
+        date: targetDate,
+        dietPlanId: assignedDietPlan.id,
+        dietPlanName: assignedDietPlan.name,
+        targetCalories,
+        plannedCalories,
+        checkedItemIds,
+        consumedCalories,
+        consumedProtein,
+        consumedCarbs,
+        consumedFat,
+        remainingCalories,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Sync to Firebase Realtime Database and Admin localStorage mirror
+      saveDailyDietTrackingToRealtimeDb(clientId, targetDate, updatedRecord);
+      try {
+        const allTrackingRaw = localStorage.getItem('fitnetheist_daily_diet_tracking_all');
+        const allTracking = allTrackingRaw ? JSON.parse(allTrackingRaw) : {};
+        if (!allTracking[clientId]) allTracking[clientId] = {};
+        allTracking[clientId][targetDate] = updatedRecord;
+        localStorage.setItem('fitnetheist_daily_diet_tracking_all', JSON.stringify(allTracking));
+      } catch {}
+
+      return {
+        ...prev,
+        [key]: updatedRecord,
+        [targetDate]: updatedRecord
+      };
+    });
+  };
 
   const [groceryList, setGroceryList] = useState<GroceryItem[]>(() => {
     const initialPlan = generateSevenDayDietPlan(2050, 'NON-VEGETARIAN', 'INDIAN_INTERNATIONAL', 4);
@@ -562,6 +845,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       setPendingAthleteDetails(null);
       closeAuthModal();
+      // Redirect regular user to their User Dashboard (never Admin Dashboard)
+      setActiveTab('plan');
     } catch (err) {
       console.error('Google Sign-In notice:', err);
       throw err;
@@ -635,10 +920,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sex: newUser.sex,
       heightCm: newUser.heightCm,
       weightKg: newUser.weightKg,
-      calculatedCalories: finalCalorie?.totalCalories || undefined,
+      calculatedCalories: finalCalorie?.currentTargetCalories || undefined,
       status: 'NEW',
       createdAt: new Date().toISOString(),
-      estimatedValue: 149,
+      estimatedValue: 8000,
       score: 85,
       scoreClassification: 'HOT',
       assignedTo: 'Vikram Mehta (Sales Lead)',
@@ -664,6 +949,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setPendingAthleteDetails(null);
     closeAuthModal();
+    // Redirect regular user to their User Dashboard (never Admin Dashboard)
+    setActiveTab('plan');
   };
 
   const signupUser = async (
@@ -744,10 +1031,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       sex: newUser.sex,
       heightCm: newUser.heightCm,
       weightKg: newUser.weightKg,
-      calculatedCalories: finalCalorie?.totalCalories || undefined,
+      calculatedCalories: finalCalorie?.currentTargetCalories || undefined,
       status: 'NEW',
       createdAt: new Date().toISOString(),
-      estimatedValue: 149,
+      estimatedValue: 8000,
       score: 90,
       scoreClassification: 'HOT',
       assignedTo: 'Vikram Mehta (Sales Lead)',
@@ -773,12 +1060,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setPendingAthleteDetails(null);
     closeAuthModal();
+    // Redirect regular user to their User Dashboard (never Admin Dashboard)
+    setActiveTab('plan');
   };
 
   const logoutUser = () => {
     logoutFirebase().catch(() => {});
     setUser(null);
     localStorage.removeItem('fitnetheist_user');
+    if (activeTab === 'plan' || activeTab === 'me' || activeTab === 'progress') {
+      setActiveTab('home');
+    }
   };
 
   const saveUserProfile = (profileUpdates: Partial<UserProfile>) => {
@@ -1065,6 +1357,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {}
   };
 
+  const assignPersonalizedDietToClient = (
+    client: { id: string; name: string; email: string },
+    plan: AdminDietPlan
+  ) => {
+    const clonedMeals = (plan.meals || []).map(meal => {
+      const items = (meal.items || []).map(item => ({ ...item }));
+      const totalCalories = items.reduce((s, i) => s + (Number(i.calories) || 0), 0);
+      const totalProtein = items.reduce((s, i) => s + (Number(i.protein) || 0), 0);
+      const totalCarbs = items.reduce((s, i) => s + (Number(i.carbs) || 0), 0);
+      const totalFat = items.reduce((s, i) => s + (Number(i.fat) || 0), 0);
+      return {
+        ...meal,
+        items,
+        totalCalories,
+        totalProtein,
+        totalCarbs,
+        totalFat
+      };
+    });
+
+    const totalDailyCalories = clonedMeals.reduce((s, m) => s + m.totalCalories, 0);
+    const totalDailyProtein = clonedMeals.reduce((s, m) => s + m.totalProtein, 0);
+    const totalDailyCarbs = clonedMeals.reduce((s, m) => s + m.totalCarbs, 0);
+    const totalDailyFat = clonedMeals.reduce((s, m) => s + m.totalFat, 0);
+
+    const personalizedDiet: AdminDietPlan = {
+      ...plan,
+      meals: clonedMeals,
+      totalDailyCalories,
+      totalDailyProtein,
+      totalDailyCarbs,
+      totalDailyFat,
+      targetDailyCalories: Number(plan.targetDailyCalories) || totalDailyCalories,
+      isTemplate: false,
+      assignedClientId: client.id,
+      assignedClientName: client.name,
+      assignedClientEmail: client.email,
+      assignedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setAssignedDietPlan(personalizedDiet);
+
+    if (user && (user.id === client.id || (user.email && client.email && user.email.toLowerCase() === client.email.toLowerCase()))) {
+      const updatedUser = {
+        ...user,
+        assignedDietPlan: personalizedDiet
+      };
+      setUser(updatedUser);
+      saveProfile(updatedUser);
+      try {
+        localStorage.setItem('fitnetheist_user', JSON.stringify(updatedUser));
+      } catch {}
+    }
+
+    try {
+      localStorage.setItem('fitnetheist_assigned_diet', JSON.stringify(personalizedDiet));
+      localStorage.setItem(`fitnetheist_client_diet_${client.id}`, JSON.stringify(personalizedDiet));
+      if (client.email) {
+        localStorage.setItem(`fitnetheist_client_diet_${client.email.toLowerCase()}`, JSON.stringify(personalizedDiet));
+      }
+    } catch {}
+
+    try {
+      saveDietPlanToRealtimeDb(client.id, personalizedDiet);
+    } catch {}
+  };
+
   const toggleGroceryItemCheck = (id: string) => {
     setGroceryList(prev => prev.map(item => item.id === id ? { ...item, checked: !item.checked } : item));
   };
@@ -1219,6 +1579,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setActiveTab,
       calorieResult,
       dietPlan,
+      assignedDietPlan,
+      dailyDietTracking,
+      getDailyDietTrackingForDate,
+      toggleDietFoodItemCheck,
       workoutPlan,
       groceryList,
       dailyLogs,
@@ -1260,6 +1624,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       swapDietMeal,
       generateAndSetWorkout,
       assignPersonalizedWorkoutToClient,
+      assignPersonalizedDietToClient,
       toggleGroceryItemCheck,
       enrollInChallenge,
       logDailyProgress,
