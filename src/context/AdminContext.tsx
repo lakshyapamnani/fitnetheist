@@ -72,6 +72,7 @@ import {
 
 export type AdminSubtab = 
   | 'dashboard'
+  | 'plans'
   | 'cms'
   | 'leads'
   | 'leads-detail'

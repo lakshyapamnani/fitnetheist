@@ -19,6 +19,7 @@ import { AdminSettingsView } from './AdminSettingsView';
 import { ExerciseBankAdminView } from './ExerciseBankAdminView';
 import { ConsentFormsAdminView } from './ConsentFormsAdminView';
 import { DietManagementAdminView } from './DietManagementAdminView';
+import { PlansAdminView } from './PlansAdminView';
 
 export const AdminView: React.FC = () => {
   const { activeSubtab, isAdminAuthenticated } = useAdmin();
@@ -30,6 +31,9 @@ export const AdminView: React.FC = () => {
 
   const renderContent = () => {
     switch (activeSubtab) {
+      case 'plans':
+        return <PlansAdminView />;
+
       case 'cms':
       case 'cms-pages':
       case 'cms-sections':

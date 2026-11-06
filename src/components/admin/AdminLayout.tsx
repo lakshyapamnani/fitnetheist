@@ -56,7 +56,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     adminLogout
   } = useAdmin();
   
-  const { setActiveTab } = useApp();
+  const { setActiveTab, coachingPlans } = useApp();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -74,14 +74,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   // RBAC permission check
   const isAllowed = (subtab: AdminSubtab): boolean => {
     if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') return true;
+    if (subtab === 'plans') return true;
     if (currentRole === 'COACH') {
-      return ['clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'diets', 'foods', 'workouts', 'exercises'].includes(subtab);
+      return ['plans', 'clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'diets', 'foods', 'workouts', 'exercises'].includes(subtab);
     }
     if (currentRole === 'CONTENT_MANAGER') {
-      return ['cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
+      return ['plans', 'cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
     }
     if (currentRole === 'SALES_LEAD_MANAGER') {
-      return ['users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'consent-forms', 'invoices', 'orders'].includes(subtab);
+      return ['plans', 'users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'consent-forms', 'invoices', 'orders'].includes(subtab);
     }
     return true;
   };
@@ -90,6 +91,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     {
       group: 'PRIMARY MODULES',
       items: [
+        { 
+          id: 'plans' as AdminSubtab, 
+          label: 'Plans & Pricing', 
+          desc: 'Rate Cards, Features & Realtime DB',
+          icon: CreditCard, 
+          badge: `${coachingPlans?.length || 3}` 
+        },
         { 
           id: 'cms' as AdminSubtab, 
           label: 'CMS', 

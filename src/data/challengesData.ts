@@ -52,50 +52,50 @@ export const CHALLENGES_DATA: Challenge[] = [
   },
   {
     id: 'c_21_day_ignite',
-    title: '21 DAY IGNITE',
-    tagline: 'Neurological habit transformation. Turn motivation into permanent mechanical discipline.',
+    title: '21 DAYS DISCIPLINE CHALLENGE',
+    tagline: 'Standalone Online Program. 21 days of progressive movement, video curriculum, and habit architecture.',
     durationDays: 21,
-    difficulty: 'INTERMEDIATE',
-    goal: 'Build Unbreakable Routine & Fat Loss',
+    difficulty: 'ALL LEVELS',
+    goal: 'Build Unbreakable Routine, Movement & Habit Discipline',
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
-    description: '21 days of continuous deliberate execution. Lock in your macronutrient splits, master progressive overload mechanics across a 4-day upper/lower split, and participate in daily tribe streak rankings.',
+    description: 'A 21-day standalone online discipline curriculum. Structured daily progressive movement routines, video module slots, hydration goals, and habit accountability. 100% online program with no virtual or 1:1 sessions.',
     whatIsIncluded: [
-      'Complete 21-Day Progressive Overload Training Plan',
-      'Personalized 7-Day Rotating Diet Matrix with Smart Swaps',
-      'Daily Streak Tracking & Leaderboard Verification',
-      'Weekly Metric Audits (Waist, Weight, Strength PRs)',
-      'Exclusive Tribe Challenge Channel'
+      '100% Online Program (No virtual or 1:1 sessions)',
+      '21-Day Structured Daily Movement & Mobility Architecture',
+      'Dedicated Daily Video Module Hub (Ready for Coach Neetu video lessons)',
+      'Daily Habit Checklist & Hydration Compliance (3L+ water)',
+      'Digital Completion Certificate & Streak Verification'
     ],
-    workoutOverview: '4 training days per week (Upper / Lower split) with 2 optional aerobic conditioning and mobility sessions.',
-    nutritionOverview: 'Calibrated calorie deficit or lean surplus with exact macronutrient accountability. Vegetarian, Non-Vegetarian, and Vegan paths fully supported.',
+    workoutOverview: '21 sequential days of movement: Phase 1 Foundations, Phase 2 Intensity Ramp, and Phase 3 Mastery & Peak Conditioning.',
+    nutritionOverview: 'Clear caloric discipline, whole food prioritization, 1:1 bioavailable protein swaps, and strict hydration targets.',
     accountabilityRules: [
-      'No skipped workouts without scheduled recovery day swap.',
-      'Calorie adherence within +/- 75 kcal daily window.',
-      'Submit weekly progress metrics on Day 7, 14, and 21.'
+      'Log daily task completion before midnight.',
+      'Maintain continuous 21-day streak with zero pauses.',
+      'Track hydration compliance and step counts daily.'
     ],
-    price: '₹2,499 / ONE-TIME',
-    badgeName: '21-DAY IGNITE DISCIPLINE',
-    enrolledCount: 3840,
+    price: '₹799 / ONE-TIME',
+    badgeName: '21-DAY DISCIPLINE MASTER',
+    enrolledCount: 4210,
     testimonials: [
       {
-        quote: 'Down 4.2 kg and dropped 2 inches off my waist. The lack of guesswork is what makes Fitnetheist stand above everything else.',
+        quote: 'Down 3.8 kg and my morning discipline is transformed. The day-by-day video module format is crystal clear.',
         author: 'Vikram S., Bangalore',
-        stat: '-4.2 kg & -2 inches waist'
+        stat: '-3.8 kg & 21/21 Streak'
       },
       {
-        quote: 'The streak system kept me honest when work got brutal. First time I actually stuck to a 3-week routine.',
-        author: 'Marcus K., Chicago',
+        quote: 'At ₹799, this is hands-down the highest value fitness program in India. Kept me completely accountable.',
+        author: 'Priya K., Mumbai',
         stat: '21/21 Days Completed'
       }
     ],
     faqs: [
       {
-        q: 'What happens if I miss a day?',
-        a: 'You have a 24-hour buffer to log your make-up session, or your streak is reset on the community board.'
+        q: 'Is this an online program or are there live sessions?',
+        a: 'This is a 100% online program. No live virtual or 1-on-1 sessions are conducted. You follow the guided curriculum, video modules, and daily checklists.'
       },
       {
-        q: 'Can I swap meals in my diet during the challenge?',
-        a: 'Yes, using the Fitnetheist Smart Meal Swap engine you can trade any meal for an equivalent macro alternative instantly.'
+        q: 'How do the video modules work?',
+        a: 'The challenge includes a structured daily video module slot for each day where Coach Neetu lessons and movement breakdowns are streamed directly.'
       }
     ]
   },

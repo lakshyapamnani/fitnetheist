@@ -28,6 +28,7 @@ import {
   deleteDoc,
   Firestore 
 } from 'firebase/firestore';
+import { CoachingPlan } from '../types';
 
 export interface FirebaseCustomConfig {
   apiKey?: string;
@@ -1056,6 +1057,92 @@ export const listenToRealtimeCMSPages = (callback: (pages: any[]) => void) => {
 
 /**
  * ========================================================
+ * REALTIME DATABASE: COACHING PLANS & RATE CARDS
+ * ========================================================
+ */
+export const saveAllPlansToRealtimeDb = async (plans: CoachingPlan[]) => {
+  if (!plans || !Array.isArray(plans)) return;
+  if (db) {
+    try {
+      const plansRef = ref(db, 'coachingPlans');
+      const dataObj: Record<string, CoachingPlan> = {};
+      plans.forEach((p, idx) => {
+        if (p && p.id) {
+          dataObj[p.id] = {
+            ...p,
+            order: p.order ?? idx,
+            updatedAt: new Date().toISOString()
+          };
+        }
+      });
+      await set(plansRef, dataObj);
+    } catch (err) {
+      console.warn('Realtime Database plans sync notice:', err);
+    }
+  }
+};
+
+export const saveSinglePlanToRealtimeDb = async (plan: CoachingPlan) => {
+  if (!plan || !plan.id) return;
+  if (db) {
+    try {
+      const planRef = ref(db, `coachingPlans/${plan.id}`);
+      await set(planRef, {
+        ...plan,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.warn('Realtime Database single plan save notice:', err);
+    }
+  }
+};
+
+export const deleteSinglePlanFromRealtimeDb = async (planId: string) => {
+  if (!planId) return;
+  if (db) {
+    try {
+      const planRef = ref(db, `coachingPlans/${planId}`);
+      await remove(planRef);
+    } catch (err) {
+      console.warn('Realtime Database single plan delete notice:', err);
+    }
+  }
+};
+
+export const listenToRealtimePlans = (callback: (plans: CoachingPlan[]) => void) => {
+  if (!db) return () => {};
+  try {
+    const plansRef = ref(db, 'coachingPlans');
+    const unsubscribe = onValue(plansRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        let list: CoachingPlan[] = [];
+        if (Array.isArray(val)) {
+          list = val.filter(Boolean);
+        } else if (typeof val === 'object' && val !== null) {
+          list = Object.keys(val).map(key => ({
+            ...val[key],
+            id: val[key].id || key
+          }));
+        }
+        list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    }, (error) => {
+      console.warn('Realtime Database plans subscription notice:', error);
+    });
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  } catch (e) {
+    return () => {};
+  }
+};
+
+/**
+ * ========================================================
  * REALTIME DATABASE & FIRESTORE: COACHING CONSENT FORMS
  * ========================================================
  */
@@ -1065,7 +1152,7 @@ export interface CoachingConsentRecord {
   clientAge?: string;
   clientPhone: string;
   clientEmail?: string;
-  program: '3_MONTHS' | '6_MONTHS' | '9_MONTHS' | '12_MONTHS' | string;
+  program: '21_DAYS' | '3_MONTHS' | '6_MONTHS' | string;
   programPrice: string;
   pauseAllowance: string;
   startDate: string;
@@ -1084,6 +1171,7 @@ export interface CoachingConsentRecord {
     strictNoRefund: boolean;
     pausePolicyAccepted: boolean;
     virtualTerms?: boolean;
+    onlineTerms?: boolean;
     proprietaryMaterial?: boolean;
     privacyAcknowledged?: boolean;
   };

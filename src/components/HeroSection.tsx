@@ -34,7 +34,7 @@ export const HeroSection: React.FC = () => {
       <div className="relative z-10 max-w-7xl mx-auto w-full">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#101014]/90 border border-white/15 text-[#FFC515] text-[10px] sm:text-[11px] font-mono-num font-bold tracking-[0.2em] uppercase">
           <span className="w-1.5 h-1.5 bg-[#FFC515]"></span>
-          <span>FITNESS • FITNESS AFTER PREGNANCY • BEST COACH NEETU</span>
+          <span>FITNESS FOR WOMEN & MEN</span>
         </div>
       </div>
 
@@ -55,7 +55,7 @@ export const HeroSection: React.FC = () => {
 
           {/* Subtext */}
           <p className="text-white/80 text-base sm:text-xl font-mono-num max-w-3xl leading-relaxed">
-            Looking for the <strong className="text-white font-bold">best coach</strong> for personal <strong className="text-white font-bold">fitness</strong> and specialized <strong className="text-[#FFC515] font-bold">fitness after pregnancy</strong>? Coach Neetu delivers 1-on-1 customized workouts, postpartum recovery, and bespoke nutrition. Zero guesswork.
+            Looking for the <strong className="text-white font-bold">best coach</strong> for online <strong className="text-white font-bold">fitness for women & men</strong> and specialized <strong className="text-[#FFC515] font-bold">fitness after pregnancy</strong>? Coach Neetu delivers customized online workout plans, postpartum recovery, and bespoke nutrition. Zero guesswork.
           </p>
 
           {/* Action CTAs */}
@@ -87,8 +87,8 @@ export const HeroSection: React.FC = () => {
         {/* Core Values */}
         <div className="flex items-center justify-between sm:justify-start gap-4 sm:gap-10 w-full sm:w-auto">
           <div>
-            <span className="text-white font-bold text-xs sm:text-sm block">1-ON-1</span>
-            <span className="text-[9px] sm:text-[10px] text-white/40 uppercase tracking-widest">DEDICATED COACHING</span>
+            <span className="text-white font-bold text-xs sm:text-sm block">100%</span>
+            <span className="text-[9px] sm:text-[10px] text-white/40 uppercase tracking-widest">ONLINE COACHING</span>
           </div>
           <div className="h-5 sm:h-6 w-px bg-white/10"></div>
           <div>

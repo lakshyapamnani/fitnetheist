@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
               BE THE ONE — By Coach Neetu
             </p>
             <p className="text-white/70 text-xs sm:text-sm font-mono-num max-w-lg leading-relaxed">
-              Personalized 1-on-1 fitness coaching, custom nutrition matrices, and structured strength training. Built on personal transformation, scientific principles, and lasting habits.
+              Personalized online fitness coaching, custom nutrition matrices, and structured strength training. Built on personal transformation, scientific principles, and lasting habits. 100% online programs.
             </p>
             <div className="pt-2 text-[11px] font-mono-num text-white/40 uppercase tracking-widest">
               INSTAGRAM: @FITNETHEIST • EMAIL: CONTACT@FITNETHEIST.COM

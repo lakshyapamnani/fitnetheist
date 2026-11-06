@@ -23,54 +23,34 @@ export interface PackageOption {
 
 export const PACKAGE_CATALOG: PackageOption[] = [
   {
+    id: 'pkg_21d_discipline',
+    name: '21 Days Discipline Challenge',
+    category: '21-Day Challenge',
+    durationDays: 21,
+    price: 799,
+    priceINR: 799,
+    pauseDays: 0,
+    description: '21-Day Standalone Online Discipline Challenge & Daily Habit Protocol (Continuous Streak)'
+  },
+  {
     id: 'pkg_3m',
-    name: '3 Months Protocol',
-    category: '3 Months Protocol',
+    name: '3 Months Online Fitness Plan',
+    category: '3 Months Online Fitness Plan',
     durationDays: 90,
-    price: 8000,
-    priceINR: 8000,
-    pauseDays: 10,
-    description: '90-Day Tailored Diet + Custom Workout Protocol (10 Days Pause Allowed)'
+    price: 9000,
+    priceINR: 9000,
+    pauseDays: 7,
+    description: '90-Day Online Fitness Plan: Tailored Diet + Custom Workout (Up to 1 week pause allowed)'
   },
   {
     id: 'pkg_6m',
-    name: '6 Months Protocol',
-    category: '6 Months Protocol',
+    name: '6 Months Online Fitness Plan',
+    category: '6 Months Online Fitness Plan',
     durationDays: 180,
     price: 18000,
     priceINR: 18000,
     pauseDays: 20,
-    description: '180-Day Complete Body Recomposition & Postpartum Care (20 Days Pause Allowed)'
-  },
-  {
-    id: 'pkg_9m',
-    name: '9 Months Protocol',
-    category: '9 Months Protocol',
-    durationDays: 270,
-    price: 20000,
-    priceINR: 20000,
-    pauseDays: 30,
-    description: '270-Day Advanced Metabolic Reset & Strength Progression (30 Days Pause Allowed)'
-  },
-  {
-    id: 'pkg_12m',
-    name: '12 Months Protocol',
-    category: '12 Months Protocol',
-    durationDays: 365,
-    price: 25000,
-    priceINR: 25000,
-    pauseDays: 45,
-    description: '365-Day Annual Executive 1-on-1 Coaching & Lifestyle Mastery (45 Days Pause Allowed)'
-  },
-  {
-    id: 'pkg_21d_challenge',
-    name: '21-Day Ignite Shred Challenge',
-    category: '21-Day Challenge',
-    durationDays: 21,
-    price: 3499,
-    priceINR: 3499,
-    pauseDays: 0,
-    description: '21-Day Rapid Metabolic Kickstart & Daily Accountability Cohort'
+    description: '180-Day Complete Online Body Recomposition & Postpartum Protocol (20 Days Pause Allowed)'
   },
   {
     id: 'pkg_60d_cohort',
@@ -84,13 +64,13 @@ export const PACKAGE_CATALOG: PackageOption[] = [
   },
   {
     id: 'pkg_custom',
-    name: 'Custom Coaching Protocol',
+    name: 'Custom Online Coaching Protocol',
     category: 'Custom Coaching',
     durationDays: 90,
     price: 15000,
     priceINR: 15000,
     pauseDays: 10,
-    description: 'Bespoke Coaching Protocol with Custom Duration & Specializations'
+    description: 'Bespoke Online Protocol with Custom Duration & Nutrition Programming'
   }
 ];
 
@@ -126,14 +106,12 @@ export const findPackageOption = (nameOrTier?: string): PackageOption | undefine
       p.name.toLowerCase() === lower ||
       p.category.toLowerCase() === lower ||
       p.id.toLowerCase() === lower ||
+      (lower.includes('21') && p.id === 'pkg_21d_discipline') ||
+      (lower.includes('discipline') && p.id === 'pkg_21d_discipline') ||
       (lower.includes('3 month') && p.id === 'pkg_3m') ||
       (lower.includes('90-day') && p.id === 'pkg_3m') ||
       (lower.includes('6 month') && p.id === 'pkg_6m') ||
       (lower.includes('180-day') && p.id === 'pkg_6m') ||
-      (lower.includes('9 month') && p.id === 'pkg_9m') ||
-      (lower.includes('12 month') && p.id === 'pkg_12m') ||
-      (lower.includes('21-day') && p.id === 'pkg_21d_challenge') ||
-      (lower.includes('21 day') && p.id === 'pkg_21d_challenge') ||
       (lower.includes('60-day') && p.id === 'pkg_60d_cohort') ||
       (lower.includes('60 day') && p.id === 'pkg_60d_cohort')
   );
@@ -667,7 +645,7 @@ export interface CoachingConsentRecord {
   clientAge?: string;
   clientPhone: string;
   clientEmail?: string;
-  program: '3_MONTHS' | '6_MONTHS' | '9_MONTHS' | '12_MONTHS' | string;
+  program: '21_DAYS' | '3_MONTHS' | '6_MONTHS' | string;
   programPrice: string;
   pauseAllowance: string;
   startDate: string;
@@ -686,6 +664,7 @@ export interface CoachingConsentRecord {
     strictNoRefund: boolean;
     pausePolicyAccepted: boolean;
     virtualTerms?: boolean;
+    onlineTerms?: boolean;
     proprietaryMaterial?: boolean;
     privacyAcknowledged?: boolean;
   };

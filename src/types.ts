@@ -348,3 +348,27 @@ export interface AdminAnalytics {
   monthlyRevenueUsd: number;
   conversionRatePercent: number;
 }
+
+export interface CoachingPlan {
+  id: string;
+  name: string;
+  durationMonths?: number;
+  durationDays?: number;
+  durationLabel: string;
+  totalPrice: number;
+  priceFormatted: string;
+  pauseDays: number;
+  pauseLabel: string;
+  badge?: string;
+  isPopular?: boolean;
+  savingsNote?: string;
+  description: string;
+  features: string[];
+  isChallenge?: boolean;
+  isActive?: boolean;
+  order?: number;
+  ctaText?: string;
+  whatsappMessage?: string;
+  extendedPauseNote?: string;
+  updatedAt?: string;
+}

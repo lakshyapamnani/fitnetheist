@@ -21,13 +21,15 @@ import {
   Exercise,
   TransformationStory,
   AdminDietPlan,
-  DailyDietTrackingRecord
+  DailyDietTrackingRecord,
+  CoachingPlan
 } from '../types';
 import { getLocalDateString } from '../types/admin';
 import { FOOD_DATABASE, generateSevenDayDietPlan, generateGroceryList, getMealAlternatives } from '../data/nutritionDatabase';
 import { EXERCISE_DATABASE, generateWorkoutPlan } from '../data/workoutDatabase';
 import { CHALLENGES_DATA, TRANSFORMATIONS_DATA } from '../data/challengesData';
 import { COMMUNITY_POSTS_DATA, LEADERBOARD_DATA, COACH_DATA, PRICING_DATA, INITIAL_ADMIN_ANALYTICS } from '../data/communityData';
+import { DEFAULT_COACHING_PLANS } from '../data/defaultPlans';
 import { getProfile, saveProfile, updateProfile } from '../services/profileStorage';
 import { 
   auth, 
@@ -55,7 +57,11 @@ import {
   listenToRealtimeExercises,
   saveSingleFoodToRealtimeDb,
   deleteSingleFoodFromRealtimeDb,
-  listenToRealtimeFoods
+  listenToRealtimeFoods,
+  saveAllPlansToRealtimeDb,
+  saveSinglePlanToRealtimeDb,
+  deleteSinglePlanFromRealtimeDb,
+  listenToRealtimePlans
 } from '../services/firebase';
 
 export interface PendingClientDetails {
@@ -103,6 +109,13 @@ interface AppContextType {
   selectedExerciseCategory: string;
   setSelectedExerciseCategory: (cat: string) => void;
   
+  // Plans & Rate Cards (Realtime Database connected)
+  coachingPlans: CoachingPlan[];
+  saveCoachingPlan: (plan: CoachingPlan) => Promise<void>;
+  deleteCoachingPlan: (planId: string) => Promise<void>;
+  resetCoachingPlans: () => Promise<void>;
+  saveAllCoachingPlans: (plans: CoachingPlan[]) => Promise<void>;
+
   // Firebase state & helpers
   isFirebaseConnected: boolean;
   isFirebaseModalOpen: boolean;
@@ -643,6 +656,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>(COMMUNITY_POSTS_DATA);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(LEADERBOARD_DATA);
   const [challenges, setChallenges] = useState<Challenge[]>(CHALLENGES_DATA);
+  const [coachingPlans, setCoachingPlans] = useState<CoachingPlan[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('fitnetheist_coaching_plans');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return DEFAULT_COACHING_PLANS;
+  });
   const [foodDatabase, setFoodDatabase] = useState<FoodItem[]>(FOOD_DATABASE);
   const [exercises, setExercises] = useState<Exercise[]>(() => {
     try {
@@ -702,10 +727,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     });
 
+    const unsubPlans = listenToRealtimePlans((remotePlans) => {
+      if (Array.isArray(remotePlans) && remotePlans.length > 0) {
+        setCoachingPlans(remotePlans);
+        try {
+          localStorage.setItem('fitnetheist_coaching_plans', JSON.stringify(remotePlans));
+        } catch {}
+      } else {
+        // Seed default plans if Realtime DB node is initially blank
+        saveAllPlansToRealtimeDb(DEFAULT_COACHING_PLANS);
+      }
+    });
+
     return () => {
       unsubEx();
       unsubFoods();
       unsubPosts();
+      unsubPlans();
     };
   }, []);
   const [transformations, setTransformations] = useState<TransformationStory[]>(TRANSFORMATIONS_DATA);
@@ -1572,6 +1610,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTransformations(prev => prev.filter(t => t.id !== id));
   };
 
+  // Plans & Rate Cards Operations (Realtime DB connected)
+  const saveCoachingPlan = async (plan: CoachingPlan) => {
+    setCoachingPlans(prev => {
+      const exists = prev.some(p => p.id === plan.id);
+      const updated = exists 
+        ? prev.map(p => p.id === plan.id ? plan : p)
+        : [...prev, plan];
+      try {
+        localStorage.setItem('fitnetheist_coaching_plans', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    await saveSinglePlanToRealtimeDb(plan);
+  };
+
+  const deleteCoachingPlan = async (planId: string) => {
+    setCoachingPlans(prev => {
+      const filtered = prev.filter(p => p.id !== planId);
+      try {
+        localStorage.setItem('fitnetheist_coaching_plans', JSON.stringify(filtered));
+      } catch {}
+      return filtered;
+    });
+    await deleteSinglePlanFromRealtimeDb(planId);
+  };
+
+  const saveAllCoachingPlans = async (plans: CoachingPlan[]) => {
+    setCoachingPlans(plans);
+    try {
+      localStorage.setItem('fitnetheist_coaching_plans', JSON.stringify(plans));
+    } catch {}
+    await saveAllPlansToRealtimeDb(plans);
+  };
+
+  const resetCoachingPlans = async () => {
+    setCoachingPlans(DEFAULT_COACHING_PLANS);
+    try {
+      localStorage.setItem('fitnetheist_coaching_plans', JSON.stringify(DEFAULT_COACHING_PLANS));
+    } catch {}
+    await saveAllPlansToRealtimeDb(DEFAULT_COACHING_PLANS);
+  };
+
   return (
     <AppContext.Provider value={{
       user,
@@ -1589,6 +1669,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       communityPosts,
       leaderboard,
       challenges,
+      coachingPlans,
+      saveCoachingPlan,
+      deleteCoachingPlan,
+      resetCoachingPlans,
+      saveAllCoachingPlans,
       foodDatabase,
       exercises,
       transformations,

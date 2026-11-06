@@ -23,14 +23,15 @@ import {
 import { COACHING_PLANS } from './RateCardsSection';
 
 export const PolicyPage: React.FC = () => {
-  const { user, setActiveTab } = useApp();
+  const { user, setActiveTab, coachingPlans } = useApp();
   const { captureLead, logAuditAction, submitConsentForm } = useAdmin();
+  const activePlans = (coachingPlans && coachingPlans.length > 0 ? coachingPlans : COACHING_PLANS).filter(p => p.isActive !== false);
 
   // Digital Consent Form State
   const [clientName, setClientName] = useState(user?.name || '');
   const [clientAge, setClientAge] = useState('');
   const [clientPhone, setClientPhone] = useState(user?.phone || '');
-  const [selectedProgram, setSelectedProgram] = useState<'3_MONTHS' | '6_MONTHS' | '9_MONTHS' | '12_MONTHS'>('6_MONTHS');
+  const [selectedProgram, setSelectedProgram] = useState<'21_DAYS' | '3_MONTHS' | '6_MONTHS'>('3_MONTHS');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   
   // Health & Emergency Information
@@ -80,11 +81,10 @@ export const PolicyPage: React.FC = () => {
 
     setIsSubmitting(true);
 
-    const programPricingMap = {
-      '3_MONTHS': { price: '₹8,000', pause: '0 Days (No Pause)' },
-      '6_MONTHS': { price: '₹18,000', pause: '20 Days Complimentary' },
-      '9_MONTHS': { price: '₹20,000', pause: '30 Days Complimentary' },
-      '12_MONTHS': { price: '₹25,000', pause: '40 Days Complimentary' }
+    const programPricingMap: Record<string, { price: string; pause: string }> = {
+      '21_DAYS': { price: '₹799', pause: 'Continuous 21-Day Streak (0 Days Pause)' },
+      '3_MONTHS': { price: '₹9,000', pause: 'Up to 1 Week Allowed (7 Days)' },
+      '6_MONTHS': { price: '₹18,000', pause: '20 Days Complimentary' }
     };
 
     const consentId = `consent_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -148,11 +148,10 @@ export const PolicyPage: React.FC = () => {
   };
 
   const handleDownloadAgreementFile = () => {
-    const programPricingMap = {
-      '3_MONTHS': { price: '₹8,000', pause: '0 Days (No Pause)' },
-      '6_MONTHS': { price: '₹18,000', pause: '20 Days Complimentary' },
-      '9_MONTHS': { price: '₹20,000', pause: '30 Days Complimentary' },
-      '12_MONTHS': { price: '₹25,000', pause: '40 Days Complimentary' }
+    const programPricingMap: Record<string, { price: string; pause: string }> = {
+      '21_DAYS': { price: '₹799', pause: 'Continuous 21-Day Streak (0 Days Pause)' },
+      '3_MONTHS': { price: '₹9,000', pause: 'Up to 1 Week Allowed (7 Days)' },
+      '6_MONTHS': { price: '₹18,000', pause: '20 Days Complimentary' }
     };
 
     const htmlContent = `
@@ -180,7 +179,7 @@ export const PolicyPage: React.FC = () => {
   <div class="header">
     <div class="subtitle">COACH NEETU FIT • CONFIDENTIAL CLIENT AGREEMENT</div>
     <h1 class="title">COACHING CONSENT FORM</h1>
-    <div style="font-size: 12px; color: #444; margin-top: 4px;">For Online Coaching & Virtual 1-on-1 Training</div>
+    <div style="font-size: 12px; color: #444; margin-top: 4px;">For Online Coaching & Digital Fitness Programs (No Virtual / 1:1 Sessions)</div>
     <div style="font-size: 11px; color: #666; margin-top: 4px;">Coach: Coach Neetu • Phone / WhatsApp: 07420082838 • Instagram: @coachneetu.fit</div>
   </div>
 
@@ -200,7 +199,7 @@ export const PolicyPage: React.FC = () => {
   <div class="highlight">
     <strong>5. STRICT NO-REFUND POLICY & MEMBERSHIP PAUSE RULES (ACKNOWLEDGED):</strong><br>
     • <strong>NO REFUND POLICY:</strong> All payments are 100% NON-REFUNDABLE once coaching service has commenced. Strictly no refund if the client has personal issues to not being able to follow the plan, work commitments, travel, lack of time, lack of motivation, or change of mind.<br>
-    • <strong>PAUSE POLICY:</strong> 3 Months (No pause), 6 Months (20 days), 9 Months (30 days), 12 Months (40 days). Anything beyond these days will be chargeable at ₹199 per day and pause will be lifted only after payment of the extended pause days.
+    • <strong>PAUSE POLICY:</strong> 21 Days (Continuous Streak), 3 Months (Up to 1 week allowed), 6 Months (20 days complimentary). Anything beyond these days will be chargeable at ₹199 per day and pause will be lifted only after payment of the extended pause days.
   </div>
 
   <div class="section">
@@ -313,7 +312,7 @@ export const PolicyPage: React.FC = () => {
               COACHING CONSENT FORM
             </h1>
             <p className="text-sm text-zinc-300 font-mono-num">
-              For Online Coaching, Bespoke Nutrition Programming & Virtual 1-on-1 Training
+              For Online Coaching, Bespoke Nutrition Programming & Dedicated Accountability (100% Online Program • No Virtual or 1:1 Sessions)
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-zinc-400">
@@ -357,17 +356,16 @@ export const PolicyPage: React.FC = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-            {COACHING_PLANS.map(plan => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            {activePlans.map(plan => (
               <div key={plan.id} className="p-3.5 bg-zinc-950 border border-white/10 rounded space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-zinc-400 uppercase font-bold">{plan.durationMonths} MONTHS</span>
+                  <span className="text-[10px] text-zinc-400 uppercase font-bold">{plan.durationLabel}</span>
                   <span className="text-[10px] text-[#FFC515] font-bold">{plan.pauseDays > 0 ? `${plan.pauseDays}d Pause` : 'No Pause'}</span>
                 </div>
                 <div className="text-lg font-extrabold text-[#FFC515]">{plan.priceFormatted}</div>
-                <div className="text-[11px] text-zinc-400">Effective: {plan.monthlyEquivalent}</div>
                 <div className="text-[10px] text-emerald-400 font-semibold pt-1">
-                  ✓ Both Workout & Nutrition Included
+                  ✓ {plan.isChallenge ? '21-Day Curriculum & Habits' : 'Both Workout & Nutrition Included'}
                 </div>
               </div>
             ))}
@@ -420,7 +418,7 @@ export const PolicyPage: React.FC = () => {
             <p>• <strong>Inherent Risks:</strong> I understand that exercise carries inherent risks, including muscle soreness, fatigue, dizziness, strains, sprains, joint discomfort, aggravation of existing conditions, and other physical injuries.</p>
             <p>• <strong>Technique Adherence:</strong> I agree to follow exercise instructions, video demonstrations, and technique guidance to the best of my ability.</p>
             <p>• <strong>Symptom Reporting:</strong> I will report pain, dizziness, unusual breathlessness, chest pain, fainting or other concerning symptoms immediately and will stop exercise and seek appropriate medical care when necessary.</p>
-            <p>• <strong>Virtual Training Space:</strong> For virtual and online coaching, I am solely responsible for having a safe training space, suitable equipment, safe footwear, and a stable internet connection.</p>
+            <p>• <strong>Online Training Space:</strong> For online coaching, I am solely responsible for having a safe training space, suitable equipment, safe footwear, and a stable internet connection.</p>
             <p>• <strong>No Unrealistic Guarantees:</strong> I understand that human biology differs, and no specific weight loss, muscle gain, body shape, health outcome or timeline is guaranteed.</p>
           </div>
         </section>
@@ -457,11 +455,11 @@ export const PolicyPage: React.FC = () => {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-[#FFC515] font-bold">•</span>
-              <span>Attend scheduled virtual sessions on time and communicate at least 24 hours in advance when possible if I cannot attend.</span>
+              <span>Submit scheduled check-ins, weight logs, and progress metrics on time via WhatsApp.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-[#FFC515] font-bold">•</span>
-              <span>Provide requested check-ins, weight logs, measurements, photographs, or bio-feedback when applicable.</span>
+              <span>Provide requested measurements, photographs, or bio-feedback when applicable.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-[#FFC515] font-bold">•</span>
@@ -514,25 +512,20 @@ export const PolicyPage: React.FC = () => {
                 <span>MEMBERSHIP PAUSE RULES & EXTENSION CHARGES</span>
               </h3>
               
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center pt-1 font-mono-num">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center pt-1 font-mono-num">
                 <div className="p-2.5 bg-[#0a0a0d] border border-white/10 rounded">
-                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">3 MONTHS</span>
-                  <span className="text-xs text-red-400 font-extrabold block mt-0.5">NO PAUSE</span>
+                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">21 DAYS DISCIPLINE</span>
+                  <span className="text-xs text-red-400 font-extrabold block mt-0.5">CONTINUOUS STREAK</span>
                   <span className="text-[9px] text-zinc-400 block">0 Days Allowed</span>
                 </div>
                 <div className="p-2.5 bg-[#0a0a0d] border border-[#FFC515]/30 rounded">
-                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">6 MONTHS</span>
+                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">3 MONTHS ONLINE</span>
+                  <span className="text-sm text-[#FFC515] font-extrabold block mt-0.5">UP TO 1 WEEK</span>
+                  <span className="text-[9px] text-zinc-400 block">7 Days Allowed</span>
+                </div>
+                <div className="p-2.5 bg-[#0a0a0d] border border-[#FFC515]/30 rounded">
+                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">6 MONTHS ONLINE</span>
                   <span className="text-sm text-[#FFC515] font-extrabold block mt-0.5">20 DAYS</span>
-                  <span className="text-[9px] text-zinc-400 block">Complimentary</span>
-                </div>
-                <div className="p-2.5 bg-[#0a0a0d] border border-[#FFC515]/30 rounded">
-                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">9 MONTHS</span>
-                  <span className="text-sm text-[#FFC515] font-extrabold block mt-0.5">30 DAYS</span>
-                  <span className="text-[9px] text-zinc-400 block">Complimentary</span>
-                </div>
-                <div className="p-2.5 bg-[#0a0a0d] border border-[#FFC515]/30 rounded">
-                  <span className="text-[10px] text-zinc-500 uppercase block font-bold">12 MONTHS</span>
-                  <span className="text-sm text-[#FFC515] font-extrabold block mt-0.5">40 DAYS</span>
                   <span className="text-[9px] text-zinc-400 block">Complimentary</span>
                 </div>
               </div>
@@ -540,7 +533,7 @@ export const PolicyPage: React.FC = () => {
               <div className="p-3 bg-amber-950/60 border border-amber-500/40 rounded text-amber-200 text-[11px] leading-relaxed">
                 <strong className="text-[#FFC515] uppercase font-bold">OVERSTAY & EXTENDED PAUSE CLAUSE:</strong>
                 <p className="mt-1">
-                  Pause is applicable strictly on the 6 months, 9 months, and 12 months plans (20, 30, and 40 days respectively). 
+                  Pause is applicable strictly on the 3 Months plan (up to 1 week / 7 days) and 6 Months plan (20 days). 
                   <strong> Anything beyond these allocated days will be chargeable at ₹199 per day, and the pause will be lifted only after payment of the extended pause days.</strong>
                 </p>
               </div>
@@ -549,20 +542,20 @@ export const PolicyPage: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 6: VIRTUAL TRAINING TERMS */}
+        {/* SECTION 6: ONLINE TRAINING PROGRAM TERMS */}
         <section className="bg-[#0e0e12] border border-white/15 p-6 sm:p-8 rounded space-y-4">
           <div className="flex items-center gap-2 text-[#FFC515] border-b border-white/10 pb-3">
             <Lock size={18} />
             <h2 className="text-base font-bold uppercase tracking-wider font-display text-white">
-              6. VIRTUAL TRAINING TERMS
+              6. ONLINE TRAINING PROGRAM TERMS (NO VIRTUAL / 1:1 SESSIONS)
             </h2>
           </div>
 
           <div className="space-y-2 text-xs text-zinc-300 leading-relaxed">
-            <p>• I understand that I am responsible for joining scheduled virtual sessions on time and being ready to train.</p>
-            <p>• If I miss a scheduled session without 24 hours advance notice, it may be treated as completed, subject to any specific rescheduling terms agreed in writing.</p>
-            <p>• The coach may modify exercises on the spot based on disclosed symptoms, mobility limitations, performance, and equipment availability.</p>
-            <p>• I will not attempt or continue an exercise through sharp joint pain or concerning dizziness.</p>
+            <p>• <strong>100% Online Program Format:</strong> All coaching programs and challenges offered are exclusively online fitness programs. <strong>No virtual sessions and no one-on-one (1:1) live video sessions</strong> are conducted.</p>
+            <p>• <strong>Digital Delivery & Accountability:</strong> Workout programming, exercise demonstrations, customized nutrition protocols, metric logs, and weekly check-ins are conducted systematically via our digital platform and WhatsApp.</p>
+            <p>• <strong>Client Execution:</strong> The client is responsible for reviewing technique guides, adhering to prescribed exercise forms, logging biofeedback, and communicating progress in weekly check-ins.</p>
+            <p>• <strong>Exercise Safety:</strong> The client agrees to not attempt or continue an exercise through sharp joint pain, unusual dizziness, or discomfort.</p>
           </div>
         </section>
 
@@ -735,7 +728,21 @@ export const PolicyPage: React.FC = () => {
                 <label className="block text-zinc-400 uppercase font-bold text-[10px] mb-2">
                   SELECTED PROTOCOL & INVESTMENT *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProgram('21_DAYS')}
+                    className={`p-3 rounded border text-left transition-all ${
+                      selectedProgram === '21_DAYS'
+                        ? 'bg-[#d8ff38]/15 border-[#d8ff38] text-white font-bold'
+                        : 'bg-zinc-950 border-white/10 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <span className="block text-white font-bold">21 DAYS DISCIPLINE</span>
+                    <span className="text-[#d8ff38] block text-sm font-extrabold">₹799</span>
+                    <span className="text-[10px] text-zinc-300 block mt-0.5">Continuous Streak • Online</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setSelectedProgram('3_MONTHS')}
@@ -745,9 +752,9 @@ export const PolicyPage: React.FC = () => {
                         : 'bg-zinc-950 border-white/10 text-zinc-400 hover:text-white'
                     }`}
                   >
-                    <span className="block text-white font-bold">3 MONTHS</span>
-                    <span className="text-[#FFC515] block text-sm font-extrabold">₹8,000</span>
-                    <span className="text-[10px] text-red-400 block mt-0.5">Strictly No Pause</span>
+                    <span className="block text-white font-bold">3 MONTHS ONLINE</span>
+                    <span className="text-[#FFC515] block text-sm font-extrabold">₹9,000</span>
+                    <span className="text-[10px] text-[#FFC515] block mt-0.5">Up to 1 Week Pause</span>
                   </button>
 
                   <button
@@ -759,37 +766,9 @@ export const PolicyPage: React.FC = () => {
                         : 'bg-zinc-950 border-white/10 text-zinc-400 hover:text-white'
                     }`}
                   >
-                    <span className="block text-white font-bold">6 MONTHS</span>
+                    <span className="block text-white font-bold">6 MONTHS ONLINE</span>
                     <span className="text-[#FFC515] block text-sm font-extrabold">₹18,000</span>
                     <span className="text-[10px] text-zinc-300 block mt-0.5">20 Days Pause Included</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProgram('9_MONTHS')}
-                    className={`p-3 rounded border text-left transition-all ${
-                      selectedProgram === '9_MONTHS'
-                        ? 'bg-[#FFC515]/20 border-[#FFC515] text-white font-bold'
-                        : 'bg-zinc-950 border-white/10 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    <span className="block text-white font-bold">9 MONTHS</span>
-                    <span className="text-[#FFC515] block text-sm font-extrabold">₹20,000</span>
-                    <span className="text-[10px] text-zinc-300 block mt-0.5">30 Days Pause Included</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProgram('12_MONTHS')}
-                    className={`p-3 rounded border text-left transition-all ${
-                      selectedProgram === '12_MONTHS'
-                        ? 'bg-[#FFC515]/20 border-[#FFC515] text-white font-bold'
-                        : 'bg-zinc-950 border-white/10 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    <span className="block text-white font-bold">12 MONTHS</span>
-                    <span className="text-[#FFC515] block text-sm font-extrabold">₹25,000</span>
-                    <span className="text-[10px] text-[#FFC515] block mt-0.5">40 Days Pause Included</span>
                   </button>
                 </div>
               </div>
@@ -949,7 +928,7 @@ export const PolicyPage: React.FC = () => {
                       className="mt-0.5 accent-[#FFC515] w-4 h-4 cursor-pointer"
                     />
                     <span className="text-white font-semibold">
-                      I accept the Membership Pause Rules: 3 months (No pause), 6 months (20 days), 9 months (30 days), 12 months (40 days). Any days beyond this will be charged at ₹199/day and the pause will only be lifted after payment.
+                      I accept the Membership Pause Rules: 21 Days Discipline (Continuous streak - no pause), 3 Months Online (Up to 1 week allowed), 6 Months Online (20 days). Any days beyond this will be charged at ₹199/day and the pause will only be lifted after payment.
                     </span>
                   </label>
 

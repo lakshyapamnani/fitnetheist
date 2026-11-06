@@ -162,7 +162,7 @@ export const CoachNeetuPhoto: React.FC<CoachNeetuPhotoProps> = ({
               </span>
             </h3>
             <p className="text-xs text-white/60 mt-0.5">
-              Natural Transformation Specialist • 1-on-1 Personalized Coaching
+              Natural Transformation Specialist • Online Fitness Coaching & Nutrition
             </p>
           </div>
         </div>

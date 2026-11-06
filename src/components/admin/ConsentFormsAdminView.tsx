@@ -151,7 +151,7 @@ export const ConsentFormsAdminView: React.FC = () => {
     <div class="subtitle">COACH NEETU FIT • CONFIDENTIAL CLIENT AGREEMENT</div>
     <h1 class="title">COACHING CONSENT FORM</h1>
     <div style="font-size: 12px; color: #444; margin-top: 4px;">
-      For Online Coaching, Bespoke Nutrition Programming & Virtual 1-on-1 Training
+      For Online Coaching, Bespoke Nutrition Programming & Online Accountability (No Virtual / 1:1 Sessions)
     </div>
     <div style="margin-top: 8px; font-size: 11px; color: #555;">
       <strong>Coach Desk:</strong> Coach Neetu • Phone / WhatsApp: 07420082838 • Instagram: @coachneetu.fit
@@ -175,7 +175,7 @@ export const ConsentFormsAdminView: React.FC = () => {
   <div class="highlight-box">
     <strong>5. STRICT NO-REFUND POLICY & MEMBERSHIP PAUSE RULES (ACKNOWLEDGED):</strong><br>
     • <strong>NO REFUND POLICY:</strong> All payments are 100% NON-REFUNDABLE once coaching has commenced. There is strictly no refund if the client has personal issues, work commitments, family obligations, travel, lack of time, lack of motivation, change of mind, or is unable to follow the plan.<br>
-    • <strong>PAUSE RULES:</strong> 3 Months (No pause), 6 Months (20 days), 9 Months (30 days), 12 Months (40 days). Any days beyond the allocated days are chargeable at ₹199 per day, and pause will be lifted only after payment of the extended days.
+    • <strong>PAUSE RULES:</strong> 21 Days (Continuous Streak), 3 Months (Up to 1 week allowed), 6 Months (20 days). Any days beyond the allocated days are chargeable at ₹199 per day, and pause will be lifted only after payment of the extended days.
   </div>
 
   <div class="section">
@@ -348,10 +348,9 @@ export const ConsentFormsAdminView: React.FC = () => {
               className="bg-[#14141a] border border-white/10 px-2.5 py-1.5 text-xs text-zinc-300 rounded outline-none focus:border-[#FFC515]"
             >
               <option value="ALL">All Programs</option>
-              <option value="3_MONTHS">3 Months (₹8k • No Pause)</option>
-              <option value="6_MONTHS">6 Months (₹18k • 20d Pause)</option>
-              <option value="9_MONTHS">9 Months (₹20k • 30d Pause)</option>
-              <option value="12_MONTHS">12 Months (₹25k • 40d Pause)</option>
+              <option value="21_DAYS">21 Days Discipline (₹799 • Continuous)</option>
+              <option value="3_MONTHS">3 Months Online (₹9k • Up to 1w Pause)</option>
+              <option value="6_MONTHS">6 Months Online (₹18k • 20d Pause)</option>
             </select>
           </div>
 
@@ -671,7 +670,7 @@ export const ConsentFormsAdminView: React.FC = () => {
                 </div>
                 <p className="text-[11px] leading-relaxed">
                   • <strong>NO REFUND POLICY:</strong> All payments are 100% NON-REFUNDABLE. Strictly no refund if the client has personal issues, work commitments, family obligations, travel, lack of time, lack of motivation, change of mind, or is unable to follow the plan.<br />
-                  • <strong>PAUSE CLAUSE:</strong> 6 Months (20 days), 9 Months (30 days), 12 Months (40 days). Anything beyond allocated days will be chargeable at ₹199 per day, and pause will be lifted only after payment of extended pause days.
+                  • <strong>PAUSE CLAUSE:</strong> 21 Days (Continuous Streak), 3 Months (Up to 1 week allowed), 6 Months (20 days). Anything beyond allocated days will be chargeable at ₹199 per day, and pause will be lifted only after payment of extended pause days.
                 </p>
               </div>
 
@@ -809,7 +808,7 @@ export const ConsentFormsAdminView: React.FC = () => {
                 COACHING CONSENT FORM
               </h1>
               <div className="text-xs text-zinc-600 mt-0.5">
-                For Online Coaching, Bespoke Nutrition Programming & Virtual 1-on-1 Training
+                For Online Coaching, Bespoke Nutrition Programming & Online Accountability (No Virtual / 1:1 Sessions)
               </div>
               <div className="text-[11px] text-zinc-700 mt-2 font-mono">
                 Coach Desk: 07420082838 • Instagram: @coachneetu.fit
@@ -855,7 +854,7 @@ export const ConsentFormsAdminView: React.FC = () => {
               </div>
               <p className="text-[11px] leading-relaxed">
                 • <strong>NO REFUND POLICY:</strong> All payments are 100% NON-REFUNDABLE once coaching has commenced. There is strictly no refund if the client has personal issues, work commitments, family obligations, travel, lack of time, lack of motivation, change of mind, or is unable to follow the plan.<br />
-                • <strong>PAUSE POLICY:</strong> 3 Months (No pause), 6 Months (20 days), 9 Months (30 days), 12 Months (40 days). Any days beyond these allocated days will be chargeable at ₹199 per day, and the pause will be lifted only after payment of the extended pause days.
+                • <strong>PAUSE POLICY:</strong> 21 Days (Continuous Streak), 3 Months (Up to 1 week allowed), 6 Months (20 days). Any days beyond these allocated days will be chargeable at ₹199 per day, and the pause will be lifted only after payment of the extended pause days.
               </p>
             </div>
 

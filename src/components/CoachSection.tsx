@@ -73,7 +73,7 @@ export const CoachSection: React.FC = () => {
                 </div>
                 <div className="border border-white/10 p-3 bg-white/5">
                   <span className="text-white/40 uppercase block text-[10px]">CLIENTS COACHED</span>
-                  <p className="text-white font-bold mt-1">1,400+ 1-on-1 Transformations</p>
+                  <p className="text-white font-bold mt-1">1,400+ Client Transformations</p>
                 </div>
                 <div className="border border-white/10 p-3 bg-white/5">
                   <span className="text-white/40 uppercase block text-[10px]">SPECIALIZATION</span>
@@ -88,7 +88,7 @@ export const CoachSection: React.FC = () => {
 
             <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-xs font-mono-num text-white/60">
-                Direct 1-on-1 Consultation & Program Audits
+                Online Program Guidance & Custom Assessments
               </span>
 
               <button
@@ -110,10 +110,10 @@ export const CoachSection: React.FC = () => {
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <span className="text-[10px] font-mono-num uppercase tracking-widest text-[#FFC515] font-bold block">
-                    1-ON-1 PROGRAM AUDIT
+                    ONLINE PROGRAM AUDIT
                   </span>
                   <h3 className="text-2xl font-bold uppercase font-display text-white mt-0.5">
-                    REQUEST COACH CONSULTATION
+                    REQUEST COACH ASSESSMENT
                   </h3>
                 </div>
                 <button
