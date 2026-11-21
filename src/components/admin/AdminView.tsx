@@ -13,6 +13,7 @@ import { CustomerManagementView } from './CustomerManagementView';
 import { ChallengesAdminView } from './ChallengesAdminView';
 import { FoodAndDietAdminView } from './FoodAndDietAdminView';
 import { TransformationsAndTestimonialsView } from './TransformationsAndTestimonialsView';
+import { TestimonialsAdminView } from './TestimonialsAdminView';
 import { UsersAndAuditLogsView } from './UsersAndAuditLogsView';
 import { AdminUsersView } from './AdminUsersView';
 import { AdminSettingsView } from './AdminSettingsView';
@@ -80,7 +81,7 @@ export const AdminView: React.FC = () => {
         return <DietManagementAdminView />;
       case 'transformations':
       case 'testimonials':
-        return <TransformationsAndTestimonialsView />;
+        return <TestimonialsAdminView />;
       case 'activity':
         return <UsersAndAuditLogsView />;
       case 'settings':

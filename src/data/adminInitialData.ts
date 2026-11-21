@@ -463,7 +463,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     id: 'med_02',
     filename: 'coach-profile-editorial.jpg',
     title: 'Head Coach Editorial Portrait',
-    url: 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=800&q=80',
+    url: '/coach-neetu.jpg',
     fileType: 'IMAGE',
     fileSizeMb: 1.2,
     uploadDate: '2026-08-21',

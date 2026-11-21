@@ -185,6 +185,7 @@ interface AppContextType {
   updateChallenge: (id: string, updates: Partial<Challenge>) => void;
   deleteChallenge: (id: string) => void;
   addTransformation: (story: TransformationStory) => void;
+  updateTransformation: (id: string, updates: Partial<TransformationStory>) => void;
   deleteTransformation: (id: string) => void;
 }
 
@@ -746,7 +747,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       unsubPlans();
     };
   }, []);
-  const [transformations, setTransformations] = useState<TransformationStory[]>(TRANSFORMATIONS_DATA);
+  const [transformations, setTransformations] = useState<TransformationStory[]>(() => {
+    try {
+      const saved = localStorage.getItem('fitnetheist_transformations');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0 && !parsed.some((t: any) => t.id === 'tr_1')) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      // fallback
+    }
+    return TRANSFORMATIONS_DATA;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('fitnetheist_transformations', JSON.stringify(transformations));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [transformations]);
 
   // Admin CMS
   const [adminHeroTitle, setAdminHeroTitle] = useState('BUILD THE BODY. BUILD THE DISCIPLINE.');
@@ -1610,6 +1632,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTransformations(prev => prev.filter(t => t.id !== id));
   };
 
+  const updateTransformation = (id: string, updates: Partial<TransformationStory>) => {
+    setTransformations(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
   // Plans & Rate Cards Operations (Realtime DB connected)
   const saveCoachingPlan = async (plan: CoachingPlan) => {
     setCoachingPlans(prev => {
@@ -1677,6 +1703,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       foodDatabase,
       exercises,
       transformations,
+      addTransformation,
+      updateTransformation,
+      deleteTransformation,
       adminAnalytics,
       adminHeroTitle,
       adminHeroSubtitle,
@@ -1724,9 +1753,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       deleteExercise,
       addChallenge,
       updateChallenge,
-      deleteChallenge,
-      addTransformation,
-      deleteTransformation
+      deleteChallenge
     }}>
       {children}
     </AppContext.Provider>

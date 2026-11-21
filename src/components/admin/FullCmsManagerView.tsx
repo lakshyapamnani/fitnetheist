@@ -4,6 +4,7 @@ import { CmsPageBuilderView } from './CmsPageBuilderView';
 import { BlogAndFaqCmsView } from './BlogAndFaqCmsView';
 import { MediaAndNavigationCmsView } from './MediaAndNavigationCmsView';
 import { TransformationsAndTestimonialsView } from './TransformationsAndTestimonialsView';
+import { TestimonialsAdminView } from './TestimonialsAdminView';
 import { 
   Layers, 
   FileText, 
@@ -149,7 +150,7 @@ export const FullCmsManagerView: React.FC = () => {
         {cmsTab === 'SECTIONS' && <CmsPageBuilderView />}
         {cmsTab === 'BLOG' && <BlogAndFaqCmsView />}
         {cmsTab === 'FAQ' && <BlogAndFaqCmsView />}
-        {cmsTab === 'PROOF' && <TransformationsAndTestimonialsView />}
+        {cmsTab === 'PROOF' && <TestimonialsAdminView />}
         {cmsTab === 'MEDIA' && <MediaAndNavigationCmsView />}
         {cmsTab === 'NAVIGATION' && <MediaAndNavigationCmsView />}
       </div>
