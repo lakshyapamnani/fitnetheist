@@ -3,13 +3,13 @@ import { Camera, Upload, Check, Sparkles, RefreshCw, Eye, Sliders } from 'lucide
 
 const STORAGE_KEY = 'fitnetheist_coach_neetu_photo';
 const FILTER_KEY = 'fitnetheist_coach_photo_filter_mode';
-const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1594381898411-846e7d193883?auto=format&fit=crop&w=1200&q=85';
+const DEFAULT_PHOTO = '/coach-neetu.jpg';
 
 export const useCoachNeetuPhoto = () => {
   const [photoUrl, setPhotoUrl] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return saved;
+      if (saved && !saved.includes('unsplash')) return saved;
     }
     return DEFAULT_PHOTO;
   });

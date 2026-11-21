@@ -331,7 +331,7 @@ Sitemap: ${baseUrl}/sitemap.xml
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Fitnetheist server active on http://0.0.0.0:${PORT}`);
+    console.log(`Fitnetheist server active on http://localhost:${PORT}`);
   });
 }
 

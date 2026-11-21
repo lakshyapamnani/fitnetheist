@@ -56,7 +56,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     adminLogout
   } = useAdmin();
   
-  const { setActiveTab, coachingPlans } = useApp();
+  const { setActiveTab, coachingPlans, transformations } = useApp();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -76,13 +76,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     if (currentRole === 'SUPER_ADMIN' || currentRole === 'ADMIN') return true;
     if (subtab === 'plans') return true;
     if (currentRole === 'COACH') {
-      return ['plans', 'clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'diets', 'foods', 'workouts', 'exercises'].includes(subtab);
+      return ['plans', 'clients', 'clients-detail', 'customers', 'consent-forms', 'exercise-bank', 'diets', 'foods', 'workouts', 'exercises', 'testimonials', 'transformations'].includes(subtab);
     }
     if (currentRole === 'CONTENT_MANAGER') {
-      return ['plans', 'cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo'].includes(subtab);
+      return ['plans', 'cms', 'cms-pages', 'cms-sections', 'cms-blog', 'cms-faq', 'cms-media', 'cms-navigation', 'cms-seo', 'testimonials', 'transformations'].includes(subtab);
     }
     if (currentRole === 'SALES_LEAD_MANAGER') {
-      return ['plans', 'users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'consent-forms', 'invoices', 'orders'].includes(subtab);
+      return ['plans', 'users', 'leads', 'leads-detail', 'clients', 'clients-detail', 'consent-forms', 'invoices', 'orders', 'testimonials', 'transformations'].includes(subtab);
     }
     return true;
   };
@@ -148,6 +148,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           badge: 'Calories' 
         },
         { 
+          id: 'testimonials' as AdminSubtab, 
+          label: 'Testimonials', 
+          desc: 'Video Proof, Href Links & Descriptions',
+          icon: Sparkles, 
+          badge: `${transformations?.length || 2}` 
+        },
+        { 
           id: 'invoices' as AdminSubtab, 
           label: 'Invoice & Receipts', 
           desc: 'GST Invoices, Bills & Receipts',
@@ -203,6 +210,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               <Utensils size={12} />
               <span>Diet</span>
+            </button>
+
+            {/* Quick Testimonials Direct Shortcut */}
+            <button
+              onClick={() => setActiveSubtab('testimonials')}
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono-num font-bold uppercase transition-all border ${
+                activeSubtab === 'testimonials'
+                  ? 'bg-[#FFC515] text-black border-[#FFC515]'
+                  : 'bg-[#14141a] text-[#FFC515] border-[#FFC515]/40 hover:bg-[#FFC515]/10'
+              }`}
+            >
+              <Sparkles size={12} />
+              <span>Testimonials</span>
             </button>
           </div>
         </div>

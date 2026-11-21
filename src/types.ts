@@ -329,14 +329,21 @@ export interface LeaderboardEntry {
 export interface TransformationStory {
   id: string;
   name: string;
-  age: number;
-  duration: string;
-  category: 'WEIGHT_LOSS' | 'MUSCLE_GAIN' | 'RECOMP';
-  statChange: string;
-  quote: string;
-  beforePhoto: string;
-  afterPhoto: string;
-  keyStrategy: string;
+  title?: string;
+  age?: number;
+  duration?: string;
+  category: 'WEIGHT_LOSS' | 'MUSCLE_GAIN' | 'RECOMP' | 'POSTPARTUM' | 'LIFESTYLE' | string;
+  statChange?: string;
+  quote?: string;
+  description?: string;
+  hrefLink?: string;
+  videoUrl?: string;
+  posterUrl?: string;
+  beforePhoto?: string;
+  afterPhoto?: string;
+  keyStrategy?: string;
+  createdAt?: string;
+  featured?: boolean;
 }
 
 export interface AdminAnalytics {

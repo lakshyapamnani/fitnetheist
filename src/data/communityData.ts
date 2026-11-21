@@ -112,7 +112,7 @@ export const LEADERBOARD_DATA: LeaderboardEntry[] = [
 export const COACH_DATA = {
   name: 'Marcus "Vanguard" Kane',
   title: 'Founder & Head of Human Performance',
-  portrait: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=80',
+  portrait: '/coach-neetu.jpg',
   experienceYears: 14,
   clientsCoached: 3200,
   certifications: [
