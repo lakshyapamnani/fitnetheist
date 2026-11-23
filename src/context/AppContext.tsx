@@ -752,7 +752,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const saved = localStorage.getItem('fitnetheist_transformations');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0 && !parsed.some((t: any) => t.id === 'tr_1')) {
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((t: any) => t.id === 'testi_monika')) {
           return parsed;
         }
       }
