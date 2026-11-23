@@ -182,8 +182,8 @@ export const CHALLENGES_DATA: Challenge[] = [
 
 export const TRANSFORMATIONS_DATA: TransformationStory[] = [
   {
-    id: 'testi_1',
-    name: 'Pooja M.',
+    id: 'testi_monika',
+    name: 'Monika Singh',
     title: '8 KG Down • 21 Inches Lost • Diastasis Recti Healed',
     age: 31,
     duration: '2 Months',
@@ -193,14 +193,29 @@ export const TRANSFORMATIONS_DATA: TransformationStory[] = [
     description: '8 KG DOWN. 21 INCHES LOST. DIASTASIS RECTI HEALED. ALL IN 2 MONTHS. 🔥 Motherhood changed her body, but with disciplined nutrition, core rehabilitation protocols, and customized coaching, she dropped 8 kg, lost 21 inches, and healed her diastasis recti.',
     videoUrl: '/testimonials/testimonial-1.mp4',
     posterUrl: '/testimonials/testimonial-1.jpg',
-    hrefLink: '',
+    hrefLink: 'https://www.instagram.com/reel/DgADVC-sd3A/?cnvx=MWkza2xqMGgxemYxOA==',
     keyStrategy: 'Diastasis recti safe core rehabilitation + customized calorie deficit & high protein',
     featured: true,
-    createdAt: '2026-11-20'
+    createdAt: '2026-11-23'
   },
   {
-    id: 'testi_2',
-    name: 'Neha S.',
+    id: 'testi_vaishali',
+    name: 'Vaishali',
+    title: 'Incredible Body Recomposition & Fat Loss Journey',
+    age: 29,
+    duration: '3 Months',
+    category: 'WEIGHT_LOSS',
+    statChange: 'Visible Fat Loss & Core Toning',
+    quote: 'Coach Neetu gave me the exact clarity, structure, and continuous motivation. I gained immense strength, energy, and a body I am truly proud of.',
+    description: 'Consistent progressive training and tailored nutrition matrices delivered undeniable physiological change. Built strength, toned muscles, and formed lasting healthy lifestyle habits without extreme starvation.',
+    hrefLink: 'https://www.instagram.com/reel/DfreCpkM5Uk/?hvrq=MWJ4Mm9sa2tyemZ1NA==',
+    keyStrategy: 'Calorie-controlled nutrition + progressive overload resistance training',
+    featured: true,
+    createdAt: '2026-11-23'
+  },
+  {
+    id: 'testi_neha',
+    name: 'Neha',
     title: 'She Lost Weight — But That’s Not The Real Transformation',
     age: 28,
     duration: '3 Months',
@@ -210,9 +225,9 @@ export const TRANSFORMATIONS_DATA: TransformationStory[] = [
     description: 'She lost weight. But that’s not the real transformation. The real transformation: She’s feeling energetic, confident, and like herself again. Building sustainable lifestyle habits without starvation or extreme fatigue.',
     videoUrl: '/testimonials/testimonial-2.mp4',
     posterUrl: '/testimonials/testimonial-2.jpg',
-    hrefLink: '',
+    hrefLink: 'https://www.instagram.com/reel/DcGcRa0NgtR/?fqnt=MWd0ZWt3Y2ZrdjB2MA==',
     keyStrategy: 'Sustainable habit architecture + progressive resistance training + hormonal balance nutrition',
     featured: true,
-    createdAt: '2026-11-20'
+    createdAt: '2026-11-23'
   }
 ];

@@ -14,7 +14,8 @@ import {
   Eye, 
   X, 
   Save, 
-  AlertCircle 
+  AlertCircle,
+  Instagram 
 } from 'lucide-react';
 
 export const TestimonialsAdminView: React.FC = () => {
@@ -251,7 +252,7 @@ export const TestimonialsAdminView: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {safeList.map((item) => (
               <div 
                 key={item.id}
@@ -299,9 +300,17 @@ export const TestimonialsAdminView: React.FC = () => {
                     {/* Header info */}
                     <div>
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-base font-bold uppercase text-white font-display">
-                          {item.name}
-                        </h3>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-base font-bold uppercase text-white font-display">
+                            {item.name}
+                          </h3>
+                          {item.hrefLink?.includes('instagram.com') && (
+                            <span className="px-1.5 py-0.5 rounded-sm bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 border border-pink-500/30 text-pink-300 text-[9px] font-bold flex items-center gap-1">
+                              <Instagram size={10} className="text-pink-400" />
+                              <span>REEL</span>
+                            </span>
+                          )}
+                        </div>
                         {item.statChange && (
                           <span className="text-[#FFC515] font-bold text-xs">
                             {item.statChange}
